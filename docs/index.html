@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moto-11 — V-Strom DL650 Smart Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f8fa; --panel:#ffffff; --line:#e2e7ec;
+    --ink:#1a2230; --dim:#5a6675;
+    --blue:#0072B2; --vermillion:#D55E00; --green:#009E73; --red:#cc0000;
+    --rad:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  main{max-width:780px; margin:0 auto; padding:72px 24px 56px}
+  header{margin-bottom:40px}
+  .wordmark{
+    font-family:"JetBrains Mono",monospace; font-weight:700; font-size:34px;
+    letter-spacing:.02em; color:var(--ink);
+  }
+  .wordmark .dash{color:var(--vermillion)}
+  .tagline{color:var(--dim); font-size:17px; margin:10px 0 0; max-width:620px}
+  .cards{display:grid; gap:18px; grid-template-columns:1fr 1fr}
+  @media (max-width:620px){ .cards{grid-template-columns:1fr} main{padding-top:48px} }
+  .card{
+    display:block; text-decoration:none; color:inherit;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--rad);
+    border-top:4px solid var(--blue);
+    padding:22px 22px 18px; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .card:nth-child(2){border-top-color:var(--vermillion)}
+  .card:hover{transform:translateY(-3px); box-shadow:0 10px 26px rgba(20,30,48,.10)}
+  .kicker{
+    font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:500;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--dim);
+  }
+  .card h2{font-size:21px; margin:6px 0 8px}
+  .card p{color:var(--dim); font-size:14.5px; margin:0 0 16px}
+  .go{font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:700; color:var(--blue)}
+  .card:nth-child(2) .go{color:var(--vermillion)}
+  .note{
+    margin-top:34px; padding:16px 18px; background:var(--panel);
+    border:1px solid var(--line); border-left:3px solid var(--green); border-radius:12px;
+    color:var(--dim); font-size:14px;
+  }
+  footer{margin-top:38px; color:var(--dim); font-size:13.5px}
+  footer a, .note a{color:var(--blue); text-decoration:none; font-weight:500}
+  footer a:hover, .note a:hover{text-decoration:underline}
+  code{font-family:"JetBrains Mono",monospace; font-size:.88em; color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="wordmark">moto<span class="dash">-</span>11</div>
+    <p class="tagline">A modular ESP32 smart-cockpit, accessory &amp; security system for a 2013 Suzuki V-Strom DL650 — design documentation.</p>
+  </header>
+
+  <section class="cards">
+    <a class="card" href="electrical-plan.html">
+      <span class="kicker">Design reference</span>
+      <h2>Electrical Plan</h2>
+      <p>The full 23-section electrical design — power budget, engine-run logic, relay &amp; ULN2803 coil drive, sensing, crash detection, and the charging-system test.</p>
+      <span class="go">Open &rarr;</span>
+    </a>
+
+    <a class="card" href="wiring-schematic.html">
+      <span class="kicker">Connection diagram</span>
+      <h2>Wiring Schematic</h2>
+      <p>Single-sheet, colourblind-safe wiring schedule plus the ULN2803 coil-driver detail. Wire types encoded by pattern + tag, never colour alone.</p>
+      <span class="go">Open &rarr;</span>
+    </a>
+  </section>
+
+  <div class="note">
+    These documents follow the project's <strong>colourblind-safe</strong> rule: the Okabe-Ito
+    palette with line patterns and text labels, so meaning never depends on colour alone.
+  </div>
+
+  <footer>
+    Architecture decision records and source are on
+    <a href="https://github.com/mixajlo/moto-11">GitHub</a>.
+    Documentation licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.
+  </footer>
+</main>
+</body>
+</html>
