@@ -1,8 +1,11 @@
 # 5. INA226 for engine-run detection and battery telemetry; sense on a clean lead
 
-- Status: Accepted
+- Status: Accepted — **part amended by [ADR-0011](0011-ina3221-replaces-ina226.md)** (INA3221)
 - Date: 2026-06-19
 - Deciders: Miki
+
+> The sensing *architecture* below stands; only the device changed (INA226 → INA3221, a
+> 3-channel superset). See ADR-0011 for the 26 V input limit and firmware-driver consequences.
 
 ## Context
 The controller must (a) tell *running* from *key-on, engine-off*, without being fooled by a

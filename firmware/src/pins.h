@@ -16,10 +16,12 @@ constexpr uint8_t PIN_FOG_EN    = 25;   // fog lights
 constexpr uint8_t PIN_GRIP_EN   = 26;   // heated grips (future load)
 constexpr uint8_t PIN_SPARE_EN  = 27;   // reserved aux channel
 
-// --- Inputs ---
-constexpr uint8_t PIN_IGN_SENSE = 34;   // ignition/run-sense; input-only + RTC (ext0 wake)
+// --- Inputs (opto-isolated 12 V sense; logic inverts: 12 V present -> LOW) ---
+constexpr uint8_t PIN_IGN_SENSE   = 34; // ignition/run-sense; input-only + RTC (ext0 wake)
+constexpr uint8_t PIN_START_SENSE = 35; // start-button / headlight-feed sense; input-only + RTC
+constexpr uint8_t PIN_IMU_INT     = 33; // IMU wake-on-motion interrupt; RTC (deep-sleep wake)
 
-// --- I2C bus (INA226 bus-voltage sense + 6-axis IMU) ---
+// --- I2C bus (INA3221 bus-voltage sense + 6-axis IMU) ---
 constexpr uint8_t PIN_I2C_SDA   = 21;
 constexpr uint8_t PIN_I2C_SCL   = 22;
 

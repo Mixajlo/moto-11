@@ -18,4 +18,6 @@ harness/output/
 Thumbs.db
 *~
 *.tmp
- 
+
+# ===== personal idea-dump — kept local, never committed =====
+docs/roadmap.md

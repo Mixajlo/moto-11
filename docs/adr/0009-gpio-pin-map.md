@@ -25,12 +25,20 @@ We will use this map (defined once in `firmware/src/pins.h`):
 | `GRIP_EN`    | 26   | low at boot                                               |
 | `SPARE_EN`   | 27   | low at boot                                               |
 | `IGN_SENSE`  | 34   | input-only, RTC-capable → `ext0` ignition wake            |
-| `I2C_SDA`    | 21   | Arduino-ESP32 default SDA (INA226 + IMU)                  |
+| `START_SENSE`| 35   | input-only, RTC-capable; start-button / headlight-feed sense |
+| `IMU_INT`    | 33   | RTC-capable; IMU wake-on-motion (deep-sleep wake source)  |
+| `I2C_SDA`    | 21   | Arduino-ESP32 default SDA (INA3221 + IMU)                 |
 | `I2C_SCL`    | 22   | Arduino-ESP32 default SCL                                 |
 | `LED`        | 2    | onboard LED — heartbeat / bench relay-activity indicator  |
 
 The ULN2803A inputs 1–4 are wired to GPIO 13/25/26/27 in that channel order. The owner
 wires the bench ULN to match this map.
+
+**Amendment (2026-06-19):** added `START_SENSE` (GPIO35) and `IMU_INT` (GPIO33) for the
+mainboard ([hardware/mainboard](../../hardware/mainboard/)). Both are RTC-capable; GPIO35 is
+input-only like GPIO34 (driven by the second PC817 opto channel — see [ADR-0010](0010-twelve-volt-sense-opto.md)),
+and GPIO33 takes the IMU motion-wake interrupt. The 12 V senses are opto-isolated, not a passive
+divider; see ADR-0010.
 
 ## Consequences
 - Relays are guaranteed OFF through boot: the chosen output pins are low at reset and the

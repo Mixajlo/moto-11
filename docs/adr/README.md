@@ -18,3 +18,5 @@ editing history.
 - [0007](0007-can-reserved-sds-is-kline.md) — CAN reserved for own modules; the bike's data is K-line SDS, not CAN
 - [0008](0008-ota-ab-rollback.md) — OTA with A/B rollback; bench-twin-first
 - [0009](0009-gpio-pin-map.md) — ESP32 GPIO pin map: relay enables, ignition sense, I²C
+- [0010](0010-twelve-volt-sense-opto.md) — 12 V sense front-end: PC817 opto over a resistor divider
+- [0011](0011-ina3221-replaces-ina226.md) — INA3221 (3-channel) in place of the INA226 (amends 0005)

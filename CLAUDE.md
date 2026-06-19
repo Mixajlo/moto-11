@@ -34,7 +34,7 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 
 ## Locked-in technical decisions
 - **Charging:** series R/R (Shindengen SH775 / SH847), not a MOSFET unit (still shunt).
-  Stator: **measure with the INA226 before any upgrade** — do not pre-emptively replace it.
+  Stator: **measure with the INA3221 before any upgrade** — do not pre-emptively replace it.
 - **Engine-run detection:** `engineRunning = ignitionHIGH && (Vbus >= 13.2 V)`. Resolves the
   charger-vs-running ambiguity (a tender can't fake it because the key is off).
 - **Relay coil drive:** ULN2803A Darlington array. The relay box's commoned coil **pin 86 is
@@ -49,7 +49,8 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   the starter switch, preserves the factory cranking cut). One bulb always-on; the second on a
   **5-pin NC relay** the ESP energises only to shed in a critical low-power moment. Load-shed
   priority: grips → fog → (last, daylight only) one headlight; never all forward light.
-- **Sensing:** INA226 over I²C for bus voltage (engine-run + battery telemetry). **Always sense
+- **Sensing:** INA3221 (3-ch; was INA226 — ADR-0011) over I²C for bus voltage (engine-run +
+  battery telemetry). **Always sense
   on a dedicated lead to the battery +** (zero current = no IR drop); never on a load-carrying
   wire. PC817 2-channel opto isolates two 12 V inputs: ignition/run-sense and start-button/
   headlight-feed sense (logic inverts — 12 V present pulls the GPIO low).
@@ -68,7 +69,10 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 - `hardware/` — KiCad (esp-box / future PCB) and relay-box as-built notes. (CERN-OHL-P)
 - `harness/`  — WireViz source + rendered output.
 - `docs/`     — `electrical-plan.html` and `wiring-schematic.html` (authoritative design
-                references), `adr/` decision records, build log. (CC-BY-4.0)
+                references), `bench-relay-guide.html` (hands-on bench walkthrough), `adr/`
+                decision records, build log. Published via GitHub Pages from `/docs`
+                (`.nojekyll` → HTML served as-is, so Pages-facing docs are HTML; markdown like
+                ADRs is read on GitHub). (CC-BY-4.0)
 - `app/`      — future tablet / Android Auto app.
 
 ## Firmware
@@ -83,9 +87,14 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 - `RelayController` (`src/relays.{h,cpp}`) owns the four coil enables (fail-OFF at boot). A
   serial/Telnet **bench console** (`src/console.{h,cpp}`) drives them by hand: `status`, `on/off
   <ch|all>`, `toggle <ch>`, `selftest`. Onboard LED = heartbeat when all off, solid when any on.
-- Current milestone: relay control on the bench (manual console). **Next:** INA226 bus-voltage +
+- Current milestone: relay control on the bench (manual console). **Next:** INA3221 bus-voltage +
   ignition-sense front-end, then the autonomous engine-run supervisor (SLEEP/ARMED/RUNNING/
   OFF_DELAY) built on top of `RelayController`.
+
+## Dev environment
+- **Windows only, PowerShell only.** All shell commands must be PowerShell (or plain `pio`/git
+  invocations that work as-is) — never generate bash/Linux-isms (`cp`, `rm`, `&&` chains,
+  `/dev/null`, forward-slash-only paths). Use PowerShell equivalents.
 
 ## Build / flash / OTA — run from `firmware/`
 - Build:          `pio run -e bench`

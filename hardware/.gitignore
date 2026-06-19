@@ -1,0 +1,14 @@
+# ===== KiCad auto-generated / backup cruft =====
+*-backups/
+*.kicad_sch-bak
+*.kicad_pcb-bak
+*.kicad_prl
+*.000
+*.bak
+_autosave-*
+fp-info-cache
+*-cache.lib
+*.net
+# Fabrication outputs are regenerated from source — keep the source, not the export.
+# (Comment the next line out if you want to version a tagged release's Gerbers.)
+gerbers/

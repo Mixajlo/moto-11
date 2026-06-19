@@ -1,0 +1,48 @@
+Ref,Qty,Value,Description,Footprint,Suggested part / MPN,Notes
+A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),2x 1x19 female header 2.54mm,Espressif ESP32-DevKitC-32E,Reuse existing units; verify pin count/row pitch
+A2,1,IMU,6-axis accel+gyro breakout (I2C),1x5 female header 2.54mm,ST LSM6DSO (pref) or InvenSense MPU-6050,Wake-on-motion INT; LSM6DSO preferred
+A3,1,Buck,MP1584EN mini buck module,4-pad 2.54mm,MP1584EN module,Pre-set 5.0V and verify before fitting
+U2,1,ULN2803A,Darlington array 8ch low-side,DIP-18 (socket) or SOIC-18,Texas Instruments ULN2803A,Active-HIGH; COM to coil rail
+U3,1,INA3221,3-channel bus voltage/current monitor breakout,header + 3x channel terminals,TI INA3221 module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); needs INA3221 driver
+U4,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,IGN 12V sense
+U5,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,START/headlight 12V sense
+Q1,1,P-MOSFET,Reverse-polarity protect,DPAK or TO-220,AOD4185 / DMP3017SFG / IRF4905,Source=+12V_HOT drain=+12V_PROT
+D1,1,SMBJ24A,TVS diode unidirectional 24V,SMB DO-214AA,Littelfuse SMBJ24A,Load-dump clamp on +12V_PROT
+D2,1,LED,Power indicator green,3mm THT,generic,Optional
+D3,1,SMBJ20A,TVS diode unidirectional 20V,SMB DO-214AA,Littelfuse SMBJ20A,Clamp INA3221 sense input (26V limit)
+Dz1,1,12V Zener,Gate clamp 0.5W,SOD-123 or THT,BZX84C12 / 1N5242B,Protect Q1 Vgs
+C1,1,470uF/35V,Bulk electrolytic,radial 8mm,generic 105C,On +12V_PROT
+C2,1,100uF/16V,Bulk electrolytic,radial 6.3mm,generic 105C,On +5V
+C3,1,100nF,Decoupling X7R,0805 or THT,generic,ESP power pin
+C4,1,100nF,Decoupling X7R,0805 or THT,generic,ULN2803
+C5,1,100nF,Decoupling X7R,0805 or THT,generic,INA226
+C6,1,100nF,Decoupling X7R,0805 or THT,generic,PC817 U4/U5 area
+C7,1,100nF,Decoupling X7R,0805 or THT,generic,IMU
+C8,1,100nF,Decoupling X7R,0805 or THT,generic,spare/input
+C9,1,10uF,Bulk X7R,0805 or THT,generic,+3V3 near ESP
+C10,1,1uF,RC filter,0805,generic,INA226 VBUS sense filter
+R1,1,10k,ULN input pulldown,0805 or THT,generic,MASTER_EN
+R2,1,10k,ULN input pulldown,0805 or THT,generic,FOG_EN
+R3,1,10k,ULN input pulldown,0805 or THT,generic,GRIP_EN
+R4,1,10k,ULN input pulldown,0805 or THT,generic,SPARE_EN
+R5,1,4.7k,I2C SDA pullup,0805,generic,to +3V3
+R6,1,4.7k,I2C SCL pullup,0805,generic,to +3V3
+R7,1,2.2k 0.25W,PC817 LED series,1206 or THT,generic,IGN 12V side ~5mA
+R8,1,2.2k 0.25W,PC817 LED series,1206 or THT,generic,START 12V side ~5mA
+R9,1,10k,GPIO34 pullup,0805,generic,opto output to +3V3
+R10,1,10k,GPIO35 pullup,0805,generic,opto output to +3V3
+R11,1,100k,Q1 gate-source,0805,generic,reverse-pol FET
+R12,1,100R,Q1 gate series,0805,generic,optional slew limit
+R13,1,220R,Power LED series,0805,generic,D2
+R14,1,100R,INA3221 sense series,0805,generic,Light RC with C10; keep low to avoid bus-measure error
+J1,1,2-pos 5.08mm,Terminal block,5.08mm THT,Phoenix MKDS or generic,+12V_HOT / GND
+J2,1,2-pos 5.08mm,Terminal block,5.08mm THT,Phoenix MKDS or generic,COIL_RAIL / GND
+J3,1,4-pos 3.5mm,Terminal block,3.5mm THT,generic,Coil outputs to 85 wires
+J4,1,3-pos 3.5mm,Terminal block,3.5mm THT,generic,IGN_12V / START_12V / SENSE_GND
+J5,1,2-pos 3.5mm,Terminal block,3.5mm THT,generic,INA226 VBUS_SENSE / GND
+J6,1,1x4 header,I2C expansion,2.54mm THT,generic,+3V3 SDA SCL GND
+J7,1,2x4 header,ULN spare ch5-8 breakout,2.54mm THT,generic,future relays
+TP1,1,Testpoint,+12V_PROT,THT loop,generic,
+TP2,1,Testpoint,+5V,THT loop,generic,
+TP3,1,Testpoint,+3V3,THT loop,generic,
+TP4,1,Testpoint,GND,THT loop,generic,
