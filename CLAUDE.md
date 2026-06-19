@@ -77,8 +77,15 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   set per environment via a build flag.
 - Credentials live in `firmware/include/secrets.h` (**gitignored**; `secrets.h.example` is the
   committed template). The OTA password in `secrets.h` must match `--auth` in `platformio.ini`.
-- Current milestone: WiFi + ArduinoOTA + heartbeat. **Next:** A/B rollback validation, then the
-  cockpit logic (ignition/run-sense input → ULN relay enables → INA226 voltage read).
+- GPIO pin map lives in `src/pins.h` (ADR-0009): relay enables `MASTER_EN`/`FOG_EN`/`GRIP_EN`/
+  `SPARE` = GPIO 13/25/26/27 (active-HIGH into the ULN), `IGN_SENSE` = GPIO 34 (RTC wake),
+  I²C = 21/22, onboard LED = 2.
+- `RelayController` (`src/relays.{h,cpp}`) owns the four coil enables (fail-OFF at boot). A
+  serial/Telnet **bench console** (`src/console.{h,cpp}`) drives them by hand: `status`, `on/off
+  <ch|all>`, `toggle <ch>`, `selftest`. Onboard LED = heartbeat when all off, solid when any on.
+- Current milestone: relay control on the bench (manual console). **Next:** INA226 bus-voltage +
+  ignition-sense front-end, then the autonomous engine-run supervisor (SLEEP/ARMED/RUNNING/
+  OFF_DELAY) built on top of `RelayController`.
 
 ## Build / flash / OTA — run from `firmware/`
 - Build:          `pio run -e bench`

@@ -1,0 +1,276 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moto-11 — Bench Relay Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f8fa; --panel:#ffffff; --line:#e2e7ec;
+    --ink:#1a2230; --dim:#5a6675; --faint:#6b7682;
+    --blue:#0072B2; --vermillion:#D55E00; --green:#009E73; --red:#cc0000;
+    --rad:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  main{max-width:820px; margin:0 auto; padding:40px 24px 72px}
+  .crumb{font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--dim); margin-bottom:28px}
+  .crumb a{color:var(--blue); text-decoration:none}
+  .crumb a:hover{text-decoration:underline}
+  .wordmark{font-family:"JetBrains Mono",monospace; font-weight:700}
+  .wordmark .dash{color:var(--vermillion)}
+
+  header.page{margin-bottom:8px}
+  h1{font-size:32px; letter-spacing:.01em; margin:0 0 10px}
+  .lede{color:var(--dim); font-size:17px; margin:0 0 8px; max-width:680px}
+
+  h2{
+    font-family:"JetBrains Mono",monospace; font-size:20px; font-weight:700;
+    margin:44px 0 6px; padding-top:14px; border-top:1px solid var(--line);
+  }
+  h2 .n{color:var(--vermillion); margin-right:.5em}
+  h3{font-size:16px; margin:24px 0 6px}
+  p{margin:10px 0}
+  a{color:var(--blue)}
+
+  ul,ol{margin:10px 0; padding-left:22px}
+  li{margin:5px 0}
+
+  code{font-family:"JetBrains Mono",monospace; font-size:.86em; background:#eef1f4; padding:1px 5px; border-radius:5px; color:var(--ink)}
+  pre{
+    background:#0f1722; color:#e6edf3; border-radius:12px; padding:14px 16px;
+    overflow:auto; font-family:"JetBrains Mono",monospace; font-size:13px; line-height:1.5;
+  }
+  pre code{background:none; padding:0; color:inherit; font-size:13px}
+  .cmt{color:#8aa0b4}
+
+  table{width:100%; border-collapse:collapse; font-size:14px; margin:14px 0}
+  th,td{text-align:left; padding:9px 11px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-family:"JetBrains Mono",monospace; font-size:12.5px; letter-spacing:.02em; color:var(--blue); text-transform:uppercase}
+  td{color:var(--dim)} td b,td strong{color:var(--ink)}
+  td code{white-space:nowrap}
+
+  /* Callouts: meaning is carried by the bold LABEL + an icon glyph, never colour alone. */
+  .callout{
+    background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--blue);
+    border-radius:12px; padding:13px 16px; margin:16px 0; font-size:14.5px; color:var(--dim);
+  }
+  .callout .lab{font-family:"JetBrains Mono",monospace; font-weight:700; color:var(--ink); display:block; margin-bottom:3px}
+  .callout.warn{border-left-color:var(--vermillion)}
+  .callout.safe{border-left-color:var(--green)}
+  .callout b{color:var(--ink)}
+
+  footer{margin-top:48px; padding-top:18px; border-top:1px solid var(--line); color:var(--faint); font-size:13px}
+  footer a{color:var(--blue); text-decoration:none; font-weight:500}
+  footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<main>
+
+  <div class="crumb">
+    <a href="index.html"><span class="wordmark">moto<span class="dash">-</span>11</span></a>
+    &nbsp;/&nbsp; Bench relay guide
+  </div>
+
+  <header class="page">
+    <h1>Driving the relays before the bike</h1>
+    <p class="lede">Get the relay-control firmware onto an ESP32 and click the relays on the
+    bench &mdash; before anything is installed on the motorcycle.</p>
+  </header>
+
+  <p>This is <a href="https://github.com/mixajlo/moto-11/tree/main/firmware">firmware</a>
+  Milestone&nbsp;2 in practice: a <code>RelayController</code> that owns the four
+  ULN2803-driven coil enables, plus a hand-driven serial/Telnet console to actuate them. It
+  assumes nothing about the bike &mdash; you can do all of this with just an ESP32 dev board on
+  a USB cable, and add the relay box later. Physical, hands-on steps (probing pins, listening
+  for clicks, all wiring) are <b>yours</b>; everything else runs from the firmware.</p>
+
+  <div class="callout safe">
+    <span class="lab">&#9654; Why bench-first</span>
+    The project rule is <em>&ldquo;every change is proven on the bench twin before it touches
+    the bike.&rdquo;</em> This guide is that proof step for relay control.
+  </div>
+
+  <h2><span class="n">0</span>What you need</h2>
+  <p><b>Minimum (logic only):</b></p>
+  <ul>
+    <li>An ESP32 dev board (this project targets <b>ESP32-WROOM-32D</b>) and a USB cable.</li>
+    <li>A PC with <a href="https://code.visualstudio.com/">VS&nbsp;Code</a> + the
+      <b>PlatformIO IDE</b> extension.</li>
+    <li>The <b>Silicon Labs CP210x USB-to-UART driver</b> &mdash; the boards use a CP2102, and
+      without the driver Windows shows no COM port.</li>
+  </ul>
+  <p><b>To see real relays move (optional, add when ready):</b></p>
+  <ul>
+    <li>The pre-wired 4-relay / 6-fuse box.</li>
+    <li>A <b>ULN2803A</b> Darlington array (the coil driver &mdash; see
+      <a href="https://github.com/mixajlo/moto-11/blob/main/docs/adr/0003-uln2803-coil-driver.md">ADR-0003</a>).</li>
+    <li>A bench <b>12&nbsp;V supply</b> for the coil rail.</li>
+    <li>A multimeter, and optionally a 3.3&nbsp;V LED + resistor to watch a single channel.</li>
+  </ul>
+
+  <h2><span class="n">1</span>Get the firmware and configure secrets</h2>
+  <p>Open the <b><code>firmware/</code></b> folder directly in VS&nbsp;Code (PlatformIO expects
+  <code>platformio.ini</code> at the root of the opened folder &mdash; open <code>firmware/</code>,
+  not the repo root). Copy the secrets template and fill it in (it&rsquo;s gitignored, so your
+  credentials never reach the repo):</p>
+  <pre><code>cp include/secrets.h.example include/secrets.h</code></pre>
+  <p>Set <code>WIFI_SSID</code>, <code>WIFI_PASS</code>, and an <code>OTA_PASS</code>. WiFi is
+  <b>optional for the bench</b> &mdash; the relay console runs over USB whether or not WiFi
+  connects &mdash; but valid credentials also give you the Telnet console and wireless (OTA)
+  updates. The <code>OTA_PASS</code> must match the <code>--auth=</code> value in
+  <code>platformio.ini</code>. Avoid <code>%</code> and <code>$</code> in the OTA password (the
+  config parser treats them specially).</p>
+
+  <h2><span class="n">2</span>Build and flash over USB</h2>
+  <p>Plug the board in. From the <code>firmware/</code> directory:</p>
+  <pre><code>pio run -e bench                 <span class="cmt"># compile</span>
+pio run -e bench -t upload       <span class="cmt"># flash over USB (auto-detects the port)</span></code></pre>
+  <p>If PlatformIO picks the wrong port, name it explicitly &mdash; find the COM port in Windows
+  Device Manager under <b>Ports (COM &amp; LPT)</b> (it shows as <em>Silicon Labs CP210x</em>):</p>
+  <pre><code>pio run -e bench -t upload --upload-port COM4</code></pre>
+  <p>A successful flash ends with <code>Hard resetting via RTS pin...</code> and
+  <code>[SUCCESS]</code>.</p>
+  <div class="callout">
+    <span class="lab">&#9654; Second unit</span>
+    The bike ESP uses the same code &mdash; swap <code>bench</code> &rarr; <code>bike</code>.
+    The only difference is <code>DEVICE_NAME</code>, set per environment in
+    <code>platformio.ini</code>.
+  </div>
+
+  <h2><span class="n">3</span>Open the console</h2>
+  <pre><code>pio device monitor               <span class="cmt"># 115200 baud</span></code></pre>
+  <p>On boot you should see something like:</p>
+  <pre><code>=== vstrom-bench booting ===
+WiFi: connecting to "your-wifi" in the background...
+
+=== moto-11 bench relay console ===
+  status | s        show every channel + GPIO + state
+  on   &lt;ch|all&gt;      energise a channel (relay pulls in)
+  off  &lt;ch|all&gt;      de-energise a channel
+  toggle &lt;ch&gt;        flip a channel
+  selftest           click each relay in turn (300ms each)
+  help | ?           this list
+  channels: master  fog  grip  spare
+(onboard LED: heartbeat when all off, solid ON when any relay is on)
+Bench relay console live on USB serial. Type 'help'.
+WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console live</code></pre>
+  <p>The console works immediately on USB. If WiFi connects, the last line appears and you also
+  get the same console over <b>Telnet</b> (port 23) at the shown IP or
+  <code>vstrom-bench.local</code>.</p>
+
+  <h2><span class="n">4</span>Drive the relays</h2>
+  <p>Type commands and press Enter:</p>
+  <table>
+    <thead><tr><th>Command</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>status</code> (or <code>s</code>)</td><td>List every channel, its GPIO, and ON/off state</td></tr>
+      <tr><td><code>on fog</code></td><td>Energise the fog channel (GPIO goes HIGH &rarr; relay pulls in)</td></tr>
+      <tr><td><code>off fog</code></td><td>De-energise it</td></tr>
+      <tr><td><code>toggle grip</code></td><td>Flip the grip channel</td></tr>
+      <tr><td><code>on all</code> / <code>off all</code></td><td>Energise / de-energise all four</td></tr>
+      <tr><td><code>selftest</code></td><td>Click each relay in turn &mdash; master, fog, grip, spare &mdash; 300&nbsp;ms each, then all off</td></tr>
+      <tr><td><code>help</code> (or <code>?</code>)</td><td>Reprint the command list</td></tr>
+    </tbody>
+  </table>
+  <p>The four logical channels and their pins (full rationale in
+  <a href="https://github.com/mixajlo/moto-11/blob/main/docs/adr/0009-gpio-pin-map.md">ADR-0009</a>):</p>
+  <table>
+    <thead><tr><th>Channel</th><th>GPIO</th><th>Drives</th></tr></thead>
+    <tbody>
+      <tr><td><code>master</code></td><td><code>13</code></td><td>External master relay &mdash; gates the whole box</td></tr>
+      <tr><td><code>fog</code></td><td><code>25</code></td><td>Fog lights</td></tr>
+      <tr><td><code>grip</code></td><td><code>26</code></td><td>Heated grips (future load)</td></tr>
+      <tr><td><code>spare</code></td><td><code>27</code></td><td>Reserved aux channel</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">5</span>Confirm it actually works (your hands)</h2>
+  <p>A firmware &ldquo;upload OK&rdquo; is <b>not</b> proof a relay moved. Confirm physically
+  &mdash; pick the level of hardware you have on the bench:</p>
+
+  <h3>A. ESP board only (no ULN/relay box yet)</h3>
+  <p>The channels are real 3.3&nbsp;V logic outputs but drive nothing visible. Two checks:</p>
+  <ul>
+    <li><b>Onboard LED:</b> idle shows a ~1&nbsp;Hz heartbeat. Type <code>on master</code> &rarr;
+      the LED goes <b>solid</b>; <code>off all</code> &rarr; the heartbeat returns. That proves
+      the control logic runs.</li>
+    <li><b>Multimeter on the pin:</b> black probe to GND, red probe to GPIO
+      <b>13 / 25 / 26 / 27</b>. It should read ~<b>3.3&nbsp;V when that channel is ON</b> and
+      ~<b>0&nbsp;V when off</b>. (Optionally put a 3.3&nbsp;V LED + ~330&nbsp;&Omega; resistor
+      from the pin to GND to watch one channel.)</li>
+  </ul>
+
+  <h3>B. ULN2803 wired, no relay box</h3>
+  <p>Wire ULN inputs 1&ndash;4 to GPIO <b>13/25/26/27</b> in that order, ULN GND (pin 9) to the
+  ESP GND. With a channel ON, the matching ULN <b>output</b> sinks to ~0&nbsp;V (it&rsquo;s an
+  open-collector low-side switch); off, it floats. Confirm with the multimeter.</p>
+
+  <h3>C. Full chain (ULN + relay box + 12&nbsp;V)</h3>
+  <p>Connect per the <a href="wiring-schematic.html">wiring schematic</a> ULN2803 detail: the
+  box&rsquo;s commoned <b>pin&nbsp;86 is the +12&nbsp;V coil rail</b>, ULN <b>COM (pin&nbsp;10)
+  &rarr; +12</b> (internal flyback), each white <b>pin-85</b> coil wire sunk by one ULN output.
+  Now each <code>on &lt;channel&gt;</code> should produce an audible <b>relay click</b>, and
+  <code>selftest</code> clicks all four in sequence. Verify continuity across the relay&rsquo;s
+  switched contacts (30&harr;87) closes when energised.</p>
+
+  <div class="callout warn">
+    <span class="lab">&#9888; Fail-safe to expect</span>
+    Every relay is <b>OFF at boot and stays off</b> until you command it &mdash; by design.
+    Accessories are fail-OFF (ESP dead &rarr; loads dark, which is safe). If a relay energises
+    on its own at power-up, <b>stop</b> and check your wiring against
+    <a href="https://github.com/mixajlo/moto-11/blob/main/docs/adr/0003-uln2803-coil-driver.md">ADR-0003</a>/<a href="https://github.com/mixajlo/moto-11/blob/main/docs/adr/0009-gpio-pin-map.md">0009</a>.
+  </div>
+
+  <h2><span class="n">6</span>Update wirelessly (OTA) &mdash; optional</h2>
+  <p>Once the board is on WiFi and you&rsquo;ve flashed it once over USB, you can update it
+  without the cable:</p>
+  <pre><code>pio run -e bench_ota -t upload</code></pre>
+  <p>Set the device&rsquo;s IP (from the boot log) as <code>upload_port</code> in the
+  <code>bench_ota</code> environment if the <code>.local</code> mDNS name doesn&rsquo;t resolve
+  on your OS. OTA forces all relays <b>off</b> before it writes, so an interrupted flash
+  can&rsquo;t leave a coil energised. Windows OTA gotchas (extra network adapters, third-party
+  AV firewalls) are covered in the
+  <a href="https://github.com/mixajlo/moto-11#ota-updates">README</a> and
+  <a href="https://github.com/mixajlo/moto-11/blob/main/docs/adr/0008-ota-ab-rollback.md">ADR-0008</a>.</p>
+
+  <h2><span class="n">7</span>Troubleshooting</h2>
+  <table>
+    <thead><tr><th>Symptom</th><th>Likely cause / fix</th></tr></thead>
+    <tbody>
+      <tr><td>No COM port appears</td><td>CP210x driver not installed, or a charge-only USB cable.</td></tr>
+      <tr><td><code>pio</code> can&rsquo;t find the project</td><td>You opened the repo root &mdash; open <code>firmware/</code> (where <code>platformio.ini</code> lives).</td></tr>
+      <tr><td>Console prints nothing</td><td>Wrong baud &mdash; set the monitor to <b>115200</b>. Press Enter; type <code>help</code>.</td></tr>
+      <tr><td>WiFi line never appears</td><td>Bad/blank credentials in <code>secrets.h</code>. The <b>USB console still works</b> &mdash; WiFi is optional on the bench.</td></tr>
+      <tr><td>LED heartbeats but no relay click</td><td>(Full chain) check ULN COM&rarr;+12, the coil +12 rail (pin&nbsp;86), and ULN GND; confirm inputs land on 13/25/26/27.</td></tr>
+      <tr><td>A relay is on at power-up</td><td>Wiring fault &mdash; relays must be fail-OFF. Recheck against ADR-0003 and the pull-downs on the ULN inputs.</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">8</span>Where this fits</h2>
+  <p>This is the manual, hands-on layer. The next milestone adds <b>sensing</b> (INA226 bus
+  voltage + the ignition-sense front-end) and the <b>autonomous engine-run supervisor</b>
+  &mdash; <code>SLEEP &rarr; ARMED &rarr; RUNNING &rarr; OFF_DELAY</code>, the state machine in
+  the <a href="electrical-plan.html#firmware">electrical plan &sect;13</a> &mdash; which drives
+  this exact same <code>RelayController</code>. The bench console stays as a diagnostic tool
+  underneath it.</p>
+
+  <footer>
+    Part of the <a href="index.html">moto-11 documentation</a>.
+    Source and decision records are on
+    <a href="https://github.com/mixajlo/moto-11">GitHub</a>.
+    Licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.
+  </footer>
+
+</main>
+</body>
+</html>

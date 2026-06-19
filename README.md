@@ -28,10 +28,13 @@ relay box driven by a ULN2803, and battery/charging telemetry from an INA226.
 
 ## Status
 
-**Early development.** Basic OTA firmware (WiFi + ArduinoOTA + heartbeat) is proven on the
-bench across both ESP units. Next firmware milestone: A/B rollback validation, then the cockpit
-logic (ignition/run-sense → relay enables → INA226 voltage read). Hardware is at the
-bench-prototyping stage. See `docs/adr/` for the decisions made so far.
+**Early development.** OTA firmware (WiFi + ArduinoOTA + heartbeat) is proven on the bench
+across both ESP units. Relay control is now in: a `RelayController` drives the four ULN2803
+coil enables (fail-OFF at boot) and a serial/Telnet **bench console** actuates them by hand
+(`status`, `on/off`, `toggle`, `selftest`) for pre-install testing. Next firmware milestone:
+INA226 bus-voltage + ignition-sense, then the autonomous engine-run supervisor
+(SLEEP/ARMED/RUNNING/OFF_DELAY). Hardware is at the bench-prototyping stage. See `docs/adr/`
+for the decisions made so far.
 
 ## Architecture
 
@@ -143,8 +146,13 @@ Symptom is `Authenticating…OK` followed by `Waiting for device… No response`
 
 ## Documentation
 
-- **Design docs** (`docs/*.html`) — enable **GitHub Pages** on `/docs` to read them as web
-  pages at `https://<you>.github.io/moto-11/electrical-plan.html`.
+- **[Bench relay guide](https://mixajlo.github.io/moto-11/bench-relay-guide.html)** —
+  step-by-step: flash the firmware and click the relays on the bench (just an ESP + USB to
+  start). Good first hands-on walkthrough. (Source: `docs/bench-relay-guide.html`.)
+- **Design docs** — published via **GitHub Pages** from `/docs`:
+  [home](https://mixajlo.github.io/moto-11/),
+  [electrical plan](https://mixajlo.github.io/moto-11/electrical-plan.html),
+  [wiring schematic](https://mixajlo.github.io/moto-11/wiring-schematic.html).
 - **Decision records** (`docs/adr/`) — the *why* behind every major choice, Nygard-format.
 - **`CLAUDE.md`** — the condensed project brief; also what Claude Code reads on startup.
 

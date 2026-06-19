@@ -37,6 +37,7 @@
     padding:22px 22px 18px; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
   }
   .card:nth-child(2){border-top-color:var(--vermillion)}
+  .card:nth-child(3){border-top-color:var(--green)}
   .card:hover{transform:translateY(-3px); box-shadow:0 10px 26px rgba(20,30,48,.10)}
   .kicker{
     font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:500;
@@ -46,6 +47,7 @@
   .card p{color:var(--dim); font-size:14.5px; margin:0 0 16px}
   .go{font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:700; color:var(--blue)}
   .card:nth-child(2) .go{color:var(--vermillion)}
+  .card:nth-child(3) .go{color:var(--green)}
   .note{
     margin-top:34px; padding:16px 18px; background:var(--panel);
     border:1px solid var(--line); border-left:3px solid var(--green); border-radius:12px;
@@ -76,6 +78,13 @@
       <span class="kicker">Connection diagram</span>
       <h2>Wiring Schematic</h2>
       <p>Single-sheet, colourblind-safe wiring schedule plus the ULN2803 coil-driver detail. Wire types encoded by pattern + tag, never colour alone.</p>
+      <span class="go">Open &rarr;</span>
+    </a>
+
+    <a class="card" href="bench-relay-guide.html">
+      <span class="kicker">Hands-on guide</span>
+      <h2>Bench Relay Guide</h2>
+      <p>Step-by-step: flash the firmware and click the relays on the bench &mdash; with just an ESP + USB to start, the relay box added later. The first hands-on walkthrough.</p>
       <span class="go">Open &rarr;</span>
     </a>
   </section>
