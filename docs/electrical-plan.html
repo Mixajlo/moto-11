@@ -1,0 +1,1320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V-Strom DL650 Smart Cockpit — Electrical Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f8fa;
+    --bg2:#f2f5f8;
+    --panel:#ffffff;
+    --panel2:#eef1f5;
+    --ink:#161b24;
+    --dim:#44505d;
+    --faint:#6b7682;
+    --line:#cdd5de;
+    --amber:#C77700;
+    --amber2:#b45309;
+    --cyan:#7b4ea3;
+    --cyan2:#7b4ea3;
+    --red:#0072B2;
+    --green:#111111;
+    --violet:#009E73;
+    --grid:rgba(0,0,0,.05);
+    --rad:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:
+      linear-gradient(var(--grid) 1px,transparent 1px) 0 0/26px 26px,
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/26px 26px,
+      radial-gradient(1200px 700px at 80% -10%,#e9eef3 0,transparent 60%),
+      var(--bg);
+    color:var(--ink);font-family:"Archivo",system-ui,sans-serif;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 120px}
+  header.hero{padding:54px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+  .kicker{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+  h1{font-family:"Saira Condensed",sans-serif;font-weight:700;font-size:clamp(34px,6vw,62px);line-height:.98;letter-spacing:.01em;margin:0 0 12px;text-transform:uppercase}
+  h1 span{color:var(--amber)}
+  .sub{color:var(--dim);font-size:17px;max-width:680px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .chip{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.04em;color:var(--dim);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 13px}
+  .chip b{color:var(--ink);font-weight:500}
+
+  h2{font-family:"Saira Condensed",sans-serif;font-weight:700;font-size:30px;text-transform:uppercase;letter-spacing:.02em;margin:62px 0 6px;display:flex;align-items:baseline;gap:14px}
+  h2 .num{font-family:"JetBrains Mono",monospace;font-size:15px;color:var(--amber);font-weight:700;letter-spacing:0}
+  h2 + .lede{color:var(--dim);margin:0 0 22px;max-width:760px}
+  h3{font-family:"Saira Condensed",sans-serif;font-weight:600;font-size:21px;letter-spacing:.02em;text-transform:uppercase;color:var(--cyan);margin:30px 0 8px}
+
+  .panel{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--rad);padding:22px 24px;margin:18px 0}
+  .panel.tight{padding:14px 16px}
+  .alert{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(255,181,71,.08),transparent 70%)}
+  .alert.red{border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,107,107,.09),transparent 70%)}
+  .alert.cyan{border-left-color:var(--cyan);background:linear-gradient(90deg,rgba(79,209,199,.08),transparent 70%)}
+  .alert .tag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:6px}
+  .alert.red .tag{color:var(--red)} .alert.cyan .tag{color:var(--cyan)}
+
+  p{margin:10px 0}
+  strong{color:#cc0000;font-weight:700}
+  code{font-family:"JetBrains Mono",monospace;font-size:.9em;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--amber)}
+  ul{margin:10px 0;padding-left:20px}
+  li{margin:6px 0}
+  a{color:var(--cyan)}
+
+  figure{margin:22px 0}
+  figure svg{display:block;width:100%;height:auto;background:#ffffff;border:1px solid var(--line);border-radius:var(--rad)}
+  figcaption{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--faint);margin-top:8px;letter-spacing:.03em}
+  figcaption b{color:var(--dim);font-weight:500}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.05em;font-size:13.5px;color:var(--cyan);font-weight:600}
+  td{color:var(--dim)} td b{color:var(--ink)}
+  tr:hover td{background:rgba(255,255,255,.015)}
+  .mono{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--amber)}
+  .ok{color:var(--green)} .warn{color:var(--amber)} .bad{color:var(--red)}
+
+  pre{background:#f4f6f8;border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:10px;padding:18px 20px;overflow:auto;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.55;color:#161b24}
+  pre .c{color:var(--faint)} pre .k{color:var(--violet)} pre .s{color:var(--green)} pre .f{color:var(--amber)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.grid2{grid-template-columns:1fr}}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .stat .big{font-family:"Saira Condensed",sans-serif;font-size:34px;font-weight:700;color:var(--amber);line-height:1}
+  .stat .lbl{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:6px}
+
+  .toc{columns:2;column-gap:30px;font-family:"JetBrains Mono",monospace;font-size:13.5px}
+  @media(max-width:600px){.toc{columns:1}}
+  .toc a{display:block;color:var(--dim);text-decoration:none;padding:5px 0;border-bottom:1px dotted var(--line)}
+  .toc a:hover{color:var(--amber)}
+  .toc a span{color:var(--amber);margin-right:10px}
+  footer{margin-top:70px;padding-top:22px;border-top:1px solid var(--line);color:var(--faint);font-family:"JetBrains Mono",monospace;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Modular Harness · One-And-Done Install</div>
+  <h1>V-Strom DL650<br><span>Smart Cockpit</span> Electrical Plan</h1>
+  <p class="sub">A future-proof wiring architecture for an ESP32 accessory controller and rugged Android dashboard — engine-aware power, charger-safe ignition logic, star grounding, and spare capacity so the fairings come off only once.</p>
+  <div class="meta">
+    <span class="chip"><b>Platform:</b> 2013 Suzuki DL650 (Gen-2)</span>
+    <span class="chip"><b>Brain:</b> ESP32-WROOM-32D</span>
+    <span class="chip"><b>UI:</b> Galaxy Tab Active + BLE</span>
+    <span class="chip"><b>Surplus:</b> ~100–120 W usable</span>
+  </div>
+</header>
+
+<div class="panel">
+  <div class="toc">
+    <a href="#budget"><span>01</span> Power Budget &amp; The Stator Caveat</a>
+    <a href="#logic"><span>02</span> Engine-Running Logic (the core)</a>
+    <a href="#block"><span>03</span> System Block Diagram</a>
+    <a href="#master"><span>04</span> Master Power &amp; Relay Schematic</a>
+    <a href="#esp"><span>05</span> ESP32 Power, Protection &amp; Sense</a>
+    <a href="#mosfet"><span>06</span> Per-Load MOSFET / PWM Dimming</a>
+    <a href="#ground"><span>07</span> Grounding Backbone (Star)</a>
+    <a href="#circuits"><span>08</span> Circuit / Fuse / Wire Table</a>
+    <a href="#spine"><span>09</span> The Spine: Multi-core Run</a>
+    <a href="#tablet"><span>10</span> Tablet Recommendation</a>
+    <a href="#bom"><span>11</span> Bill of Materials (to buy)</a>
+    <a href="#install"><span>12</span> Install Sequence</a>
+    <a href="#firmware"><span>13</span> Firmware State Logic</a>
+    <a href="#sensing"><span>14</span> Sensing &amp; Multi-Wake Architecture</a>
+    <a href="#crash"><span>15</span> Crash Detection (with cancel window)</a>
+    <a href="#telemetry"><span>16</span> Battery Telemetry &amp; Alert Logic</a>
+    <a href="#connectivity"><span>17</span> Connectivity Model (BLE relay → LTE)</a>
+    <a href="#sentinel"><span>18</span> Sentinel-Mode State Machine</a>
+    <a href="#roadmap"><span>19</span> v1 / v2 Build Roadmap</a>
+    <a href="#layout"><span>20</span> On-Bike Layout (bird's-eye)</a>
+    <a href="#integration"><span>21</span> Hardware Integration (as-built)</a>
+    <a href="#bench"><span>22</span> Bench Verification Checklist</a>
+    <a href="#charging"><span>23</span> Charging System — R/R &amp; Stator Test</a>
+  </div>
+</div>
+
+<!-- 01 -->
+<h2 id="budget"><span class="num">01</span> Power Budget &amp; The Stator Caveat</h2>
+<p class="lede">Everything downstream is constrained by how much current the bike can spare. Get this wrong and you cook a stator — a known weak point on this generation.</p>
+
+<div class="grid2">
+  <div class="stat"><div class="big">~400 W</div><div class="lbl">Total alternator @ 5000 rpm</div></div>
+  <div class="stat"><div class="big">~100–120 W</div><div class="lbl">Realistic accessory surplus</div></div>
+  <div class="stat"><div class="big">~8–9 A</div><div class="lbl">Usable headroom @ 13.8 V cruise</div></div>
+  <div class="stat"><div class="big">≈ 0 W</div><div class="lbl">Surplus at idle / low rpm</div></div>
+</div>
+
+<div class="panel alert red">
+  <span class="tag">Critical — shunt regulator</span>
+  <p style="margin-top:2px">The DL650 uses a <strong>shunt-type</strong> regulator/rectifier: the stator always produces near-maximum output and the R/R dumps the excess to ground as heat. Reducing your draw does <em>not</em> relieve the stator. This generation had stator/R-R heat issues. Two moves matter:</p>
+  <ul>
+    <li><strong>Convert the headlight to LED</strong> — frees roughly 50 W of <em>real</em> capacity for accessories.</li>
+    <li><strong>Consider a series R/R upgrade</strong> (e.g. a Shindengen MOSFET unit) if you'll routinely run heated grips + aux lights together. It draws only what's needed and runs the stator cooler.</li>
+  </ul>
+</div>
+
+<p>Design principle: <strong>build the harness with more capacity than the charging system can sustain</strong>. The wiring should never be the bottleneck. What you actively switch on at once is what you manage — the firmware can even read bus voltage and shed load (dim lights, cut grips) when voltage sags at idle. That's a feature, not a limitation, and it's why the ESP measures voltage anyway.</p>
+
+<!-- 02 -->
+<h2 id="logic"><span class="num">02</span> Engine-Running Logic <span style="font-size:14px;color:var(--faint);font-weight:400">— the heart of the system</span></h2>
+<p class="lede">You want accessories live only when the <em>engine runs</em>, a customizable off-delay after key-off, and immunity to a battery tender. One ignition wire plus a voltage reading does all three.</p>
+
+<div class="panel alert cyan">
+  <span class="tag">The rule</span>
+  <p style="margin-top:2px;font-size:18px"><code>engineRunning = ignitionHIGH && (Vbus ≥ 13.2 V)</code></p>
+  <p style="margin-bottom:0">Ignition alone can't separate "running" from "key-on, engine-off." Voltage alone gets fooled by a charger. <strong>Together they're unambiguous.</strong></p>
+</div>
+
+<h3>Truth table — every state the bike can be in</h3>
+<table>
+  <thead><tr><th>Ignition wire</th><th>Bus voltage</th><th>Real situation</th><th>Master relay</th><th>ESP state</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">LOW</td><td class="mono">~12.5 V</td><td>Parked, key out</td><td class="bad">OFF</td><td>Deep sleep (µA)</td></tr>
+    <tr><td class="mono">LOW</td><td class="mono">13.6–14.4 V</td><td><b>Battery tender connected</b></td><td class="ok">OFF ✓</td><td>Deep sleep — <span class="ok">not fooled</span></td></tr>
+    <tr><td class="mono">HIGH</td><td class="mono">~12.4 V</td><td>Key on, engine off / cranking</td><td class="bad">OFF</td><td>Awake, waiting</td></tr>
+    <tr><td class="mono">HIGH</td><td class="mono">≥ 13.2 V</td><td><b>Engine running</b></td><td class="ok">ON</td><td>Awake, active</td></tr>
+    <tr><td class="mono">HIGH→LOW</td><td class="mono">any</td><td>Just switched off</td><td class="warn">ON during delay</td><td>Awake, timing out</td></tr>
+  </tbody>
+</table>
+
+<figure>
+<svg viewBox="0 0 980 470" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#44505d"/></marker>
+    <marker id="arA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#C77700"/></marker>
+  </defs>
+  <text x="24" y="34" fill="#7b4ea3" font-size="13" letter-spacing="3">STATE MACHINE — ESP32 POWER SUPERVISOR</text>
+
+  <!-- SLEEP -->
+  <rect x="40" y="70" width="200" height="78" rx="10" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="140" y="100" text-anchor="middle" fill="#161b24" font-size="16" font-weight="700">SLEEP</text>
+  <text x="140" y="122" text-anchor="middle" fill="#44505d" font-size="11">deep sleep · relay OFF</text>
+  <text x="140" y="138" text-anchor="middle" fill="#6b7682" font-size="10">wake on ignition rising edge</text>
+
+  <!-- ARMED -->
+  <rect x="390" y="70" width="200" height="78" rx="10" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="490" y="100" text-anchor="middle" fill="#161b24" font-size="16" font-weight="700">ARMED</text>
+  <text x="490" y="122" text-anchor="middle" fill="#44505d" font-size="11">ign HIGH · relay OFF</text>
+  <text x="490" y="138" text-anchor="middle" fill="#6b7682" font-size="10">waiting for V ≥ 13.2 V</text>
+
+  <!-- RUN -->
+  <rect x="740" y="70" width="200" height="78" rx="10" fill="#ffffff" stroke="#111111"/>
+  <text x="840" y="100" text-anchor="middle" fill="#111111" font-size="16" font-weight="700">RUNNING</text>
+  <text x="840" y="122" text-anchor="middle" fill="#44505d" font-size="11">relay ON · loads live</text>
+  <text x="840" y="138" text-anchor="middle" fill="#6b7682" font-size="10">PWM + load mgmt active</text>
+
+  <!-- DELAY -->
+  <rect x="565" y="300" width="200" height="86" rx="10" fill="#ffffff" stroke="#C77700"/>
+  <text x="665" y="330" text-anchor="middle" fill="#C77700" font-size="16" font-weight="700">OFF-DELAY</text>
+  <text x="665" y="352" text-anchor="middle" fill="#44505d" font-size="11">relay held ON</text>
+  <text x="665" y="368" text-anchor="middle" fill="#6b7682" font-size="10">user timer 0–600 s</text>
+
+  <!-- arrows -->
+  <line x1="240" y1="109" x2="384" y2="109" stroke="#C77700" stroke-width="2" marker-end="url(#arA)"/>
+  <text x="312" y="100" text-anchor="middle" fill="#C77700" font-size="10.5">ign → HIGH</text>
+
+  <line x1="590" y1="109" x2="734" y2="109" stroke="#111111" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="662" y="100" text-anchor="middle" fill="#111111" font-size="10.5">V ≥ 13.2 V (1 s)</text>
+
+  <!-- RUN -> DELAY -->
+  <path d="M820,148 C820,235 720,250 690,296" fill="none" stroke="#C77700" stroke-width="2" marker-end="url(#arA)"/>
+  <text x="800" y="235" fill="#C77700" font-size="10.5">ign → LOW</text>
+
+  <!-- DELAY -> SLEEP -->
+  <path d="M565,352 C300,352 140,280 140,152" fill="none" stroke="#44505d" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="300" y="300" fill="#44505d" font-size="10.5">timer expires → cut relay → sleep</text>
+
+  <!-- DELAY -> RUN (restart within delay) -->
+  <path d="M740,330 C800,320 838,250 840,152" fill="none" stroke="#111111" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <text x="855" y="250" fill="#111111" font-size="10">restart</text>
+
+  <!-- ARMED -> SLEEP (key off before run) -->
+  <path d="M420,148 C380,210 220,200 175,150" fill="none" stroke="#44505d" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <text x="300" y="200" fill="#6b7682" font-size="10">ign LOW (never ran)</text>
+
+  <!-- charger note -->
+  <rect x="40" y="200" width="330" height="58" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="56" y="224" fill="#7b4ea3" font-size="11" font-weight="700">CHARGER-AWARE</text>
+  <text x="56" y="244" fill="#44505d" font-size="10.5">Tender raises V but ign = LOW → stays in SLEEP.</text>
+</svg>
+<figcaption><b>Fig 2.1</b> — Supervisor state machine. The dashed green path is "engine restarted before the off-delay expired" (e.g. a stall at a light). The charger case can never leave SLEEP because the ignition wire gates everything.</figcaption>
+</figure>
+
+<div class="panel alert">
+  <span class="tag">Why the ESP must be always-hot</span>
+  <p style="margin-top:2px;margin-bottom:0">Because the off-delay runs <em>after</em> the key is off, the ESP can't be powered by the switched line — it would die the instant you needed it to keep counting. It runs from a small <strong>always-hot fused buck</strong>, deep-sleeps at ~10 µA–2 mA when parked (negligible drain over weeks), and wakes on the ignition wire's rising edge. The ignition wire therefore does triple duty: <strong>wake source, run-detect, and off-delay trigger.</strong></p>
+</div>
+
+<!-- 03 -->
+<h2 id="block"><span class="num">03</span> System Block Diagram</h2>
+<p class="lede">Five physical zones. Power and switched-accessory current stay in the under-seat bay; only what the cockpit truly needs travels forward through one disconnect.</p>
+
+<figure>
+<svg viewBox="0 0 980 560" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <defs>
+    <marker id="pw" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0072B2"/></marker>
+    <marker id="sw" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C77700"/></marker>
+    <marker id="dt" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7b4ea3"/></marker>
+    <marker id="bl" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#009E73"/></marker>
+  </defs>
+
+  <!-- legend -->
+  <g font-size="11">
+    <line x1="600" y1="28" x2="630" y2="28" stroke="#0072B2" stroke-width="3"/><text x="636" y="32" fill="#44505d">12V battery</text>
+    <line x1="730" y1="28" x2="760" y2="28" stroke="#C77700" stroke-width="3"/><text x="766" y="32" fill="#44505d">switched acc.</text>
+    <line x1="600" y1="48" x2="630" y2="48" stroke="#7b4ea3" stroke-width="3"/><text x="636" y="52" fill="#44505d">logic / sense</text>
+    <line x1="730" y1="48" x2="760" y2="48" stroke="#009E73" stroke-width="3"/><text x="766" y="52" fill="#44505d">BLE (wireless)</text>
+  </g>
+
+  <text x="24" y="34" fill="#7b4ea3" font-size="13" letter-spacing="3">UNDER-SEAT BAY</text>
+  <text x="24" y="312" fill="#C77700" font-size="13" letter-spacing="3">— THE SPINE —</text>
+  <rect x="20" y="58" width="540" height="240" rx="12" fill="none" stroke="#cdd5de" stroke-dasharray="4 5"/>
+
+  <!-- Battery -->
+  <rect x="40" y="90" width="120" height="64" rx="9" fill="#ffffff" stroke="#0072B2"/>
+  <text x="100" y="118" text-anchor="middle" fill="#0072B2" font-size="13" font-weight="700">BATTERY</text>
+  <text x="100" y="138" text-anchor="middle" fill="#44505d" font-size="10">12 V · 10 Ah</text>
+
+  <!-- Main fuse + master relay -->
+  <rect x="210" y="78" width="150" height="88" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="285" y="102" text-anchor="middle" fill="#161b24" font-size="12.5" font-weight="700">DISTRIBUTION</text>
+  <text x="285" y="120" text-anchor="middle" fill="#44505d" font-size="10">main fuse 25A</text>
+  <text x="285" y="135" text-anchor="middle" fill="#44505d" font-size="10">master relay</text>
+  <text x="285" y="150" text-anchor="middle" fill="#44505d" font-size="10">fuse block · gnd bus</text>
+
+  <!-- ESP brain -->
+  <rect x="40" y="196" width="150" height="80" rx="9" fill="#ffffff" stroke="#7b4ea3"/>
+  <text x="115" y="222" text-anchor="middle" fill="#7b4ea3" font-size="13" font-weight="700">ESP32 BRAIN</text>
+  <text x="115" y="240" text-anchor="middle" fill="#44505d" font-size="10">always-hot buck</text>
+  <text x="115" y="255" text-anchor="middle" fill="#44505d" font-size="10">supervisor + MOSFETs</text>
+  <text x="115" y="270" text-anchor="middle" fill="#44505d" font-size="10">BLE peripheral</text>
+
+  <!-- Loads -->
+  <rect x="410" y="196" width="150" height="80" rx="9" fill="#ffffff" stroke="#C77700"/>
+  <text x="485" y="222" text-anchor="middle" fill="#C77700" font-size="12.5" font-weight="700">ACC. LOADS</text>
+  <text x="485" y="240" text-anchor="middle" fill="#44505d" font-size="10">fog lights</text>
+  <text x="485" y="255" text-anchor="middle" fill="#44505d" font-size="10">heated grips (future)</text>
+  <text x="485" y="270" text-anchor="middle" fill="#44505d" font-size="10">spare pairs ×2</text>
+
+  <!-- wires within bay -->
+  <line x1="160" y1="122" x2="206" y2="122" stroke="#0072B2" stroke-width="2.4" marker-end="url(#pw)"/>
+  <path d="M250,166 L250,236 L186,236" fill="none" stroke="#0072B2" stroke-width="2.2" marker-end="url(#pw)"/>
+  <text x="196" y="190" fill="#0072B2" font-size="9.5">always-hot</text>
+  <path d="M320,166 L320,236 L406,236" fill="none" stroke="#C77700" stroke-width="2.4" marker-end="url(#sw)"/>
+  <text x="330" y="190" fill="#C77700" font-size="9.5">switched bus</text>
+  <!-- esp controls relay + mosfets -->
+  <path d="M190,212 L300,212 L300,164" fill="none" stroke="#7b4ea3" stroke-width="1.8" marker-end="url(#dt)" stroke-dasharray="2 0"/>
+  <text x="210" y="206" fill="#7b4ea3" font-size="9.5">relay drive + V/ign sense</text>
+  <path d="M190,258 C290,300 360,300 410,262" fill="none" stroke="#7b4ea3" stroke-width="1.8" marker-end="url(#dt)"/>
+  <text x="250" y="300" fill="#7b4ea3" font-size="9.5">PWM gates</text>
+
+  <!-- DISCONNECT -->
+  <rect x="430" y="330" width="120" height="48" rx="8" fill="#ffffff" stroke="#C77700" stroke-dasharray="4 4"/>
+  <text x="490" y="350" text-anchor="middle" fill="#C77700" font-size="11" font-weight="700">DISCONNECT</text>
+  <text x="490" y="366" text-anchor="middle" fill="#6b7682" font-size="9.5">waterproof · service loop</text>
+  <path d="M115,276 L115,354 L426,354" fill="none" stroke="#0072B2" stroke-width="2" marker-end="url(#pw)"/>
+  <path d="M125,276 L125,346 L426,346" fill="none" stroke="#7b4ea3" stroke-width="1.6"/>
+  <text x="150" y="340" fill="#44505d" font-size="9.5">switched 12V + gnd + spares → forward</text>
+
+  <!-- COCKPIT -->
+  <text x="24" y="424" fill="#7b4ea3" font-size="13" letter-spacing="3">FRONT COCKPIT</text>
+  <rect x="20" y="436" width="540" height="104" rx="12" fill="none" stroke="#cdd5de" stroke-dasharray="4 5"/>
+
+  <rect x="40" y="456" width="160" height="66" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="120" y="482" text-anchor="middle" fill="#161b24" font-size="12.5" font-weight="700">TABLET</text>
+  <text x="120" y="500" text-anchor="middle" fill="#44505d" font-size="10">Galaxy Tab Active5</text>
+  <text x="120" y="514" text-anchor="middle" fill="#44505d" font-size="10">12V→USB-C PD buck</text>
+
+  <rect x="230" y="456" width="160" height="66" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="310" y="482" text-anchor="middle" fill="#161b24" font-size="12.5" font-weight="700">CONTROLLER</text>
+  <text x="310" y="500" text-anchor="middle" fill="#44505d" font-size="10">rotary / "wonder wheel"</text>
+  <text x="310" y="514" text-anchor="middle" fill="#44505d" font-size="10">BLE → ESP or tablet</text>
+
+  <path d="M490,378 L490,489 L204,489" fill="none" stroke="#C77700" stroke-width="2.2" marker-end="url(#sw)"/>
+  <text x="300" y="450" fill="#C77700" font-size="9.5">switched 12V (key-aware)</text>
+
+  <!-- BLE links -->
+  <path d="M115,196 C40,150 30,420 120,452" fill="none" stroke="#009E73" stroke-width="1.8" stroke-dasharray="3 4" marker-end="url(#bl)"/>
+  <path d="M115,196 C-10,300 200,470 308,454" fill="none" stroke="#009E73" stroke-width="1.8" stroke-dasharray="3 4" marker-end="url(#bl)"/>
+  <text x="14" y="300" fill="#009E73" font-size="9.5" transform="rotate(-90 14 300)">BLE — no wires forward</text>
+</svg>
+<figcaption><b>Fig 3.1</b> — The only conductors crossing to the cockpit are switched 12V, ground, and spare pairs. Control data rides BLE, so the dashboard and controller are effectively wireless — far fewer wires through the headstock.</figcaption>
+</figure>
+
+<!-- 04 -->
+<h2 id="master"><span class="num">04</span> Master Power &amp; Relay Schematic</h2>
+<p class="lede">Battery → main fuse → master relay → switched-accessory bus. The relay is driven by the ESP, not by the ignition directly — that's what enables run-detection and the off-delay.</p>
+
+<figure>
+<svg viewBox="0 0 980 430" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <defs>
+    <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#0072B2"/></marker>
+  </defs>
+  <!-- battery -->
+  <text x="40" y="60" fill="#0072B2" font-size="12" font-weight="700">BATTERY +</text>
+  <line x1="40" y1="80" x2="40" y2="200" stroke="#0072B2" stroke-width="3"/>
+  <circle cx="40" cy="80" r="5" fill="#0072B2"/>
+
+  <!-- main fuse -->
+  <rect x="20" y="100" width="40" height="26" rx="4" fill="none" stroke="#C77700" stroke-width="2"/>
+  <text x="78" y="110" fill="#C77700" font-size="11">MAIN FUSE 25 A</text>
+  <text x="78" y="124" fill="#6b7682" font-size="9.5">&lt; 15 cm from battery +</text>
+
+  <!-- always hot tap -->
+  <line x1="40" y1="150" x2="150" y2="150" stroke="#0072B2" stroke-width="2"/>
+  <rect x="150" y="138" width="34" height="24" rx="4" fill="none" stroke="#C77700" stroke-width="2"/>
+  <text x="160" y="155" fill="#C77700" font-size="10">2A</text>
+  <line x1="184" y1="150" x2="250" y2="150" stroke="#0072B2" stroke-width="2" marker-end="url(#a2)"/>
+  <rect x="250" y="124" width="150" height="52" rx="8" fill="#ffffff" stroke="#7b4ea3"/>
+  <text x="325" y="146" text-anchor="middle" fill="#7b4ea3" font-size="11.5" font-weight="700">ESP BUCK (always-hot)</text>
+  <text x="325" y="164" text-anchor="middle" fill="#44505d" font-size="9.5">→ see §05</text>
+
+  <!-- relay -->
+  <rect x="20" y="220" width="170" height="150" rx="10" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="105" y="244" text-anchor="middle" fill="#161b24" font-size="13" font-weight="700">MASTER RELAY</text>
+  <text x="105" y="260" text-anchor="middle" fill="#6b7682" font-size="10">30/40 A automotive</text>
+  <!-- coil -->
+  <text x="40" y="300" fill="#44505d" font-size="10">85</text>
+  <text x="40" y="350" fill="#44505d" font-size="10">86</text>
+  <path d="M55,295 q10,-8 0,-16 q-10,-8 0,-16 q10,-8 0,-16" fill="none" stroke="#009E73" stroke-width="2" transform="translate(0,40)"/>
+  <text x="105" y="318" fill="#009E73" font-size="9.5">coil</text>
+  <!-- contacts -->
+  <text x="150" y="290" fill="#44505d" font-size="10">30</text>
+  <text x="150" y="348" fill="#44505d" font-size="10">87</text>
+
+  <!-- battery to relay 30 -->
+  <line x1="40" y1="200" x2="40" y2="430" stroke="#0072B2" stroke-width="3"/>
+  <line x1="40" y1="285" x2="148" y2="285" stroke="#0072B2" stroke-width="2" marker-end="url(#a2)"/>
+  <text x="60" y="278" fill="#0072B2" font-size="9.5">battery feed → 30</text>
+
+  <!-- ESP drives coil 86 via mosfet -->
+  <line x1="325" y1="176" x2="325" y2="343" stroke="#7b4ea3" stroke-width="1.8"/>
+  <line x1="325" y1="343" x2="60" y2="343" stroke="#7b4ea3" stroke-width="1.8" marker-end="url(#a2)"/>
+  <text x="200" y="336" fill="#7b4ea3" font-size="9.5">GPIO → MOSFET → coil 86 (low-side)</text>
+  <!-- coil 85 to +12 -->
+  <line x1="60" y1="295" x2="40" y2="295" stroke="#0072B2" stroke-width="1.6"/>
+
+  <!-- relay out 87 to bus -->
+  <line x1="190" y1="343" x2="260" y2="343" stroke="#C77700" stroke-width="3" marker-end="url(#a2)"/>
+  <rect x="260" y="300" width="200" height="86" rx="9" fill="#ffffff" stroke="#C77700"/>
+  <text x="360" y="326" text-anchor="middle" fill="#C77700" font-size="13" font-weight="700">SWITCHED ACC. BUS</text>
+  <text x="360" y="346" text-anchor="middle" fill="#44505d" font-size="10">fuse block — one circuit per load</text>
+  <text x="360" y="362" text-anchor="middle" fill="#44505d" font-size="10">feeds fog / grips / tablet / spares</text>
+  <text x="360" y="378" text-anchor="middle" fill="#6b7682" font-size="9.5">flyback diode across coil ↺</text>
+
+  <!-- ignition sense to ESP -->
+  <rect x="540" y="120" width="180" height="60" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="630" y="144" text-anchor="middle" fill="#161b24" font-size="11.5" font-weight="700">IGNITION-SWITCHED</text>
+  <text x="630" y="162" text-anchor="middle" fill="#44505d" font-size="10">tap a keyed fuse (Add-A-Fuse)</text>
+  <line x1="540" y1="150" x2="402" y2="150" stroke="#7b4ea3" stroke-width="1.8"/>
+  <text x="430" y="142" fill="#7b4ea3" font-size="9.5">ign-sense → ESP (§05)</text>
+
+  <!-- voltage sense -->
+  <rect x="540" y="220" width="180" height="60" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="630" y="244" text-anchor="middle" fill="#161b24" font-size="11.5" font-weight="700">BUS-VOLTAGE SENSE</text>
+  <text x="630" y="262" text-anchor="middle" fill="#44505d" font-size="10">divider / INA226 → ESP ADC</text>
+
+  <!-- ground bus -->
+  <line x1="40" y1="410" x2="460" y2="410" stroke="#111111" stroke-width="3"/>
+  <text x="470" y="414" fill="#111111" font-size="11" font-weight="700">GROUND BUS → batt −  (§07)</text>
+  <line x1="105" y1="370" x2="105" y2="410" stroke="#111111" stroke-width="1.6"/>
+  <line x1="360" y1="386" x2="360" y2="410" stroke="#111111" stroke-width="1.6"/>
+</svg>
+<figcaption><b>Fig 4.1</b> — The relay coil is low-side switched by an ESP GPIO through a MOSFET, with a flyback diode across the coil. The relay's 30-pin is fed straight from the battery (its own protected feed); 87 feeds the fused accessory bus. The ESP's own supply taps <em>before</em> the relay so it survives key-off.</figcaption>
+</figure>
+
+<!-- 05 -->
+<h2 id="esp"><span class="num">05</span> ESP32 Power, Protection &amp; Sense</h2>
+<p class="lede">Automotive 12V is hostile — load-dump spikes, cranking sag, reverse-polarity risk during service. The input stage matters more than the ESP itself.</p>
+
+<figure>
+<svg viewBox="0 0 980 360" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <defs><marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#44505d"/></marker></defs>
+  <!-- chain -->
+  <line x1="20" y1="80" x2="950" y2="80" stroke="#cdd5de" stroke-width="1"/>
+  <text x="20" y="40" fill="#7b4ea3" font-size="13" letter-spacing="3">INPUT PROTECTION CHAIN  →  REGULATION  →  ESP</text>
+
+  <g font-size="10.5">
+    <!-- 1 reverse polarity -->
+    <rect x="20" y="95" width="120" height="70" rx="8" fill="#ffffff" stroke="#cdd5de"/>
+    <text x="80" y="120" text-anchor="middle" fill="#161b24" font-size="11" font-weight="700">REVERSE-POL</text>
+    <text x="80" y="138" text-anchor="middle" fill="#44505d">P-FET (ideal)</text>
+    <text x="80" y="152" text-anchor="middle" fill="#6b7682">or series Schottky</text>
+
+    <line x1="140" y1="130" x2="168" y2="130" stroke="#44505d" stroke-width="2" marker-end="url(#a3)"/>
+
+    <!-- 2 TVS -->
+    <rect x="172" y="95" width="120" height="70" rx="8" fill="#ffffff" stroke="#cdd5de"/>
+    <text x="232" y="120" text-anchor="middle" fill="#161b24" font-size="11" font-weight="700">TVS CLAMP</text>
+    <text x="232" y="138" text-anchor="middle" fill="#44505d">SMBJ24A / 1.5KE24</text>
+    <text x="232" y="152" text-anchor="middle" fill="#6b7682">load-dump transient</text>
+
+    <line x1="292" y1="130" x2="320" y2="130" stroke="#44505d" stroke-width="2" marker-end="url(#a3)"/>
+
+    <!-- 3 bulk cap -->
+    <rect x="324" y="95" width="120" height="70" rx="8" fill="#ffffff" stroke="#cdd5de"/>
+    <text x="384" y="120" text-anchor="middle" fill="#161b24" font-size="11" font-weight="700">BULK CAP</text>
+    <text x="384" y="138" text-anchor="middle" fill="#44505d">470–1000 µF / 35 V</text>
+    <text x="384" y="152" text-anchor="middle" fill="#6b7682">crank-sag holdup</text>
+
+    <line x1="444" y1="130" x2="472" y2="130" stroke="#44505d" stroke-width="2" marker-end="url(#a3)"/>
+
+    <!-- 4 buck -->
+    <rect x="476" y="95" width="130" height="70" rx="8" fill="#ffffff" stroke="#7b4ea3"/>
+    <text x="541" y="120" text-anchor="middle" fill="#7b4ea3" font-size="11" font-weight="700">MP1584 BUCK</text>
+    <text x="541" y="138" text-anchor="middle" fill="#44505d">12 V → 5.0 V</text>
+    <text x="541" y="152" text-anchor="middle" fill="#6b7682">set + verify before connect</text>
+
+    <line x1="606" y1="130" x2="634" y2="130" stroke="#44505d" stroke-width="2" marker-end="url(#a3)"/>
+
+    <!-- 5 ESP -->
+    <rect x="638" y="88" width="160" height="160" rx="10" fill="#ffffff" stroke="#7b4ea3"/>
+    <text x="718" y="112" text-anchor="middle" fill="#7b4ea3" font-size="13" font-weight="700">ESP32-WROOM</text>
+    <text x="650" y="138" fill="#44505d">5V/VIN ← buck</text>
+    <text x="650" y="158" fill="#44505d">100 nF + 10 µF decap</text>
+    <text x="650" y="184" fill="#C77700">GPIO → relay MOSFET</text>
+    <text x="650" y="204" fill="#C77700">GPIO → PWM gates</text>
+    <text x="650" y="224" fill="#7b4ea3">GPIO ← ign-sense (wake)</text>
+    <text x="650" y="240" fill="#7b4ea3">ADC ← V / INA226 (I²C)</text>
+  </g>
+
+  <!-- ignition sense divider -->
+  <text x="20" y="285" fill="#7b4ea3" font-size="12" font-weight="700">IGNITION-SENSE FRONT-END (protects the GPIO)</text>
+  <g font-size="10.5">
+    <text x="20" y="312" fill="#44505d">12 V keyed →</text>
+    <rect x="120" y="298" width="60" height="22" rx="4" fill="none" stroke="#C77700"/><text x="150" y="313" text-anchor="middle" fill="#C77700">100k</text>
+    <text x="185" y="313" fill="#44505d">┬→ GPIO</text>
+    <rect x="120" y="330" width="60" height="22" rx="4" fill="none" stroke="#C77700"/><text x="150" y="345" text-anchor="middle" fill="#C77700">27k</text>
+    <text x="260" y="313" fill="#44505d">+ 3.3 V Zener clamp + 1k series + RC filter</text>
+    <text x="260" y="333" fill="#6b7682">≈ 3.1 V at 14.4 V bus · use ext0 wake on this pin</text>
+  </g>
+</svg>
+<figcaption><b>Fig 5.1</b> — Feed the buck output (5.0V) into the ESP's 5V/VIN pin and let the onboard regulator make 3.3V — simplest and most robust. <b>Voltage monitoring:</b> the ESP32's internal ADC is noisy and non-linear; for trustworthy readings use an <b>INA226</b> (gives bus volts <em>and</em> current over I²C) or an ADS1115, rather than a bare divider into the ADC.</figcaption>
+</figure>
+
+<div class="panel alert">
+  <span class="tag">CP2102 boards — programming vs install</span>
+  <p style="margin-top:2px;margin-bottom:0">Your USB-C CP2102 boards: in the installed bike harness, power the board from the buck's 5V pin and treat USB-C as a <strong>programming-only</strong> port. Don't drive 5V into both VIN and USB simultaneously. Keep the USB port reachable (a short pigtail to a capped, weather-sealed access point) so you can reflash without pulling the bay apart — a small service-loop courtesy to your future self.</p>
+</div>
+
+<!-- 06 -->
+<h2 id="mosfet"><span class="num">06</span> Per-Load MOSFET &amp; PWM Dimming</h2>
+<p class="lede">Downstream of the master bus, each controllable load gets a logic-level N-channel MOSFET on its low side. On/off plus PWM dimming, all from ESP GPIOs.</p>
+
+<figure>
+<svg viewBox="0 0 980 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <!-- supply -->
+  <text x="40" y="50" fill="#C77700" font-size="12" font-weight="700">SWITCHED ACC. BUS (+12 V, fused)</text>
+  <line x1="40" y1="64" x2="900" y2="64" stroke="#C77700" stroke-width="3"/>
+
+  <!-- load -->
+  <line x1="300" y1="64" x2="300" y2="110" stroke="#C77700" stroke-width="2"/>
+  <rect x="250" y="110" width="100" height="50" rx="8" fill="#ffffff" stroke="#C77700"/>
+  <text x="300" y="132" text-anchor="middle" fill="#C77700" font-size="12" font-weight="700">LOAD</text>
+  <text x="300" y="148" text-anchor="middle" fill="#44505d" font-size="9.5">fog / grips</text>
+
+  <!-- flyback diode (for inductive) -->
+  <path d="M360,118 L360,152 M360,118 q26,17 0,34 z" fill="none" stroke="#009E73" stroke-width="1.6"/>
+  <text x="372" y="138" fill="#009E73" font-size="9.5">flyback (if inductive)</text>
+  <line x1="360" y1="118" x2="300" y2="118" stroke="#009E73" stroke-width="1.2"/>
+  <line x1="360" y1="152" x2="300" y2="152" stroke="#009E73" stroke-width="1.2"/>
+
+  <!-- mosfet -->
+  <line x1="300" y1="160" x2="300" y2="190" stroke="#161b24" stroke-width="2"/>
+  <text x="316" y="210" fill="#161b24" font-size="11" font-weight="700">N-FET (logic-level)</text>
+  <text x="316" y="226" fill="#44505d" font-size="9.5">IRLB8721 / AOI518 — Vgs(th) ≪ 3.3 V</text>
+  <!-- transistor body -->
+  <rect x="270" y="190" width="60" height="46" rx="6" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="300" y="216" text-anchor="middle" fill="#44505d" font-size="9">D / G / S</text>
+  <line x1="300" y1="236" x2="300" y2="270" stroke="#111111" stroke-width="2"/>
+
+  <!-- gate drive -->
+  <line x1="270" y1="213" x2="160" y2="213" stroke="#7b4ea3" stroke-width="1.8"/>
+  <rect x="160" y="201" width="50" height="24" rx="4" fill="none" stroke="#7b4ea3"/>
+  <text x="185" y="217" text-anchor="middle" fill="#7b4ea3" font-size="10">220Ω</text>
+  <line x1="160" y1="213" x2="70" y2="213" stroke="#7b4ea3" stroke-width="1.8"/>
+  <rect x="0" y="200" width="70" height="28" rx="6" fill="#ffffff" stroke="#7b4ea3"/>
+  <text x="35" y="218" text-anchor="middle" fill="#7b4ea3" font-size="10.5" font-weight="700">GPIO PWM</text>
+  <!-- pulldown -->
+  <line x1="120" y1="213" x2="120" y2="270" stroke="#44505d" stroke-width="1.4"/>
+  <rect x="100" y="240" width="40" height="20" rx="4" fill="none" stroke="#44505d"/>
+  <text x="120" y="255" text-anchor="middle" fill="#44505d" font-size="9">10k</text>
+  <text x="146" y="252" fill="#6b7682" font-size="9">pulldown — off at boot</text>
+
+  <!-- ground -->
+  <line x1="0" y1="270" x2="900" y2="270" stroke="#111111" stroke-width="3"/>
+  <text x="700" y="262" fill="#111111" font-size="11" font-weight="700">GROUND BUS (shared star — §07)</text>
+</svg>
+<figcaption><b>Fig 6.1</b> — Low-side logic-level switching. The <b>gate pulldown keeps the load OFF during ESP boot/float</b> — essential so nothing flickers on at power-up. PWM at a few hundred Hz suits LEDs; if heated grips whine, push PWM above ~20 kHz. <b>Upgrade path:</b> for proper automotive fault protection (short-circuit, over-temp, diagnostics) swap to a high-side smart switch like an Infineon PROFET — more robust than discrete low-side, at higher cost.</figcaption>
+</figure>
+
+<div class="panel alert">
+  <span class="tag">v1 reality — this section is the v2 upgrade</span>
+  <p style="margin-top:2px;margin-bottom:0">The fuse/relay box you ordered uses <strong>mechanical relays</strong>, so <strong>v1 switches fog and grips ON/OFF only</strong> — the ESP energises each load's relay coil through a small coil driver (logic-level transistor/FET + flyback diode across the coil), and the GPIO acts as a simple enable (<code>FOG_EN</code> / <code>GRIP_EN</code>), not a PWM output. No dimming yet, which is fine. The MOSFET scheme above is the <strong>v2 drop-in</strong>: replace a load's relay with a logic-level MOSFET on the <em>same</em> enable line and you gain PWM dimming without rewiring — only the switching element changes. Plan the GPIO and wiring now; swap the part later.</p>
+</div>
+
+<!-- 07 -->
+<h2 id="ground"><span class="num">07</span> Grounding Backbone — Star Topology</h2>
+<p class="lede">Clean grounds are why your ADC readings and BLE behave. Every accessory ground returns to one bus, the bus returns to the battery negative on one heavy conductor. No daisy-chaining, no random frame grounds.</p>
+
+<figure>
+<svg viewBox="0 0 980 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <!-- battery neg -->
+  <rect x="40" y="120" width="120" height="56" rx="9" fill="#ffffff" stroke="#0072B2"/>
+  <text x="100" y="146" text-anchor="middle" fill="#0072B2" font-size="12" font-weight="700">BATTERY −</text>
+  <text x="100" y="164" text-anchor="middle" fill="#44505d" font-size="9.5">single heavy return</text>
+
+  <!-- ground bus -->
+  <rect x="430" y="60" width="40" height="180" rx="8" fill="#ffffff" stroke="#111111"/>
+  <text x="450" y="50" text-anchor="middle" fill="#111111" font-size="12" font-weight="700">GND BUS</text>
+  <line x1="160" y1="148" x2="426" y2="148" stroke="#111111" stroke-width="4"/>
+  <text x="250" y="140" fill="#111111" font-size="10">12 AWG backbone</text>
+
+  <!-- spokes -->
+  <g stroke="#111111" stroke-width="1.8" font-family="JetBrains Mono, monospace">
+    <line x1="470" y1="80" x2="650" y2="80"/><rect x="650" y="66" width="150" height="28" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="725" y="84" text-anchor="middle" fill="#44505d" font-size="10">ESP / logic gnd</text>
+    <line x1="470" y1="118" x2="650" y2="118"/><rect x="650" y="104" width="150" height="28" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="725" y="122" text-anchor="middle" fill="#44505d" font-size="10">MOSFET sources</text>
+    <line x1="470" y1="156" x2="650" y2="156"/><rect x="650" y="142" width="150" height="28" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="725" y="160" text-anchor="middle" fill="#44505d" font-size="10">fog / grips gnd</text>
+    <line x1="470" y1="194" x2="650" y2="194"/><rect x="650" y="180" width="150" height="28" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="725" y="198" text-anchor="middle" fill="#44505d" font-size="10">relay coil gnd</text>
+    <line x1="470" y1="220" x2="650" y2="220"/><rect x="650" y="206" width="150" height="28" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="725" y="224" text-anchor="middle" fill="#44505d" font-size="10">cockpit gnd (fwd)</text>
+  </g>
+  <text x="500" y="270" fill="#6b7682" font-size="10">One bus · one return · logic and power grounds meet only at the bus (star point).</text>
+</svg>
+<figcaption><b>Fig 7.1</b> — Star ground. Because the low-side MOSFETs switch current through ground, keeping a single low-impedance return point stops switching noise from corrupting the ESP's voltage readings and keeps the analog/digital references quiet.</figcaption>
+</figure>
+
+<!-- 08 -->
+<h2 id="circuits"><span class="num">08</span> Circuit / Fuse / Wire Table</h2>
+<p class="lede">Golden rule: <strong>the fuse protects the wire, not the device</strong> — sized just above the expected load, never above the wire's ampacity. Currents below are typical; verify your actual parts.</p>
+
+<table>
+  <thead><tr><th>Circuit</th><th>Typ. load</th><th>Current</th><th>Wire</th><th>Fuse</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><b>Main feed</b> (batt → dist)</td><td>aggregate</td><td class="mono">~20 A cap</td><td class="mono">12 AWG</td><td class="mono">25 A</td><td>Fuse within 15 cm of battery +</td></tr>
+    <tr><td><b>ESP always-hot buck</b></td><td>&lt; 3 W</td><td class="mono">&lt; 0.3 A</td><td class="mono">20 AWG</td><td class="mono">2 A</td><td>Pre-relay; survives key-off</td></tr>
+    <tr><td><b>Relay coil trigger</b></td><td>—</td><td class="mono">~0.2 A</td><td class="mono">22 AWG</td><td class="mono">—</td><td>ESP-driven, on the bus side</td></tr>
+    <tr><td><b>Aux fog lights</b> (LED)</td><td>~24–50 W</td><td class="mono">2–4 A</td><td class="mono">16 AWG</td><td class="mono">7.5 A</td><td>Reuse existing relay harness or MOSFET</td></tr>
+    <tr><td><b>Heated grips</b> (future)</td><td>~48 W</td><td class="mono">~4 A</td><td class="mono">16 AWG</td><td class="mono">7.5 A</td><td>Resistive — PWM &gt; 20 kHz if whine</td></tr>
+    <tr><td><b>Tablet power</b> (12→USB-C PD)</td><td>15–27 W</td><td class="mono">~1.5–2 A @12V</td><td class="mono">18 AWG</td><td class="mono">5 A</td><td>PD buck ≥ 21 W for No-Battery Mode</td></tr>
+    <tr><td><b>Spare aux pair #1</b></td><td>reserved</td><td class="mono">—</td><td class="mono">16 AWG</td><td class="mono">7.5 A</td><td>Run + cap now; populate later</td></tr>
+    <tr><td><b>Spare aux pair #2</b></td><td>reserved</td><td class="mono">—</td><td class="mono">16 AWG</td><td class="mono">7.5 A</td><td>TPMS hub / camera / sensors</td></tr>
+  </tbody>
+</table>
+<div class="panel alert">
+  <span class="tag">Reality check vs charging system</span>
+  <p style="margin-top:2px;margin-bottom:0">The harness above can carry ~20 A, but the bike can only <em>sustain</em> ~8–9 A of it at cruise. Fog (4 A) + grips (4 A) + tablet (2 A) ≈ 10 A already exceeds idle surplus — fine while moving, marginal in stop-and-go. This is exactly why the ESP reads bus voltage: have the firmware dim or shed loads when voltage drops below ~12.8 V.</p>
+</div>
+
+<!-- 09 -->
+<h2 id="spine"><span class="num">09</span> The Spine — Multi-core Run &amp; Disconnect</h2>
+<p class="lede">One generous run forward, terminated at a single waterproof disconnect with a service loop. Over-provision conductors now; adding one later means fairings off again.</p>
+
+<h3>Conductor budget (front cockpit)</h3>
+<table>
+  <thead><tr><th>Conductor</th><th>Gauge</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><b>Switched 12V — tablet</b></td><td class="mono">18 AWG</td><td>Tablet PD buck (key-aware power)</td></tr>
+    <tr><td><b>Ground — tablet</b></td><td class="mono">18 AWG</td><td>Return to star bus</td></tr>
+    <tr><td><b>Switched 12V — front aux</b></td><td class="mono">18 AWG</td><td>Future front accessory</td></tr>
+    <tr><td><b>Spare 12V + ground pair</b></td><td class="mono">18 AWG</td><td>Reserved capacity</td></tr>
+    <tr><td><b>Signal/sense ×2 (shielded)</b></td><td class="mono">22–24 AWG</td><td>Wired-encoder fallback / front sensor</td></tr>
+  </tbody>
+</table>
+
+<div class="panel">
+  <h3 style="margin-top:0">Connector &amp; service discipline</h3>
+  <ul>
+    <li><strong>One main front↔rear disconnect</strong> at the headstock — Deutsch DT or sealed automotive multi-pin. Everything forward unplugs here.</li>
+    <li><strong>Key power and signal differently</strong> — use different connector bodies or sizes so a 12V line can never mate into a signal pin.</li>
+    <li><strong>Service loops:</strong> leave 10–15 cm of slack at every termination and at the disconnect, so steering travel never tugs a pin.</li>
+    <li><strong>Label both ends</strong> of every conductor (heat-shrink labels). Future-you will not remember which grey wire is the spare.</li>
+    <li><strong>Run two spares populated-but-capped</strong> — the entire point of doing this once.</li>
+    <li><strong>BLE means data doesn't go forward</strong> — the rotary controller and tablet talk wirelessly, so the spine carries power and a couple of just-in-case signal lines, nothing more.</li>
+  </ul>
+</div>
+
+<!-- 10 -->
+<h2 id="tablet"><span class="num">10</span> Tablet Recommendation</h2>
+<p class="lede">For a <em>permanent</em> mount, heat and battery swelling are the real enemies — not specs. One Samsung feature decisively solves that.</p>
+
+<div class="panel alert cyan">
+  <span class="tag">Top pick — Galaxy Tab Active5 (or Active5 Pro)</span>
+  <p style="margin-top:2px">The killer feature is <strong>No Battery Mode</strong>: the tablet runs with the battery <em>removed</em>, on continuous external power, specifically so the battery doesn't sit in a hot enclosure and swell. Samsung markets this exactly for "kiosks and vehicles." For a bike that bakes in the sun, that's the difference between a 5-year install and a puffy battery in two summers.</p>
+  <ul style="margin-bottom:0">
+    <li><strong>Caveats:</strong> No Battery Mode needs a <em>dedicated USB-C PD 2.0+ source</em> (≈21 W / 9V·2.3A for the Pro) and it limits CPU, brightness, and volume while battery-less. Size your tablet PD buck accordingly (hence ≥21 W in §08).</li>
+    <li><strong>Active5</strong> = 8″, Gorilla Glass 5; <strong>Active5 Pro</strong> = 10.1″, 120 Hz, 600 nits, dual hot-swap batteries, 8 yrs of updates.</li>
+    <li>Both: IP68, MIL-STD-810H, 2 mm-glove touch, wet-touch, programmable key (map it to your dashboard app), POGO-pin charging for a clean dock.</li>
+  </ul>
+</div>
+
+<p><strong>Budget alternative:</strong> the <strong>Tab Active3</strong> (and Active4 Pro) also support No Battery Mode and glove touch — a good used-market value if you can live with older silicon and a dimmer screen. Your first-gen Tab Active is genuinely fine for bench prototyping the BLE/UI, just not for the permanent outdoor mount. <strong>Install tips regardless of model:</strong> mount it in No-Battery Mode powered only when the engine runs (your switched line handles this), use the POGO dock rather than a fragile USB-C plug for the permanent connection, and map the programmable key to wake/launch your dashboard.</p>
+
+<!-- 11 -->
+<h2 id="bom"><span class="num">11</span> Bill of Materials — What to Add</h2>
+<p class="lede">You already have ESP32 boards, MP1584 bucks, waterproof connectors, fuse/relay boxes, and the aux lights. These are the gap-fillers for the design above.</p>
+
+<div class="grid2">
+  <div class="panel tight">
+    <h3 style="margin-top:6px">Power &amp; protection</h3>
+    <ul style="font-size:14px">
+      <li>30/40 A automotive relay (master) + socket</li>
+      <li>Logic-level N-MOSFETs ×4–6 (IRLB8721 / AOI518)</li>
+      <li>TVS diode (SMBJ24A / 1.5KE24) ×2</li>
+      <li>Flyback diodes (1N4007/SS34) for relay coil &amp; inductive loads</li>
+      <li>Reverse-polarity P-FET <em>or</em> Schottky (≥5 A)</li>
+      <li>Bulk caps 470–1000 µF/35 V; 100 nF + 10 µF decoupling</li>
+      <li>INA226 <em>or</em> ADS1115 breakout (accurate V / I sense)</li>
+      <li>Gate resistors 220 Ω, pulldowns 10 k, divider 100 k / 27 k, 3.3 V Zeners</li>
+    </ul>
+  </div>
+  <div class="panel tight">
+    <h3 style="margin-top:6px">Wiring &amp; mechanical</h3>
+    <ul style="font-size:14px">
+      <li>Ground bus bar (brass/blade) for the star point</li>
+      <li>12 AWG (main + ground backbone), 16/18/22 AWG tinned</li>
+      <li>Shielded multi-core for the spine signal pair</li>
+      <li>Main disconnect: Deutsch DT (or sealed multi-pin)</li>
+      <li>Add-A-Fuse (fuse tap) for the ignition-sense pickup</li>
+      <li>Inline ATO fuse holders + assorted fuses (2/5/7.5/25 A)</li>
+      <li>12V→USB-C PD buck ≥ 21 W (tablet, No-Battery-Mode capable)</li>
+      <li>Sealed ESP enclosure, adhesive-lined heat-shrink, loom, labels</li>
+    </ul>
+  </div>
+</div>
+<div class="panel alert"><span class="tag">Strongly consider</span><p style="margin:2px 0 0">A <strong>series-type R/R upgrade</strong> (Shindengen MOSFET) if heated grips are on the roadmap — it's the real fix for this generation's stator heat, not a band-aid.</p></div>
+
+<!-- 12 -->
+<h2 id="install"><span class="num">12</span> Install Sequence — Do It Once</h2>
+<p class="lede">Fairings come off once. Run and terminate everything, including the spares, before they go back on.</p>
+<table>
+  <tbody>
+    <tr><td class="mono">01</td><td><b>Disconnect battery negative first.</b> Always. Confirm with a meter.</td></tr>
+    <tr><td class="mono">02</td><td>Mount the under-seat tray: ground bus, master relay + socket, fuse block, sealed ESP enclosure. Plan layout dry before crimping.</td></tr>
+    <tr><td class="mono">03</td><td>With fairings off, run the <b>spine</b> front→rear: tablet power pair, front-aux pair, spare pair, shielded signal pair. Secure clear of heat, steering, and pinch points.</td></tr>
+    <tr><td class="mono">04</td><td>Set <b>service loops</b> (10–15 cm) at both ends; fit the <b>main disconnect</b> at the headstock. Label every conductor at both ends now.</td></tr>
+    <tr><td class="mono">05</td><td>Install the <b>main fuse within 15 cm</b> of battery +. Run 12 AWG to the relay 30-pin and to the distribution block.</td></tr>
+    <tr><td class="mono">06</td><td>Build the <b>ESP input stage</b> on the always-hot 2 A tap: reverse-pol → TVS → bulk cap → buck. <b>Set and verify the buck to 5.0 V on the bench before connecting the ESP.</b></td></tr>
+    <tr><td class="mono">07</td><td>Wire the <b>ignition-sense</b> Add-A-Fuse → divider/Zener → ESP wake GPIO. Wire <b>INA226</b> across the bus (I²C to ESP).</td></tr>
+    <tr><td class="mono">08</td><td>Wire the <b>relay coil</b>: 85→+12, 86→ESP MOSFET (low-side), flyback diode across coil. 87→accessory bus.</td></tr>
+    <tr><td class="mono">09</td><td>Land per-load <b>MOSFETs</b> (gate resistor + 10 k pulldown), sources to the ground bus. Fuse each load on the switched bus.</td></tr>
+    <tr><td class="mono">10</td><td>Land <b>all grounds to the star bus</b>; single 12 AWG return to battery −. No daisy-chains, no frame grounds.</td></tr>
+    <tr><td class="mono">11</td><td>Reconnect battery. <b>Bench-test the state machine</b> with a variable supply: simulate 12.5 V (off), 12.5 V + ign (armed), 13.5 V + ign (run), ign-off (delay), charger case (13.8 V no ign → stays off).</td></tr>
+    <tr><td class="mono">12</td><td>Only after the logic passes, refit fairings. Leave the USB programming pigtail accessible and sealed.</td></tr>
+  </tbody>
+</table>
+
+<!-- 13 -->
+<h2 id="firmware"><span class="num">13</span> Firmware State Logic</h2>
+<p class="lede">The supervisor loop, in plain pseudocode. Thresholds with hysteresis avoid relay chatter; the off-delay is a single user-set value.</p>
+<pre><span class="c">// ---- tunable parameters (expose over BLE) ----</span>
+<span class="k">const</span> V_RUN_ON   = 13.2;   <span class="c">// engine confirmed running</span>
+<span class="k">const</span> V_RUN_OFF  = 12.9;   <span class="c">// hysteresis — drop below = not charging</span>
+<span class="k">const</span> RUN_DEBOUNCE = 1000;  <span class="c">// ms above V_RUN_ON before "running"</span>
+<span class="k">const</span> OFF_DELAY  = 30000;  <span class="c">// ms; user-set 0..600000</span>
+
+<span class="k">void</span> <span class="f">supervisorLoop</span>() {
+  ign  = <span class="f">digitalRead</span>(IGN_SENSE);        <span class="c">// HIGH only with key on</span>
+  vbus = <span class="f">readBusVoltage</span>();              <span class="c">// from INA226, not raw ADC</span>
+
+  <span class="k">switch</span> (state) {
+
+    <span class="k">case</span> SLEEP:
+      <span class="c">// woke on ignition rising edge (ext0)</span>
+      <span class="k">if</span> (ign) state = ARMED;
+      <span class="k">else</span>     <span class="f">enterDeepSleep</span>(WAKE_ON_IGN);
+      <span class="k">break</span>;
+
+    <span class="k">case</span> ARMED:                          <span class="c">// key on, engine not yet running</span>
+      <span class="k">if</span> (!ign) { state = SLEEP; <span class="k">break</span>; }
+      <span class="k">if</span> (vbus &gt;= V_RUN_ON <span class="k">for</span> RUN_DEBOUNCE) {
+        <span class="f">setRelay</span>(<span class="s">ON</span>);  state = RUNNING;   <span class="c">// engine confirmed</span>
+      }
+      <span class="k">break</span>;
+
+    <span class="k">case</span> RUNNING:
+      <span class="k">if</span> (!ign) { <span class="f">startTimer</span>(OFF_DELAY); state = OFF_DELAY_HOLD; <span class="k">break</span>; }
+      <span class="f">manageLoads</span>(vbus);                <span class="c">// dim/shed if vbus &lt; 12.8</span>
+      <span class="k">break</span>;
+
+    <span class="k">case</span> OFF_DELAY_HOLD:                 <span class="c">// relay still ON, counting down</span>
+      <span class="k">if</span> (ign &amp;&amp; vbus &gt;= V_RUN_ON) { state = RUNNING; <span class="k">break</span>; } <span class="c">// restart</span>
+      <span class="k">if</span> (<span class="f">timerExpired</span>()) {
+        <span class="f">setRelay</span>(<span class="s">OFF</span>);  state = SLEEP;     <span class="c">// then deep sleep</span>
+      }
+      <span class="k">break</span>;
+  }
+}
+
+<span class="c">// CHARGER CASE: key off => ign LOW => can only ever sit in SLEEP,
+// no matter how high a battery tender pushes vbus. Solved.</span></pre>
+
+<!-- 14 -->
+<h2 id="sensing"><span class="num">14</span> Sensing &amp; Multi-Wake Architecture</h2>
+<p class="lede">The same always-on ESP serves two lives: cockpit controller when you ride, parked sentinel the rest of the week. What separates them is <em>which event woke it</em>. Deep sleep is the default state; wake sources branch the behaviour.</p>
+
+<div class="panel alert cyan">
+  <span class="tag">Sensor choice</span>
+  <p style="margin-top:2px;margin-bottom:0">Use a <strong>6-axis IMU (accel + gyro)</strong> — LSM6DSO, ICM-20948, or the budget MPU6050 — not a bare accelerometer. The gyro is what tells a real get-off (bike rotating, going horizontal) from a bump, and these parts have a hardware <strong>wake-on-motion interrupt</strong> that runs at microamps, so one chip covers theft-wake, crash-detect, and motion logging. Wire it on the same I²C bus as the INA226.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 980 420" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <defs><marker id="w1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#44505d"/></marker></defs>
+  <text x="24" y="34" fill="#7b4ea3" font-size="13" letter-spacing="3">WAKE-SOURCE MAP — ONE ESP, TWO LIVES</text>
+
+  <!-- center: deep sleep -->
+  <circle cx="490" cy="220" r="74" fill="#ffffff" stroke="#7b4ea3" stroke-width="1.6"/>
+  <text x="490" y="214" text-anchor="middle" fill="#7b4ea3" font-size="15" font-weight="700">ESP32</text>
+  <text x="490" y="234" text-anchor="middle" fill="#44505d" font-size="11">deep sleep</text>
+  <text x="490" y="250" text-anchor="middle" fill="#6b7682" font-size="9.5">~10 µA–2 mA</text>
+
+  <!-- ignition -->
+  <rect x="60" y="70" width="200" height="64" rx="10" fill="#ffffff" stroke="#C77700"/>
+  <text x="160" y="96" text-anchor="middle" fill="#C77700" font-size="12.5" font-weight="700">IGNITION rising edge</text>
+  <text x="160" y="116" text-anchor="middle" fill="#44505d" font-size="10">→ COCKPIT MODE</text>
+  <path d="M260,110 C360,140 400,170 432,196" fill="none" stroke="#C77700" stroke-width="2" marker-end="url(#w1)"/>
+
+  <!-- IMU motion -->
+  <rect x="60" y="306" width="200" height="64" rx="10" fill="#ffffff" stroke="#0072B2"/>
+  <text x="160" y="332" text-anchor="middle" fill="#0072B2" font-size="12.5" font-weight="700">IMU motion INT</text>
+  <text x="160" y="352" text-anchor="middle" fill="#44505d" font-size="10">→ SENTINEL: moved? / crash?</text>
+  <path d="M260,338 C360,300 400,270 432,244" fill="none" stroke="#0072B2" stroke-width="2" marker-end="url(#w1)"/>
+
+  <!-- timer -->
+  <rect x="720" y="70" width="200" height="64" rx="10" fill="#ffffff" stroke="#009E73"/>
+  <text x="820" y="96" text-anchor="middle" fill="#009E73" font-size="12.5" font-weight="700">RTC TIMER · 24 h</text>
+  <text x="820" y="116" text-anchor="middle" fill="#44505d" font-size="10">→ daily health check-in</text>
+  <path d="M720,110 C620,140 580,170 548,196" fill="none" stroke="#009E73" stroke-width="2" marker-end="url(#w1)"/>
+
+  <!-- power loss v2 -->
+  <rect x="720" y="306" width="200" height="64" rx="10" fill="#ffffff" stroke="#cdd5de" stroke-dasharray="4 4"/>
+  <text x="820" y="332" text-anchor="middle" fill="#44505d" font-size="12.5" font-weight="700">POWER-LOSS (v2)</text>
+  <text x="820" y="352" text-anchor="middle" fill="#6b7682" font-size="10">main batt cut → theft trigger</text>
+  <path d="M720,338 C620,300 580,270 548,244" fill="none" stroke="#6b7682" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#w1)"/>
+
+  <text x="490" y="386" text-anchor="middle" fill="#6b7682" font-size="10">Each wake reads the IMU + INA226, decides, acts, then returns to sleep. Cockpit mode only on ignition.</text>
+</svg>
+<figcaption><b>Fig 14.1</b> — Sleep-first design. The ESP does nothing until something wakes it; the wake source determines whether it boots the cockpit or runs a quick sentinel check and goes back under. Event-driven operation is what lets it sit for a skipped weekend or two without flattening the battery.</figcaption>
+</figure>
+
+<!-- 15 -->
+<h2 id="crash"><span class="num">15</span> Crash Detection — Built Around False Positives</h2>
+<p class="lede">The hard part isn't sensing a big jolt — it's not crying wolf. A system that texts your emergency contact every time the bike tips in the garage gets switched off within a week. The whole design is a filter plus a cancel window.</p>
+
+<div class="panel alert red">
+  <span class="tag">Honest limitation — read this</span>
+  <p style="margin-top:2px;margin-bottom:0">A homebrew crash-SOS is a helpful <strong>augmentation, not a guaranteed safety device</strong>. It can miss a real crash (false negative) as well as fire on a non-crash. Build it and enjoy it, but don't let it replace any other safety habit, and don't depend on it the way you would a certified eCall system.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 980 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <defs><marker id="c1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#44505d"/></marker></defs>
+  <g font-size="10.5">
+    <rect x="14" y="60" width="150" height="80" rx="9" fill="#ffffff" stroke="#0072B2"/>
+    <text x="89" y="92" text-anchor="middle" fill="#0072B2" font-size="12" font-weight="700">HIGH-G EVENT</text>
+    <text x="89" y="112" text-anchor="middle" fill="#44505d">accel spike</text>
+    <text x="89" y="126" text-anchor="middle" fill="#6b7682">threshold trip</text>
+    <line x1="164" y1="100" x2="194" y2="100" stroke="#44505d" stroke-width="2" marker-end="url(#c1)"/>
+
+    <rect x="198" y="48" width="180" height="104" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+    <text x="288" y="74" text-anchor="middle" fill="#161b24" font-size="12" font-weight="700">CORROBORATE</text>
+    <text x="288" y="96" text-anchor="middle" fill="#44505d">gyro: orientation flip?</text>
+    <text x="288" y="112" text-anchor="middle" fill="#44505d">was moving / engine on?</text>
+    <text x="288" y="128" text-anchor="middle" fill="#44505d">sustained, not a single tap?</text>
+    <line x1="378" y1="100" x2="408" y2="100" stroke="#44505d" stroke-width="2" marker-end="url(#c1)"/>
+
+    <rect x="412" y="48" width="180" height="104" rx="9" fill="#ffffff" stroke="#C77700"/>
+    <text x="502" y="74" text-anchor="middle" fill="#C77700" font-size="12" font-weight="700">30 s COUNTDOWN</text>
+    <text x="502" y="96" text-anchor="middle" fill="#44505d">loud beep + tablet banner</text>
+    <text x="502" y="112" text-anchor="middle" fill="#44505d">"sending alert — TAP TO CANCEL"</text>
+    <text x="502" y="128" text-anchor="middle" fill="#111111">cancel → stand down</text>
+    <line x1="592" y1="100" x2="622" y2="100" stroke="#44505d" stroke-width="2" marker-end="url(#c1)"/>
+
+    <rect x="626" y="48" width="180" height="104" rx="9" fill="#ffffff" stroke="#7b4ea3"/>
+    <text x="716" y="74" text-anchor="middle" fill="#7b4ea3" font-size="12" font-weight="700">SEND</text>
+    <text x="716" y="96" text-anchor="middle" fill="#44505d">riding → via tablet LTE</text>
+    <text x="716" y="112" text-anchor="middle" fill="#44505d">last GPS + "crash?" SMS</text>
+    <text x="716" y="128" text-anchor="middle" fill="#6b7682">parked → queue for relay</text>
+  </g>
+  <text x="14" y="200" fill="#6b7682" font-size="10.5">A single tap with no orientation change and no prior motion = parking-lot drop → logged, never sent.</text>
+  <text x="14" y="220" fill="#6b7682" font-size="10.5">The countdown is the safety valve: it converts a false positive from "embarrassing 911 call" into "press a button."</text>
+</svg>
+<figcaption><b>Fig 15.1</b> — While riding, the tablet is powered and is the radio, so the alert path is ESP → BLE → tablet → SMS/data with the last GPS fix. No ESP-side LTE needed for on-road crash alerts.</figcaption>
+</figure>
+
+<!-- 16 -->
+<h2 id="telemetry"><span class="num">16</span> Battery Telemetry &amp; Alert Logic</h2>
+<p class="lede">The INA226 already in the plan gives this for free. The insight: the <em>rate</em> of voltage change separates your two real scenarios — "I left something on" from "it's just been sitting." Track the trend, not a single number.</p>
+
+<table>
+  <thead><tr><th>Signal</th><th>Reading</th><th>Most likely cause</th><th>Message to you</th></tr></thead>
+  <tbody>
+    <tr><td><b>Fast drop</b></td><td class="mono">−0.5 V within ~1 h of parking</td><td>Load left on / fault</td><td class="warn">"Check the bike — voltage falling fast"</td></tr>
+    <tr><td><b>Slow sag</b></td><td class="mono">resting V &lt; 12.4 V after days</td><td>Natural self-discharge (sat too long)</td><td>"Battery at ~50% after N days — go for a ride"</td></tr>
+    <tr><td><b>Low</b></td><td class="mono">resting V &lt; 12.0 V</td><td>Approaching hard-to-start</td><td class="bad">"Put it on the charger soon"</td></tr>
+    <tr><td><b>Healthy</b></td><td class="mono">resting V ≥ 12.6 V</td><td>Fine</td><td>(silent — no news is good news)</td></tr>
+  </tbody>
+</table>
+
+<div class="panel alert">
+  <span class="tag">Why the morning check is the right time</span>
+  <p style="margin-top:2px;margin-bottom:0">Resting voltage only reflects true state-of-charge after the battery has <strong>settled</strong> — surface charge from a ride or charger has to dissipate (a few hours). Your 24 h timer firing in the early morning, after an overnight sit, samples exactly when the reading is trustworthy. So the daily wake does triple duty: GPS position (did it move?), resting-voltage health, and IMU self-test — one short wake, three answers, back to sleep.</p>
+</div>
+
+<h3>Sense where there's no current — and folding in the panel voltmeter</h3>
+<p>A voltmeter shows the voltage <em>at its tap point</em>, not at the battery. Tap into a wire that also feeds loads — an ignition-switched accessory wire, say — and you read battery voltage <strong>minus the IR drop</strong> across the ignition switch, its connectors, and that shared wire. On an older bike that drop is easily <strong>~1 V under load</strong>, which is exactly the gap a panel meter spliced into such a wire will show versus a meter on the battery posts. The meter isn't faulty; it's faithfully reporting a lossy point. The rule: <strong>never sense voltage on a current-carrying wire.</strong> Read it on a <strong>dedicated sense lead</strong> that carries only the meter/ADC's microamps — zero current, zero drop, true voltage. This is the same battery-+ sense reference the R/R sense lead (§23) and the INA226 use.</p>
+<p>So the system already <em>is</em> the accurate voltmeter: the INA226 sits on a clean sense point and the tablet shows the number — and it shows more than a dumb meter can (settled resting V, live charging V, and the rate-of-change of §16). Treat the tablet readout as the real gauge. If a physical panel meter stays on the bars, wire it correctly: its <strong>+ lead from a dedicated sense wire off the battery +</strong> (or the R/R output to watch the regulator directly), <strong>gated to power up only when the engine runs</strong> — a small relay/transistor on the engine-run signal, or the master-gated feed tapped right at the battery side of the master relay — and its <strong>− to the star ground</strong>. Because the meter draws almost nothing, that lead has no measurable drop, so it reads the true 14.2–14.4 V when charging instead of 13-point-something. The one thing to avoid is re-splicing it onto any load wire — that's what put it 1 V down to begin with.</p>
+
+<!-- 17 -->
+<h2 id="connectivity"><span class="num">17</span> Connectivity Model — Matched to Your Garage</h2>
+<p class="lede">A shared underground garage means no WiFi and no public position to phone home from. But you and your wife walk past the bike on the way to the car regularly — so the bike doesn't need its own radio in v1. Your phones are the radio.</p>
+
+<figure>
+<svg viewBox="0 0 980 360" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+  <defs><marker id="n1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#009E73"/></marker></defs>
+
+  <!-- LAYER 1 riding -->
+  <rect x="20" y="46" width="940" height="86" rx="12" fill="#ffffff" stroke="#7b4ea3"/>
+  <text x="40" y="74" fill="#7b4ea3" font-size="13" font-weight="700">RIDING — tablet is the radio</text>
+  <text x="40" y="98" fill="#44505d" font-size="11">ESP (sensors, GPS log) ──BLE──▶ Tablet (powered, LTE/GPS) ──▶ SMS / data.  Crash SOS routes here in real time.</text>
+  <text x="40" y="118" fill="#6b7682" font-size="10">Free — tablet is already on and powered. No ESP-side cellular required.</text>
+
+  <!-- LAYER 2 parked -->
+  <rect x="20" y="144" width="940" height="100" rx="12" fill="#ffffff" stroke="#009E73"/>
+  <text x="40" y="172" fill="#009E73" font-size="13" font-weight="700">PARKED (your reality) — opportunistic BLE relay</text>
+  <text x="40" y="196" fill="#44505d" font-size="11">ESP queues events in flash ··· you / wife walk past ▶ phone app auto-connects over BLE ▶ drains queue ▶ forwards on phone data.</text>
+  <g font-size="10">
+    <rect x="40" y="208" width="120" height="26" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="100" y="225" text-anchor="middle" fill="#44505d">ESP queue (flash)</text>
+    <line x1="160" y1="221" x2="210" y2="221" stroke="#009E73" stroke-width="2" marker-end="url(#n1)"/>
+    <rect x="214" y="208" width="150" height="26" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="289" y="225" text-anchor="middle" fill="#44505d">phone passes by (BLE)</text>
+    <line x1="364" y1="221" x2="414" y2="221" stroke="#009E73" stroke-width="2" marker-end="url(#n1)"/>
+    <rect x="418" y="208" width="160" height="26" rx="6" fill="#ffffff" stroke="#cdd5de"/><text x="498" y="225" text-anchor="middle" fill="#44505d">Telegram / push to you</text>
+  </g>
+  <text x="640" y="200" fill="#6b7682" font-size="10">Covers: battery health over a</text>
+  <text x="640" y="214" fill="#6b7682" font-size="10">skipped weekend, garage bumps,</text>
+  <text x="640" y="228" fill="#6b7682" font-size="10">"did it move since last sync."</text>
+
+  <!-- LAYER 3 v2 -->
+  <rect x="20" y="256" width="940" height="84" rx="12" fill="#ffffff" stroke="#cdd5de" stroke-dasharray="5 4"/>
+  <text x="40" y="284" fill="#161b24" font-size="13" font-weight="700">v2 — dedicated LTE for the one gap</text>
+  <text x="40" y="308" fill="#44505d" font-size="11">ESP LTE (Cat-M/NB-IoT) + GPS + backup LiPo + low-V cutoff. The only path that survives "stolen and driven away."</text>
+  <text x="40" y="328" fill="#6b7682" font-size="10">Deferred knowingly — it's the rarest case, and the relay + tablet cover everyday risks now.</text>
+</svg>
+<figcaption><b>Fig 17.1</b> — Three layers, added in order of value-per-effort. Notably, the BLE relay needs <em>zero new hardware on the bike</em> — only a companion phone app.</figcaption>
+</figure>
+
+<div class="panel alert">
+  <span class="tag">Design honestly for two things</span>
+  <ul style="margin:6px 0 0">
+    <li><strong>Background BLE is fussy.</strong> Android needs a foreground service to scan reliably; iOS restricts background BLE harder. Expect to tune reconnection, and consider a "just opened the app" manual sync as the dependable fallback. Pair both your phone and your wife's so either pass-by syncs.</li>
+    <li><strong>The relay is not real-time theft alerting.</strong> A thief won't carry the bike past your phone. It nails battery health and in-garage tamper; genuine drive-away theft is the v2-LTE case. Knowing that boundary is what lets you defer LTE without a false sense of cover.</li>
+  </ul>
+</div>
+
+<!-- 18 -->
+<h2 id="sentinel"><span class="num">18</span> Sentinel-Mode State Machine</h2>
+<p class="lede">The supervisor from §13 gains a branch: on wake, the <em>source</em> decides cockpit vs. sentinel. Sentinel work is short — sample, decide, queue, sleep.</p>
+<pre><span class="k">void</span> <span class="f">onWake</span>(wakeCause) {
+  <span class="k">switch</span> (wakeCause) {
+
+    <span class="k">case</span> WAKE_IGNITION:                 <span class="c">// key turned on</span>
+      <span class="f">enterCockpitMode</span>();             <span class="c">// → supervisorLoop() from §13</span>
+      <span class="k">break</span>;
+
+    <span class="k">case</span> WAKE_MOTION:                   <span class="c">// IMU interrupt while parked</span>
+      imu = <span class="f">readIMU</span>();
+      <span class="k">if</span> (<span class="f">looksLikeCrash</span>(imu)) <span class="f">runCrashCountdown</span>();   <span class="c">// §15</span>
+      <span class="k">else if</span> (<span class="f">displacedFromParked</span>()) <span class="f">queue</span>(<span class="s">"bike moved"</span>);
+      <span class="k">break</span>;
+
+    <span class="k">case</span> WAKE_TIMER:                    <span class="c">// daily ~AM check-in</span>
+      v = <span class="f">restingVoltage</span>();            <span class="c">// settled → trustworthy</span>
+      <span class="f">queue</span>(<span class="f">batteryReport</span>(v));        <span class="c">// trend + threshold → §16</span>
+      <span class="f">queue</span>(<span class="f">positionReport</span>());        <span class="c">// moved since last sync?</span>
+      <span class="k">break</span>;
+  }
+  <span class="f">trySyncOverBLE</span>(<span class="s">timeout=8s</span>);          <span class="c">// a paired phone in range? drain queue</span>
+  <span class="f">enterDeepSleep</span>(WAKE_IGN | WAKE_MOTION | WAKE_TIMER_24H);
+}
+
+<span class="c">// v2 adds: case WAKE_POWERLOSS -> immediate LTE alert from backup LiPo.</span></pre>
+
+<!-- 19 -->
+<h2 id="roadmap"><span class="num">19</span> v1 / v2 Build Roadmap</h2>
+<p class="lede">Phase by value-per-effort. v1 uses parts you have or that cost a few dollars and covers your everyday risks; v2 is the radio revision for the rare drive-away case. Crucially, <strong>v1 reserves the bay space and a spine pair for v2</strong> so the fairings stay on.</p>
+
+<div class="grid2">
+  <div class="panel tight">
+    <h3 style="margin-top:6px">v1 — sensors + relay (now)</h3>
+    <ul style="font-size:14px">
+      <li>6-axis IMU on the I²C bus (motion wake, crash, tilt)</li>
+      <li>INA226 battery telemetry + trend logic</li>
+      <li>Multi-wake: ignition + motion + 24 h timer</li>
+      <li>Crash detection with 30 s cancel window</li>
+      <li>Crash SOS via tablet (riding) — uses tablet's own LTE</li>
+      <li>BLE companion app on both phones = opportunistic relay</li>
+      <li>Battery-health + "did it move" alerts on pass-by sync</li>
+      <li><b>Reserve:</b> a spine pair, antenna routing, and bay volume for v2</li>
+    </ul>
+  </div>
+  <div class="panel tight">
+    <h3 style="margin-top:6px">v2 — the radio revision (later)</h3>
+    <ul style="font-size:14px">
+      <li>LTE Cat-M / NB-IoT modem (e.g. SIM7000-class) + data SIM</li>
+      <li>GPS module (u-blox NEO-M8N/M9N) + antenna</li>
+      <li>Small backup LiPo + charger (survives battery cut)</li>
+      <li>Power-loss detection → immediate theft alert</li>
+      <li>Low-voltage cutoff (preserve cranking charge ~11.8 V)</li>
+      <li>Standalone drive-away tracking — the gap v1 can't see</li>
+      <li>Event-driven only (motion/heartbeat) to last weeks parked</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 20 -->
+<h2 id="layout"><span class="num">20</span> On-Bike Layout — Bird's-Eye Overview</h2>
+<p class="lede">A top-down orientation map: roughly where each component sits and how the runs travel front-to-rear. Not to scale and not a substitute for the schematic — it's for getting your bearings and for handing a mechanic a "what's where" picture. The schematic (separate sheet) remains the exact wiring reference.</p>
+
+<figure>
+<svg viewBox="0 0 860 920" xmlns="http://www.w3.org/2000/svg" font-size="11">
+  <defs>
+    <marker id="rt" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#C77700"/></marker>
+    <marker id="rg" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#111111"/></marker>
+  </defs>
+
+  <text x="20" y="26" fill="#44505d" font-size="13" letter-spacing="2">CABLE ROUTING — TOP VIEW (front at top, not to scale)</text>
+  <text x="430" y="50" text-anchor="middle" fill="#6b7682" font-size="11" font-weight="700">▲ FRONT</text>
+  <text x="430" y="905" text-anchor="middle" fill="#6b7682" font-size="11" font-weight="700">REAR ▼</text>
+
+  <!-- ===== silhouette ===== -->
+  <g fill="#eef1f5" stroke="#cdd5de" stroke-width="1.5">
+    <rect x="405" y="60" width="50" height="74" rx="16"/>          <!-- front tire -->
+    <rect x="332" y="104" width="14" height="66" rx="7"/>          <!-- L crash bar -->
+    <rect x="514" y="104" width="14" height="66" rx="7"/>          <!-- R crash bar -->
+    <rect x="250" y="162" width="360" height="18" rx="9"/>         <!-- handlebar -->
+    <rect x="400" y="150" width="60" height="46" rx="12"/>         <!-- steering head -->
+    <rect x="345" y="206" width="170" height="152" rx="42"/>       <!-- tank -->
+    <rect x="355" y="360" width="150" height="120" rx="30"/>       <!-- seat -->
+    <rect x="360" y="470" width="140" height="192" rx="26"/>       <!-- subframe -->
+    <rect x="405" y="664" width="50" height="86" rx="16"/>         <!-- rear tire -->
+  </g>
+  <!-- grips (heated) -->
+  <rect x="238" y="150" width="26" height="38" rx="7" fill="#fdf3e2" stroke="#C77700"/>
+  <rect x="596" y="150" width="26" height="38" rx="7" fill="#fdf3e2" stroke="#C77700"/>
+
+  <!-- ===== UNDER-SEAT BAY ===== -->
+  <rect x="366" y="496" width="128" height="152" rx="10" fill="#ffffff" stroke="#0072B2" stroke-width="1.6"/>
+  <text x="430" y="492" text-anchor="middle" fill="#0072B2" font-size="11" font-weight="700">UNDER-SEAT BAY</text>
+  <rect x="374" y="506" width="52" height="26" rx="5" fill="#eaf2fb" stroke="#0072B2"/><text x="400" y="523" text-anchor="middle" fill="#0072B2" font-size="9">BATT</text>
+  <rect x="438" y="504" width="50" height="30" rx="5" fill="#fdf3e2" stroke="#C77700"/><text x="463" y="518" text-anchor="middle" fill="#C77700" font-size="8.5">FUSE/</text><text x="463" y="528" text-anchor="middle" fill="#C77700" font-size="8.5">RELAY</text>
+  <rect x="374" y="560" width="52" height="26" rx="5" fill="#f4ecf6" stroke="#7b4ea3"/><text x="400" y="577" text-anchor="middle" fill="#7b4ea3" font-size="8.5">ESP+buck</text>
+  <rect x="438" y="560" width="50" height="26" rx="5" fill="#ffffff" stroke="#111111"/><text x="463" y="577" text-anchor="middle" fill="#111111" font-size="9">GND&#9733;</text>
+  <rect x="374" y="600" width="114" height="34" rx="6" fill="#ffffff" stroke="#cdd5de" stroke-dasharray="4 3"/><text x="431" y="615" text-anchor="middle" fill="#6b7682" font-size="8.5">v2 reserve: LTE+GPS+LiPo</text><text x="431" y="627" text-anchor="middle" fill="#6b7682" font-size="8.5">(spare pair left unused)</text>
+  <!-- +12V battery->fuse (short, in bay) -->
+  <line x1="426" y1="519" x2="438" y2="519" stroke="#0072B2" stroke-width="2.4"/>
+
+  <!-- ===== devices ===== -->
+  <rect x="386" y="214" width="88" height="46" rx="8" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="430" y="233" text-anchor="middle" fill="#161b24" font-size="10" font-weight="700">TABLET</text>
+  <text x="430" y="248" text-anchor="middle" fill="#44505d" font-size="9">+ PD buck</text>
+  <rect x="396" y="184" width="68" height="20" rx="6" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="430" y="198" text-anchor="middle" fill="#161b24" font-size="9">ROTARY (BLE)</text>
+  <circle cx="339" cy="110" r="11" fill="#fdf3e2" stroke="#C77700" stroke-width="1.6"/>
+  <circle cx="521" cy="110" r="11" fill="#fdf3e2" stroke="#C77700" stroke-width="1.6"/>
+
+  <!-- ===== MAIN HARNESS bundle: bay -> steering head (up the right of the tank) ===== -->
+  <path d="M466,500 C520,460 524,320 478,214 C470,202 460,196 452,193" fill="none" stroke="#8b94a0" stroke-width="9" stroke-linecap="round"/>
+  <path d="M466,500 C520,460 524,320 478,214 C470,202 460,196 452,193" fill="none" stroke="#cdd5de" stroke-width="1" stroke-dasharray="2 6"/>
+  <text x="640" y="360" fill="#161b24" font-size="10" font-weight="700">MAIN HARNESS (spine)</text>
+  <text x="640" y="376" fill="#44505d" font-size="9.5">runs up the frame, one side</text>
+  <text x="640" y="392" fill="#44505d" font-size="9.5">• switched 12V (orange)</text>
+  <text x="640" y="408" fill="#44505d" font-size="9.5">• ground return (black)</text>
+  <text x="640" y="424" fill="#44505d" font-size="9.5">• spare pair + 2&#215; signal</text>
+  <line x1="636" y1="372" x2="512" y2="372" stroke="#cdd5de" stroke-width="1" marker-end="url(#rt)"/>
+
+  <!-- ground strand shown returning along bundle -->
+  <path d="M474,500 C528,458 532,322 486,214" fill="none" stroke="#111111" stroke-width="1.6" stroke-dasharray="0"/>
+  <text x="540" y="470" fill="#111111" font-size="9">GND returns in bundle &#8594; star &#9733;</text>
+
+  <!-- ===== service loop + disconnect at steering head ===== -->
+  <path d="M452,193 c-16,-4 -18,-22 -2,-26 c12,-3 16,9 6,15" fill="none" stroke="#8b94a0" stroke-width="3"/>
+  <text x="300" y="120" fill="#161b24" font-size="9.5" font-weight="700">SERVICE LOOP</text>
+  <text x="300" y="134" fill="#6b7682" font-size="9">slack so bars can turn</text>
+  <line x1="360" y1="128" x2="438" y2="175" stroke="#cdd5de" stroke-width="1"/>
+  <rect x="436" y="186" width="34" height="14" rx="3" fill="#ffffff" stroke="#7b4ea3"/>
+  <text x="486" y="210" fill="#7b4ea3" font-size="9" font-weight="700">DISCONNECT</text>
+  <line x1="484" y1="206" x2="464" y2="198" stroke="#cdd5de" stroke-width="1"/>
+
+  <!-- ===== fan-out branches (switched, orange) ===== -->
+  <!-- tablet -->
+  <path d="M448,200 C440,206 432,210 430,213" fill="none" stroke="#C77700" stroke-width="2.4" marker-end="url(#rt)"/>
+  <!-- grips L/R along the bar -->
+  <path d="M444,191 C380,176 310,170 266,168" fill="none" stroke="#C77700" stroke-width="2.4" marker-end="url(#rt)"/>
+  <path d="M460,191 C520,176 560,170 594,168" fill="none" stroke="#C77700" stroke-width="2.4" marker-end="url(#rt)"/>
+  <!-- fog L/R forward to crash bars -->
+  <path d="M445,186 C405,150 360,128 343,121" fill="none" stroke="#C77700" stroke-width="2.4" marker-end="url(#rt)"/>
+  <path d="M459,186 C499,150 520,128 519,121" fill="none" stroke="#C77700" stroke-width="2.4" marker-end="url(#rt)"/>
+
+  <!-- branch labels (left/right margins) -->
+  <text x="40" y="232" fill="#C77700" font-size="9.5" font-weight="700">FOG L</text>
+  <text x="40" y="246" fill="#6b7682" font-size="8.5">SW 12V via fog relay (box)</text>
+  <line x1="78" y1="228" x2="328" y2="112" stroke="#cdd5de" stroke-width="1"/>
+  <text x="700" y="112" fill="#C77700" font-size="9.5" font-weight="700">FOG R</text>
+  <line x1="698" y1="108" x2="532" y2="110" stroke="#cdd5de" stroke-width="1"/>
+  <text x="40" y="166" fill="#C77700" font-size="9.5" font-weight="700">GRIP L (heated)</text>
+  <line x1="120" y1="162" x2="238" y2="168" stroke="#cdd5de" stroke-width="1"/>
+  <text x="700" y="166" fill="#C77700" font-size="9.5" font-weight="700">GRIP R (heated)</text>
+  <line x1="698" y1="162" x2="622" y2="168" stroke="#cdd5de" stroke-width="1"/>
+  <text x="500" y="246" fill="#C77700" font-size="9">SW &#8594; tablet</text>
+
+  <!-- ===== BLE wireless (green dash-dot) ===== -->
+  <path d="M400,560 C300,380 360,250 426,236" fill="none" stroke="#009E73" stroke-width="1.7" stroke-dasharray="8 3 1.5 3"/>
+  <path d="M400,560 C260,360 360,210 428,196" fill="none" stroke="#009E73" stroke-width="1.7" stroke-dasharray="8 3 1.5 3"/>
+  <text x="150" y="330" fill="#009E73" font-size="9.5" font-weight="700">BLE (wireless)</text>
+  <text x="150" y="344" fill="#6b7682" font-size="8.5">ESP &#8596; tablet &#8596; controller</text>
+  <text x="150" y="356" fill="#6b7682" font-size="8.5">no data wire runs forward</text>
+
+  <!-- ===== routing legend ===== -->
+  <g font-size="9.5">
+    <line x1="40" y1="760" x2="74" y2="760" stroke="#8b94a0" stroke-width="9" stroke-linecap="round"/><text x="82" y="763" fill="#44505d">harness bundle (multiple wires in loom)</text>
+    <line x1="40" y1="784" x2="74" y2="784" stroke="#C77700" stroke-width="2.4"/><text x="82" y="787" fill="#44505d">switched 12V feed (peels off at device)</text>
+    <line x1="40" y1="808" x2="74" y2="808" stroke="#111111" stroke-width="1.8"/><text x="82" y="811" fill="#44505d">ground return &#8594; star bus</text>
+    <line x1="430" y1="784" x2="464" y2="784" stroke="#009E73" stroke-width="1.7" stroke-dasharray="8 3 1.5 3"/><text x="472" y="787" fill="#44505d">BLE wireless (no wire)</text>
+    <line x1="430" y1="808" x2="464" y2="808" stroke="#0072B2" stroke-width="2.4"/><text x="472" y="811" fill="#44505d">+12V battery feed (in bay only)</text>
+  </g>
+  <text x="40" y="840" fill="#6b7682" font-size="9">Routing principle: one bundle up the frame &#8594; service loop &amp; disconnect at the steering head &#8594; fan out to fog, grips, tablet. Grounds ride back in the same bundle.</text>
+</svg>
+<figcaption><b>Fig 20.1</b> — Cable routing, front at top. One harness bundle leaves the under-seat bay and runs up the frame to the steering head, where a service loop and the waterproof disconnect sit; from there the switched feeds fan out to the fog lights (forward, on the crash bars), the heated grips (along the bars), and the tablet. Grounds return inside the same bundle to the star bus, and the controller/tablet talk over BLE so no data wire runs forward.</figcaption>
+</figure>
+
+<figure>
+<svg viewBox="0 0 860 580" xmlns="http://www.w3.org/2000/svg" font-size="11">
+  <defs>
+    <marker id="st" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#C77700"/></marker>
+  </defs>
+  <text x="20" y="26" fill="#44505d" font-size="13" letter-spacing="2">CABLE ROUTING — SIDE VIEW (bike facing left, not to scale)</text>
+
+  <!-- ground -->
+  <line x1="40" y1="505" x2="820" y2="505" stroke="#cdd5de" stroke-width="2"/>
+
+  <!-- wheels -->
+  <circle cx="165" cy="415" r="70" fill="#f4f6f8" stroke="#cdd5de" stroke-width="6"/>
+  <circle cx="165" cy="415" r="14" fill="#eef1f5" stroke="#cdd5de"/>
+  <circle cx="700" cy="415" r="70" fill="#f4f6f8" stroke="#cdd5de" stroke-width="6"/>
+  <circle cx="700" cy="415" r="14" fill="#eef1f5" stroke="#cdd5de"/>
+
+  <!-- body silhouette -->
+  <g fill="#eef1f5" stroke="#cdd5de" stroke-width="1.5">
+    <path d="M300,300 q-6,-60 18,-66 l96,0 q22,0 30,12 l120,2 q34,2 40,30 q-30,16 -70,14 l-150,0 q-30,0 -50,-2 z"/> <!-- tank+seat+tail mass -->
+    <rect x="300" y="300" width="138" height="92" rx="14"/>     <!-- engine -->
+    <path d="M520,300 q60,-2 96,8 q26,8 14,40 l-26,0 q-10,-30 -84,-26 z"/> <!-- tail hump -->
+  </g>
+  <!-- fork -->
+  <line x1="165" y1="415" x2="302" y2="256" stroke="#cdd5de" stroke-width="7"/>
+  <!-- swingarm -->
+  <line x1="438" y1="392" x2="700" y2="415" stroke="#cdd5de" stroke-width="6"/>
+  <!-- steering head node -->
+  <circle cx="302" cy="254" r="6" fill="#ffffff" stroke="#7b4ea3" stroke-width="1.6"/>
+  <!-- handlebar + grip -->
+  <line x1="302" y1="254" x2="296" y2="208" stroke="#cdd5de" stroke-width="4"/>
+  <rect x="280" y="198" width="34" height="16" rx="7" fill="#fdf3e2" stroke="#C77700"/>
+  <!-- windscreen -->
+  <line x1="306" y1="232" x2="262" y2="184" stroke="#cdd5de" stroke-width="3"/>
+  <!-- front beak/fender -->
+  <path d="M200,352 q34,-18 64,-6" fill="none" stroke="#cdd5de" stroke-width="4"/>
+  <!-- crash bar + fog -->
+  <line x1="262" y1="356" x2="214" y2="392" stroke="#cdd5de" stroke-width="4"/>
+  <circle cx="206" cy="396" r="12" fill="#fdf3e2" stroke="#C77700" stroke-width="1.6"/>
+
+  <!-- devices labels -->
+  <rect x="242" y="150" width="92" height="34" rx="7" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="288" y="164" text-anchor="middle" fill="#161b24" font-size="9.5" font-weight="700">TABLET + ROTARY</text>
+  <text x="288" y="177" text-anchor="middle" fill="#44505d" font-size="8.5">on the bars / screen</text>
+  <line x1="288" y1="184" x2="296" y2="200" stroke="#cdd5de" stroke-width="1"/>
+  <text x="120" y="430" fill="#C77700" font-size="9.5" font-weight="700">FOG</text>
+  <text x="120" y="444" fill="#6b7682" font-size="8.5">low, crash bar</text>
+  <line x1="150" y1="426" x2="196" y2="398" stroke="#cdd5de" stroke-width="1"/>
+
+  <!-- UNDER-SEAT BAY -->
+  <rect x="448" y="290" width="120" height="62" rx="9" fill="#ffffff" stroke="#0072B2" stroke-width="1.6"/>
+  <text x="508" y="308" text-anchor="middle" fill="#0072B2" font-size="10" font-weight="700">UNDER-SEAT BAY</text>
+  <text x="508" y="323" text-anchor="middle" fill="#44505d" font-size="8.5">battery · fuse/relay</text>
+  <text x="508" y="335" text-anchor="middle" fill="#44505d" font-size="8.5">ESP · GND star</text>
+  <text x="508" y="347" text-anchor="middle" fill="#6b7682" font-size="8">+ v2 reserve</text>
+
+  <!-- ===== ROUTING ===== -->
+  <!-- harness: bay -> under tank -> up the neck to headstock -->
+  <path d="M450,318 C400,338 350,330 322,308 C308,296 302,272 302,258" fill="none" stroke="#8b94a0" stroke-width="9" stroke-linecap="round"/>
+  <path d="M450,318 C400,338 350,330 322,308 C308,296 302,272 302,258" fill="none" stroke="#cdd5de" stroke-width="1" stroke-dasharray="2 6"/>
+  <text x="600" y="250" fill="#161b24" font-size="10" font-weight="700">harness runs UNDER the tank,</text>
+  <text x="600" y="265" fill="#161b24" font-size="10" font-weight="700">then UP the frame neck</text>
+  <line x1="596" y1="258" x2="360" y2="320" stroke="#cdd5de" stroke-width="1"/>
+  <!-- ground strand parallel -->
+  <path d="M456,322 C406,342 356,334 326,310" fill="none" stroke="#111111" stroke-width="1.6"/>
+
+  <!-- service loop + disconnect at headstock -->
+  <path d="M302,258 c-16,-2 -18,-18 -3,-22 c11,-3 15,8 6,13" fill="none" stroke="#8b94a0" stroke-width="3"/>
+  <text x="330" y="232" fill="#7b4ea3" font-size="9.5" font-weight="700">service loop + disconnect</text>
+  <line x1="328" y1="236" x2="306" y2="250" stroke="#cdd5de" stroke-width="1"/>
+
+  <!-- branch UP to bars -->
+  <path d="M302,250 C300,234 298,220 296,212" fill="none" stroke="#C77700" stroke-width="2.4" marker-end="url(#st)"/>
+  <text x="316" y="206" fill="#C77700" font-size="9">&#8594; tablet + grips</text>
+
+  <!-- branch DOWN the fork to fog (the vertical highlight) -->
+  <path d="M300,262 C272,302 240,358 214,388" fill="none" stroke="#C77700" stroke-width="2.6" marker-end="url(#st)"/>
+  <text x="300" y="356" fill="#C77700" font-size="9.5" font-weight="700">&#8595; fog feed drops DOWN the fork</text>
+  <text x="300" y="370" fill="#6b7682" font-size="8.5">to the crash-bar light (switched via relay in box)</text>
+
+  <!-- BLE -->
+  <path d="M452,300 C360,200 320,176 292,178" fill="none" stroke="#009E73" stroke-width="1.7" stroke-dasharray="8 3 1.5 3"/>
+  <text x="470" y="200" fill="#009E73" font-size="9.5" font-weight="700">BLE (wireless) — no wire forward</text>
+
+  <!-- clearance callout -->
+  <text x="330" y="448" fill="#6b7682" font-size="9">Clearance: keep the run clear of the steering stops (bars turn lock-to-lock) and away from engine/exhaust heat.</text>
+
+  <!-- mini legend -->
+  <g font-size="9">
+    <line x1="40" y1="540" x2="72" y2="540" stroke="#8b94a0" stroke-width="9" stroke-linecap="round"/><text x="80" y="543" fill="#44505d">harness bundle</text>
+    <line x1="210" y1="540" x2="242" y2="540" stroke="#C77700" stroke-width="2.4"/><text x="250" y="543" fill="#44505d">switched feed</text>
+    <line x1="360" y1="540" x2="392" y2="540" stroke="#111111" stroke-width="1.8"/><text x="400" y="543" fill="#44505d">ground</text>
+    <line x1="470" y1="540" x2="502" y2="540" stroke="#009E73" stroke-width="1.7" stroke-dasharray="8 3 1.5 3"/><text x="510" y="543" fill="#44505d">BLE wireless</text>
+  </g>
+</svg>
+<figcaption><b>Fig 20.2</b> — Side profile, the view the top-down can't give you: the bundle leaves the under-seat bay, tucks <b>under the tank</b>, climbs the <b>frame neck</b> to the service loop and disconnect at the steering head, then splits — <b>up</b> to the bars (tablet + grips) and <b>down the fork</b> to the fog light on the crash bar. The fog drop is the bit worth planning around the fork travel and fairing brackets.</figcaption>
+</figure>
+
+<h3>Where everything sits — plain list (for the mechanic)</h3>
+<table>
+  <thead><tr><th>Location</th><th>What's there</th><th>Wires in/out</th></tr></thead>
+  <tbody>
+    <tr><td><b>Under the seat</b></td><td>Battery, fuse/relay box, ESP + buck, ground star bus</td><td>Main 25 A from battery +; spine forward; all grounds land here</td></tr>
+    <tr><td><b>Headstock</b></td><td>Waterproof disconnect + service loop</td><td>Everything forward unplugs here (switched 12 V, GND, spares, signal)</td></tr>
+    <tr><td><b>Handlebars / cockpit</b></td><td>Tablet, rotary controller, heated grips</td><td>Switched 12 V to tablet PD buck &amp; grip relay; controller is BLE</td></tr>
+    <tr><td><b>Front (crash bars)</b></td><td>Fog lights L &amp; R</td><td>Switched 12 V via fog relay in the box; ground to star</td></tr>
+    <tr><td><b>Rear / spare bay</b></td><td>Reserved for v2 (LTE + GPS + backup battery)</td><td>One spine pair + antenna path left unused for later</td></tr>
+  </tbody>
+</table>
+
+<!-- 21 -->
+<h2 id="integration"><span class="num">21</span> Hardware Integration — As-Built Decisions</h2>
+<p class="lede">Reflecting the actual parts: a pre-wired 4-relay / 6-fuse sealed box (4× JD1912 40A relays), left stock, with the brains in their own enclosure beside it.</p>
+
+<h3>Two enclosures, not one</h3>
+<p>The relay box is ~100 × 70 × 44 mm; with ~28 mm relays inside there isn't room to lid-mount the ESP. So the <strong>relay box stays stock and sealed</strong>, and the <strong>ESP + buck + IMU + INA226 live in their own small sealed enclosure</strong> mounted beside it in the bay. This is also better electrically — it keeps the switching relays physically away from the sensitive electronics and the short I²C bus. The only wires between the two boxes are the relay coil-control leads, a shared ground, and the power feed. The IMU goes <em>inside</em> the ESP box on short I²C; hard-mount the box and calibrate its resting orientation in firmware (the whole bike moves as one body, so location doesn't matter — rigidity and calibration do). The INA226 only needs <em>bus voltage</em> here, which it can read anywhere on +12 V, so it sits happily in the ESP box too. <em>(Alternative if you prefer one unit: a 3D-printed taller lid in ASA/PETG — not PLA, it softens under-seat — with a gasket channel and a wire gland.)</em></p>
+
+<h3>The combo box, confirmed</h3>
+<p>The box is a 4-relay / 6-fuse unit (4× JD1912 40 A relays). On inspection: <strong>four fuses protect the four relay outputs, and two fuses (the 5 A and the 30 A) feed straight out, bypassing the relays</strong>. So those two are "dumb" direct outputs. The move is to feed the box's main 12 V through an <strong>external master relay the ESP energises only when the engine is running</strong> — that hardware-gates the whole box, and as a bonus turns the 5 A and 30 A direct-outs into <strong>engine-switched</strong> 12 V feeds (e.g. tablet buck on the 5 A, a switched sub-bus on the 30 A). The master relay doing the engine-gate in hardware means the four internal relays just need plain user on/off.</p>
+
+<h3>ESP power — its own battery tap, not the box</h3>
+<p>Because the master relay now gates the box, the ESP <strong>cannot</strong> draw its always-hot supply from inside the box (it would die the moment the master relay opens, killing the off-delay and parked sentinel). Run the ESP's supply from a <strong>separate always-hot tap straight off the battery, with an inline 2 A fuse</strong>, upstream of the master relay. The ESP controls the master relay; it can't live downstream of it.</p>
+
+<h3>Relay coil drive — ULN2803, reusing the commoned coil pin</h3>
+<p>The box's four coil "negatives" (pin 86, black) come out <strong>commoned</strong>. Rather than separate them, tie that common to <strong>+12 V</strong> (the master-gated feed) and switch each individual <strong>pin 85 (white) to ground</strong> — coils aren't polarised, so swapping +/- is fine. Drive them with a <strong>ULN2803A Darlington array</strong>: it's an open-collector low-side sink (exactly this topology), its inputs run from 3.3 V logic, and it's <strong>active-high</strong> (GPIO high → output sinks the 85 line → relay on). Add a pull-down on each input so nothing actuates while the ESP boots. The ESP grounds an 85 line to switch a relay; the relay only actually actuates when the box is powered (engine running), so firmware logic and hardware gate agree. <strong>v1 = on/off only;</strong> the MOSFET/PWM dimming of §06 is the v2 drop-in.</p>
+
+<h3>Flyback — handled by the ULN's internal clamps</h3>
+<p>The ULN2803A has <strong>built-in kickback (clamp) diodes</strong> for inductive loads. Tie its <strong>COM pin (10) to the +12 V rail</strong> (your commoned 86), and the internal diodes handle every coil's flyback — so you do <strong>not</strong> need to add the external 1N4007s on the box. (If you ever swap to discrete logic-level MOSFETs instead, then you'd add a 1N4007 per coil, band/cathode to the +12 side.)</p>
+
+<h3>Headlights stay outside the gated box — fail-ON</h3>
+<p>Lighting must survive an ESP or master-relay fault, so it is <em>not</em> on the master-gated box. Feed the headlight relays from a non-gated source and trigger their coils from the <strong>original headlight wire that runs through the start button</strong> — this relieves the starter switch of the bulb current and keeps the factory cranking cut. One bulb is always-on (ESP-independent, guaranteed); the second runs through a <strong>5-pin NC (87a) relay</strong> the ESP energises only to shed it in a critical low-power moment. ESP dead → both bulbs lit; emergency shed → drop the second only. The ESP never has to <em>provide</em> light, only remove the one sheddable bulb.</p>
+
+<h3>PC817 opto — two isolated inputs</h3>
+<p>The 2-channel PC817 board is an input-isolation type (low output current — sensing, not coil driving). Use its two channels for the two 12 V status lines: <strong>ignition / engine-run sense</strong> and the <strong>start-button / headlight feed sense</strong>. Per channel: 12 V → ~1 kΩ → PC817 LED → ground; output collector → GPIO with a ~10 kΩ pull-up to 3.3 V. Logic inverts (12 V present pulls the GPIO low), so flip it in firmware. This gives transient-isolated inputs, replacing the divider-plus-Zener on the ignition line.</p>
+
+<h3>Sealed-box housekeeping</h3>
+<p>Because the ESP box is sealed: route the BLE <strong>antenna external (U.FL/IPEX)</strong> or against a plastic wall and clear of the metal subframe — the parked phone-sync depends on BLE actually reaching the garage. Plan <strong>OTA firmware updates</strong> (over BLE/WiFi) so you never open the box to reflash. <strong>Conformal-coat</strong> the board and add a small breather/desiccant against condensation. Keep the I²C bus short (&lt; 15 cm), at 100 kHz, with ~4.7 kΩ pull-ups and local decoupling, routed away from the coil-drive wires; give the firmware an I²C <strong>bus-recovery routine</strong> + read timeouts so a glitch self-heals.</p>
+
+<div class="panel alert">
+  <span class="tag">Future revision (noted, not now)</span>
+  <p style="margin-top:2px;margin-bottom:0">Consolidate the controller, sensors, coil drivers, and input protection onto a <strong>single custom PCB</strong> (fab e.g. JLCPCB) to replace the separate breakout boards — cleaner, more vibration-robust, and easier to seal. Design the relay coil-drivers, the always-hot buck + protection, the I²C sensors, and the ignition-sense front end as one board with proper connectors. Deferred until the v1 breadboard/protoboard build is proven.</p>
+</div>
+
+<!-- 22 -->
+<h2 id="bench"><span class="num">22</span> Bench Verification Checklist</h2>
+<p class="lede">Do all of this on the bench with a variable supply <em>before</em> anything goes on the bike. It catches the expensive mistakes while they're still free.</p>
+<table>
+  <tbody>
+    <tr><td class="mono">01</td><td><b>Trace the box.</b> With the box powered and all relays off, confirm <b>a5 (blue) reads 12 V</b> (always-hot). Pull the 5 A fuse → if a5 dies, it's on the 5 A; if not, pull the 20 A. Note which fuse feeds which output.</td></tr>
+    <tr><td class="mono">02</td><td><b>Set the buck.</b> Adjust the MP1584 to <b>5.0 V</b> and confirm it under load <em>before</em> connecting the ESP. Verify reverse-pol protection and TVS are in line.</td></tr>
+    <tr><td class="mono">03</td><td><b>Flyback polarity.</b> With a meter, confirm each coil diode is reverse-biased at rest (no continuity in the conducting direction across the energised rail). Energise one relay briefly and confirm it switches and releases cleanly.</td></tr>
+    <tr><td class="mono">04</td><td><b>Engine-run logic.</b> Simulate the states with the variable supply: 12.5 V no-ign = off; 12.5 V + ign = armed; 13.5 V + ign = relays enable; ign off = off-delay then drop; <b>13.8 V no-ign (charger case) = stays off</b>.</td></tr>
+    <tr><td class="mono">05</td><td><b>Load test each relay.</b> Drive each coil from its ESP MOSFET and confirm the load switches, the ESP doesn't brown out, and there's no I²C disruption when relays switch (watch for sensor read errors).</td></tr>
+    <tr><td class="mono">06</td><td><b>Sentinel + BLE.</b> Confirm deep-sleep current is sane, motion/timer wakes fire, the queue persists across a power-cycle (NVS), and a paired phone can connect and drain it. Check BLE range with the lid <em>closed</em>.</td></tr>
+    <tr><td class="mono">07</td><td><b>Only then</b> mount on the bike, land grounds to the star, and bench-style re-test once before the fairings go back on.</td></tr>
+  </tbody>
+</table>
+
+<div class="panel alert">
+  <span class="tag">Dev workflow — two units, one discipline</span>
+  <p style="margin-top:2px">With a second ESP and buck on the bench, keep a standing rule:</p>
+  <ul style="margin:6px 0 0">
+    <li><strong>Bench-twin first.</strong> The bench unit is a permanent regression rig, wired to the <em>identical</em> pinout/pull-ups as the bike unit and kept on the same firmware build. Every change is flashed and exercised there before it ever reaches the bike. Give each unit a device ID so logs tell them apart.</li>
+    <li><strong>OTA with rollback, proven before sealing.</strong> Because the bike box is sealed, set up A/B OTA partitions with app-verification and automatic rollback from the very first flash (the partition table must include OTA slots before sealing). Prove on the bench that a deliberately-bad update rolls back cleanly — only then trust OTA on the sealed unit. A bricked sealed unit is a fairings-off afternoon.</li>
+    <li><strong>Lock the buck pots.</strong> Set each MP1584 to 5.0 V under load independently (they vary unit-to-unit), then lock the trimpot with nail polish/thread-locker — vibration walks an unsecured pot over time, the bike unit especially.</li>
+    <li><strong>Current-limited bench supply.</strong> Use an adjustable, current-limited PSU: the limit catches a wiring short before it cooks anything, and the variable voltage drives the engine-run state-machine tests (steps 04–05) entirely on the desk.</li>
+    <li><strong>Stock cheap spares.</strong> Bucks, MOSFETs, and diodes are cents and ship slowly — keep a few so a dead part mid-build doesn't cost a weekend.</li>
+  </ul>
+</div>
+
+<!-- 23 -->
+<h2 id="charging"><span class="num">23</span> Charging System — R/R Choice &amp; Stator Test</h2>
+<p class="lede">The charging upgrade that actually matters here is the regulator, not the stator. This section captures the R/R decision and — more importantly — how to <em>measure</em> whether you ever need to touch the stator at all.</p>
+
+<h3>R/R: series, and genuine</h3>
+<p>Go <strong>series</strong>, not MOSFET. A MOSFET R/R (Shindengen FH012AA/FH020AA) is still a <em>shunt</em> regulator — it runs the R/R cooler but leaves the stator at full output. A <strong>series</strong> R/R (Shindengen <strong>SH775</strong> ≈ 35 A, or <strong>SH847</strong> ≈ 50 A) disconnects the stator when charge isn't needed, cutting stator heat — the real protection on this generation. For a 400 W DL650 the SH775 is right-sized and easier to mount; the <strong>SH847 is the genuine OEM series unit Suzuki used on the 2014+ DL1000 (Suzuki PN 32800-31J00)</strong>, which is the safest way to guarantee authenticity. <strong>Counterfeits matter</strong> — fake SH847s are shunt units in disguise, so buy genuine (Suzuki part number, Japanese-made, metal base plate, Shindengen logo). Wire it directly: three stator phases spliced + heatshrunk (ditch the OEM connectors), output to the battery on 10 AWG with a 30 A fuse, the sense lead (SH847) to battery +, good ground, battery disconnected during install. Healthy result: ~14.2–14.4 V at the battery, engine running.</p>
+
+<h3>Stator: measure, don't preemptively upgrade</h3>
+<p>For your loads (LED fog, grips, tablet, electronics) the stock 400 W stator plus a series R/R is almost certainly enough. Output is plentiful at cruise; it only drops at idle — so the real-world risk isn't melting anything, it's drawing the battery down while sitting in cold stop-and-go with everything on. That's exactly what your <strong>INA226 + load-shedding firmware</strong> manage (dim fogs / cut grips when the bus sags). So treat a stator upgrade as a "later, only if the data says so" item — and here's how to get that data.</p>
+
+<h3>How to test it</h3>
+<p style="margin-bottom:6px"><strong>Charging-system health (do this first — multimeter at the battery):</strong></p>
+<table>
+  <tbody>
+    <tr><td class="mono">A1</td><td><b>Resting voltage</b> — engine off, settled a few hours. <span class="ok">Healthy 12.6–12.8 V</span>; below ~12.4 V = low/old battery.</td></tr>
+    <tr><td class="mono">A2</td><td><b>At idle, engine running.</b> Should rise above resting; on the 650 it's modest at idle (~13–13.5 V is normal — output is low at idle).</td></tr>
+    <tr><td class="mono">A3</td><td><b>At ~5000 rpm.</b> Should climb to the regulated <span class="ok">~14.0–14.4 V</span>. If it won't climb, the charging system is weak (stator or R/R).</td></tr>
+    <tr><td class="mono">A4</td><td><b>Under full load at cruise rpm.</b> All accessories on (fog, grips, tablet, headlight), ~4000–5000 rpm. Should hold <span class="ok">≥ 13.8 V</span>. Sagging below ~13 V <em>at cruise</em> = genuinely exceeding capacity.</td></tr>
+    <tr><td class="mono">A5</td><td><b>Log it with the INA226.</b> Record bus voltage and total current at idle and cruise, worst case = idle with everything on. This quantifies your real draw vs. the ~30 A the stator can give, so the decision is data, not guesswork.</td></tr>
+  </tbody>
+</table>
+<p style="margin-bottom:6px"><strong>Stator-specific tests (to tell a bad stator from a bad R/R) — unplug the 3-phase stator connector first:</strong></p>
+<table>
+  <tbody>
+    <tr><td class="mono">B1</td><td><b>Phase resistance (engine off).</b> Measure across each of the three phase pairs (1-2, 2-3, 1-3). Readings should be <b>low and roughly equal</b> (typically well under 1 Ω — check the service manual for the exact figure). A big imbalance or an open reading = bad winding.</td></tr>
+    <tr><td class="mono">B2</td><td><b>Insulation to ground (engine off).</b> From each phase to chassis/ground: should read <b>open / infinite</b>. Any continuity to ground = a shorted winding = stator failing.</td></tr>
+    <tr><td class="mono">B3</td><td><b>AC output (engine running, stator still unplugged from R/R).</b> On AC volts, measure each phase pair. Readings should be <b>balanced across all three pairs and rise with rpm</b> (the manual gives the exact V-AC-per-rpm spec). One pair low or zero = a dead phase. <span class="warn">The leads are live AC — insulate them, don't short them, keep clear of hot/moving parts.</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Reading the results</h3>
+<table>
+  <thead><tr><th>What you see</th><th>Cause</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td>Holds 14.0–14.4 V at cruise under full load</td><td class="ok">Healthy system</td><td>No upgrade needed — done</td></tr>
+    <tr><td>Charge fine at cruise, sags only at idle with everything on</td><td>Normal idle behaviour</td><td>Let the firmware shed load — no upgrade</td></tr>
+    <tr><td>Poor charge, but stator AC output (B3) good &amp; balanced</td><td class="warn">R/R failing</td><td>Series R/R fixes it</td></tr>
+    <tr><td>Stator AC low/imbalanced (B3) or shorts to ground (B2)</td><td class="bad">Stator failing</td><td>Replace (OEM) or rewind (e.g. Custom Rewind)</td></tr>
+    <tr><td>Sags at cruise under load, but stator <em>and</em> R/R test fine</td><td>Genuinely over capacity</td><td>Then — and only then — a higher-output stator (e.g. ElectroSport ESG847, ~25% more) + series R/R</td></tr>
+  </tbody>
+</table>
+<div class="panel alert">
+  <span class="tag">Verify the exact figures</span>
+  <p style="margin-top:2px;margin-bottom:0">Resistance and AC-output specs are model-specific — pull the exact values from the DL650 service manual rather than trusting the ballpark ranges above. Also check whether your VIN had any stator/charging recall performed; a <em>tired</em> stock stator underperforms and can look like "not enough capacity" when it's really just worn. Note that aftermarket high-output stators have a mixed reliability reputation versus OEM, so that route is a last resort, not a default.</p>
+</div>
+
+<footer>
+  V-Strom DL650 Smart Cockpit · Electrical Plan v1 · Built for one-and-done install.<br>
+  Verify all model-specific values (fuse box pinout, exact charging output, connector keying) against your service manual before cutting. Currents and component values shown are typical starting points, not measured from your bike. When in doubt about load on the charging system, measure bus voltage at idle with everything on.
+</footer>
+
+</div>
+</body>
+</html>

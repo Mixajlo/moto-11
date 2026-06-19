@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V-Strom DL650 — Wiring Schematic (accessible)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f8fa;--card:#ffffff;--line:#cdd5de;--ink:#161b24;--dim:#44505d;--faint:#6b7682;
+    /* colourblind-safe (Okabe-Ito) — blue / orange / black, no red-green pairing */
+    --c12v:#0072B2;   /* +12V  : blue,   SOLID thick   */
+    --csw:#C77700;    /* SW    : orange, SOLID medium  */
+    --cgnd:#111111;   /* GND   : black,  SOLID + symbol */
+    --csig:#CC79A7;   /* SIG   : purple, DASHED        */
+    --ci2c:#009E73;   /* I2C   : green,  DOTTED        */
+    --cble:#7a7a7a;   /* BLE   : grey,   DASH-DOT      */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"JetBrains Mono",monospace;line-height:1.55}
+  .wrap{max-width:1320px;margin:0 auto;padding:26px 20px 90px}
+  .head{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px}
+  h1{font-family:"Saira Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(26px,4.4vw,42px);margin:0;line-height:.95}
+  h1 b{color:var(--csw)}
+  .sub{color:var(--dim);font-size:13px;max-width:600px;margin-top:8px}
+  .rev{font-size:12px;color:var(--faint);text-align:right}
+  .rev b{color:var(--c12v)}
+
+  /* legend: shows the LINE PATTERN, not just colour */
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:16px 0 4px}
+  .lg{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+  .lg svg{flex:0 0 46px}
+  .lg .tag{font-weight:700}
+  .lg .role{color:var(--dim);font-size:12px}
+  .a11y{background:#fff;border:1px solid var(--line);border-left:3px solid var(--c12v);border-radius:10px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--dim)}
+  .a11y b{color:var(--ink)}
+
+  figure{margin:18px 0}
+  svg.sheet{display:block;width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+
+  /* wire classes — pattern is the primary cue, colour is secondary */
+  .w12v{stroke:var(--c12v);stroke-width:3.4;fill:none}
+  .wsw{stroke:var(--csw);stroke-width:2.4;fill:none}
+  .wgnd{stroke:var(--cgnd);stroke-width:3;fill:none}
+  .wsig{stroke:var(--csig);stroke-width:2;fill:none;stroke-dasharray:8 4}
+  .wi2c{stroke:var(--ci2c);stroke-width:2;fill:none;stroke-dasharray:1.5 4;stroke-linecap:round}
+  .wble{stroke:var(--cble);stroke-width:1.7;fill:none;stroke-dasharray:8 3 1.5 3}
+  .thin{stroke-width:1.5}
+  .box{fill:#fff;stroke:var(--line)}
+  .b12v{fill:#eaf2fb;stroke:var(--c12v)}
+  .bsw{fill:#fdf3e2;stroke:var(--csw)}
+  .bsig{fill:#fbeef5;stroke:var(--csig)}
+  .bi2c{fill:#e9f7f1;stroke:var(--ci2c)}
+  .bmute{fill:#f1f3f6;stroke:var(--line);stroke-dasharray:4 3}
+  .frame{fill:none;stroke:#d9dfe6;stroke-dasharray:4 6}
+  text{font-family:"JetBrains Mono",monospace}
+  .t{fill:var(--ink)} .td{fill:var(--dim)} .tf{fill:var(--faint)}
+  .l12v{fill:var(--c12v);font-weight:700} .lsw{fill:var(--csw);font-weight:700}
+  .lgnd{fill:var(--cgnd);font-weight:700} .lsig{fill:var(--csig);font-weight:700}
+  .li2c{fill:var(--ci2c);font-weight:700} .lble{fill:var(--cble);font-weight:700}
+
+  h2{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;font-size:22px;color:var(--csw);margin:32px 0 6px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;color:var(--c12v);font-size:12.5px}
+  td{color:var(--dim)} td b{color:var(--ink)}
+  .ref{color:var(--csw);font-weight:700}
+  .pat{font-weight:700;white-space:nowrap}
+  .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--csw);border-radius:10px;padding:13px 16px;margin:16px 0;font-size:13px;color:var(--dim)}
+  .note b{color:var(--ink)}
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--faint);font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="head">
+  <div>
+    <h1>DL650 <b>Smart Cockpit</b> — Wiring Schematic</h1>
+    <div class="sub">Accessible build sheet. Every wire type has a distinct <b>line pattern + text tag</b>, so it never depends on telling colours apart. The wire schedule below is the colour-free master key.</div>
+  </div>
+  <div class="rev">SHEET 1/1 · <b>REV B</b><br>colourblind-safe encoding</div>
+</div>
+
+<!-- LEGEND: pattern-based -->
+<div class="legend">
+  <div class="lg"><svg viewBox="0 0 46 14" height="14"><line x1="2" y1="7" x2="44" y2="7" class="w12v"/></svg><div><span class="tag" style="color:var(--c12v)">+12V</span> <span class="role">solid · thick · battery (always hot)</span></div></div>
+  <div class="lg"><svg viewBox="0 0 46 14" height="14"><line x1="2" y1="7" x2="44" y2="7" class="wsw"/></svg><div><span class="tag" style="color:var(--csw)">SW</span> <span class="role">solid · medium · switched accessory</span></div></div>
+  <div class="lg"><svg viewBox="0 0 46 14" height="14"><line x1="2" y1="7" x2="44" y2="7" class="wgnd"/></svg><div><span class="tag" style="color:var(--cgnd)">GND</span> <span class="role">solid · black · ground (star)</span></div></div>
+  <div class="lg"><svg viewBox="0 0 46 14" height="14"><line x1="2" y1="7" x2="44" y2="7" class="wsig"/></svg><div><span class="tag" style="color:var(--csig)">SIG</span> <span class="role">dashed · logic / sense / gate</span></div></div>
+  <div class="lg"><svg viewBox="0 0 46 14" height="14"><line x1="2" y1="7" x2="44" y2="7" class="wi2c"/></svg><div><span class="tag" style="color:var(--ci2c)">I2C</span> <span class="role">dotted · sensor bus</span></div></div>
+  <div class="lg"><svg viewBox="0 0 46 14" height="14"><line x1="2" y1="7" x2="44" y2="7" class="wble"/></svg><div><span class="tag" style="color:var(--cble)">BLE</span> <span class="role">dash-dot · wireless (no wire)</span></div></div>
+</div>
+
+<div class="a11y"><b>Reading this if colours are hard to separate:</b> go by the <b>line pattern</b> first — solid-thick = +12V, solid-medium = switched, solid-black = ground, dashed = logic/sense, dotted = I²C, dash-dot = wireless. Every wire also carries a short tag (+12V / SW / GND / SIG / I2C) and a <b>W-number</b> that you can look up in the wire schedule, which states the type in words.</div>
+
+<figure>
+<svg class="sheet" viewBox="0 0 1300 940" xmlns="http://www.w3.org/2000/svg" font-size="11">
+  <defs>
+    <marker id="d" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#44505d"/></marker>
+  </defs>
+
+  <!-- zone frames -->
+  <rect x="14" y="40" width="900" height="700" rx="12" class="frame"/>
+  <text x="28" y="62" class="tf" letter-spacing="2">UNDER-SEAT BAY</text>
+  <rect x="930" y="40" width="356" height="700" rx="12" class="frame"/>
+  <text x="944" y="62" class="tf" letter-spacing="2">FRONT COCKPIT</text>
+
+  <!-- +12V rail -->
+  <line x1="60" y1="120" x2="700" y2="120" class="w12v"/>
+  <text x="560" y="112" class="l12v">+12V DIST RAIL</text>
+
+  <!-- battery -->
+  <rect x="40" y="150" width="92" height="92" rx="8" class="b12v"/>
+  <text x="86" y="190" text-anchor="middle" class="l12v">BATTERY</text>
+  <text x="86" y="208" text-anchor="middle" class="td">12V 10Ah</text>
+  <text x="52" y="168" class="l12v">+</text>
+  <text x="116" y="238" class="lgnd">−</text>
+  <line x1="60" y1="150" x2="60" y2="92" class="w12v"/>
+  <rect x="44" y="74" width="34" height="20" rx="3" class="box" stroke-width="2"/>
+  <line x1="48" y1="84" x2="74" y2="84" class="wsw"/>
+  <line x1="60" y1="92" x2="60" y2="120" class="w12v"/>
+  <text x="86" y="80" class="lsw">MAIN 25A</text>
+  <text x="86" y="94" class="tf">&lt;15cm batt+</text>
+  <text x="28" y="138" class="lsw">W1·W2</text>
+
+  <!-- always-hot ESP feed -->
+  <line x1="180" y1="120" x2="180" y2="150" class="w12v"/>
+  <rect x="164" y="150" width="32" height="18" rx="3" class="box" stroke-width="2"/>
+  <line x1="168" y1="159" x2="192" y2="159" class="wsw"/>
+  <text x="202" y="163" class="lsw">2A always-hot · W5</text>
+  <line x1="180" y1="168" x2="180" y2="190" class="w12v"/>
+  <rect x="120" y="190" width="120" height="40" rx="6" class="box"/>
+  <text x="180" y="206" text-anchor="middle" class="t">REV-POL P-FET</text>
+  <text x="180" y="221" text-anchor="middle" class="td">/ Schottky</text>
+  <line x1="180" y1="230" x2="180" y2="248" class="w12v"/>
+  <text x="246" y="252" class="td">TVS 24V · bulk 1000µF</text>
+  <rect x="120" y="248" width="120" height="40" rx="6" class="b12v"/>
+  <text x="180" y="264" text-anchor="middle" class="l12v">MP1584 BUCK</text>
+  <text x="180" y="279" text-anchor="middle" class="td">12V → 5.0V</text>
+  <line x1="180" y1="288" x2="180" y2="430" class="w12v" marker-end="url(#d)"/>
+  <text x="186" y="352" class="l12v">5V → ESP</text>
+
+  <!-- master relay -->
+  <line x1="330" y1="120" x2="330" y2="150" class="w12v"/>
+  <rect x="300" y="150" width="150" height="150" rx="10" class="box"/>
+  <text x="375" y="172" text-anchor="middle" class="t">MASTER RELAY</text>
+  <text x="375" y="186" text-anchor="middle" class="tf">30/40A</text>
+  <text x="312" y="210" class="l12v">30</text>
+  <text x="312" y="240" class="l12v">85</text>
+  <text x="312" y="285" class="lsig">86</text>
+  <text x="430" y="285" class="lsw">87</text>
+  <path d="M330,245 q8,-6 0,-12 q-8,-6 0,-12" fill="none" stroke="#CC79A7" stroke-width="1.6" transform="translate(0,18)"/>
+  <text x="345" y="262" class="lsig">coil</text>
+  <path d="M398,242 l0,28 m-7,-20 l14,0 l-7,12 z" fill="none" stroke="#CC79A7" stroke-width="1.3"/>
+  <text x="408" y="262" class="lsig">flyback W7b</text>
+  <line x1="365" y1="210" x2="365" y2="278" stroke="#9aa6b6" stroke-width="1.3" stroke-dasharray="3 3"/>
+  <line x1="330" y1="120" x2="330" y2="205" class="w12v"/>
+  <line x1="330" y1="205" x2="300" y2="205" class="w12v"/>
+  <text x="268" y="138" class="l12v">W3</text>
+  <line x1="300" y1="237" x2="280" y2="237" class="w12v"/>
+  <line x1="280" y1="237" x2="280" y2="120" class="w12v"/>
+  <text x="254" y="200" class="l12v">W4</text>
+  <line x1="300" y1="282" x2="270" y2="282" class="wsig"/>
+  <line x1="270" y1="282" x2="270" y2="470" class="wsig"/>
+  <text x="206" y="300" class="lsig">W7 SIG → relay FET</text>
+  <line x1="450" y1="282" x2="520" y2="282" class="wsw"/>
+  <text x="468" y="274" class="lsw">W6 SW</text>
+
+  <!-- switched bus -->
+  <line x1="520" y1="282" x2="520" y2="360" class="wsw"/>
+  <line x1="520" y1="360" x2="880" y2="360" class="wsw"/>
+  <text x="640" y="352" class="lsw">SW · SWITCHED ACC BUS (engine-run only + off-delay)</text>
+
+  <!-- fog -->
+  <line x1="560" y1="360" x2="560" y2="392" class="wsw"/>
+  <rect x="544" y="392" width="32" height="18" rx="3" class="box" stroke-width="2"/><line x1="548" y1="401" x2="572" y2="401" class="wsw"/>
+  <text x="584" y="405" class="lsw">7.5A · W8</text>
+  <line x1="560" y1="410" x2="560" y2="440" class="wsw"/>
+  <rect x="510" y="440" width="100" height="40" rx="6" class="bsw"/>
+  <text x="560" y="464" text-anchor="middle" class="lsw">FOG LIGHTS</text>
+  <!-- grips future -->
+  <line x1="690" y1="360" x2="690" y2="440" class="wsw" stroke-dasharray="5 4"/>
+  <rect x="674" y="392" width="32" height="18" rx="3" class="box" stroke-width="2"/><line x1="678" y1="401" x2="702" y2="401" class="wsw"/>
+  <text x="714" y="405" class="lsw">7.5A · W9</text>
+  <rect x="640" y="440" width="100" height="40" rx="6" class="bmute"/>
+  <text x="690" y="458" text-anchor="middle" class="td">HEATED GRIPS</text>
+  <text x="690" y="472" text-anchor="middle" class="tf">future</text>
+  <!-- spare -->
+  <line x1="820" y1="360" x2="820" y2="410" class="wsw"/>
+  <rect x="804" y="392" width="32" height="18" rx="3" class="box" stroke-width="2"/><line x1="808" y1="401" x2="832" y2="401" class="wsw"/>
+  <text x="844" y="405" class="lsw">7.5A · W11 spare (capped)</text>
+
+  <!-- fog: V1 mechanical relay (on/off) -->
+  <line x1="560" y1="480" x2="560" y2="520" class="wsw"/>
+  <rect x="520" y="520" width="80" height="50" rx="6" class="box"/>
+  <text x="560" y="538" text-anchor="middle" class="t">FOG RELAY</text>
+  <text x="560" y="552" text-anchor="middle" class="tf" font-size="9">v1: ON/OFF (in box)</text>
+  <text x="560" y="564" text-anchor="middle" class="lsig" font-size="9">v2 → MOSFET PWM</text>
+  <line x1="560" y1="570" x2="560" y2="848" class="wgnd"/>
+  <!-- ESP drives the coil -->
+  <line x1="520" y1="545" x2="470" y2="545" class="wsig"/>
+  <rect x="430" y="537" width="40" height="16" rx="3" class="box"/><text x="450" y="549" text-anchor="middle" class="lsig" font-size="8">coil drv</text>
+  <line x1="430" y1="545" x2="408" y2="545" class="wsig"/>
+  <text x="392" y="528" class="lsig">FOG_EN</text>
+  <path d="M600,524 l0,22 m-6,-16 l12,0 l-6,10 z" fill="none" stroke="#CC79A7" stroke-width="1.1"/><text x="612" y="540" class="lsig" font-size="8">flyback</text>
+
+  <!-- grip: V1 mechanical relay (future) -->
+  <line x1="690" y1="480" x2="690" y2="520" class="wsw" stroke-dasharray="5 4"/>
+  <rect x="650" y="520" width="80" height="50" rx="6" class="bmute"/>
+  <text x="690" y="538" text-anchor="middle" class="td">GRIP RELAY</text>
+  <text x="690" y="552" text-anchor="middle" class="tf" font-size="9">v1: ON/OFF · future</text>
+  <text x="690" y="564" text-anchor="middle" class="lsig" font-size="9">v2 → MOSFET PWM</text>
+  <line x1="690" y1="570" x2="690" y2="848" class="wgnd thin" stroke-dasharray="5 4"/>
+  <line x1="650" y1="545" x2="612" y2="545" class="wsig" stroke-dasharray="4 3"/>
+  <text x="600" y="536" class="lsig" font-size="9">GRIP_EN</text>
+
+  <!-- ESP -->
+  <rect x="120" y="430" width="220" height="220" rx="10" class="b12v"/>
+  <text x="230" y="454" text-anchor="middle" class="l12v">ESP32-WROOM-32D</text>
+  <text x="230" y="470" text-anchor="middle" class="tf">always-on · deep-sleep default</text>
+  <text x="134" y="496" class="l12v">5V  ◀ buck</text>
+  <text x="134" y="516" class="lgnd">GND ▶ star bus</text>
+  <text x="134" y="540" class="lsig">RELAY_DRV ▶ W7</text>
+  <text x="134" y="560" class="lsig">FOG_EN ▶ (v1 on/off)</text>
+  <text x="134" y="580" class="lsig">GRIP_EN ▶ (v1 on/off)</text>
+  <text x="134" y="604" class="lsig">IGN_SENSE ◀ W12 (wake)</text>
+  <text x="134" y="624" class="li2c">SDA / SCL ▶ I2C</text>
+  <text x="134" y="644" class="lsig">IMU_INT ◀ (motion wake)</text>
+  <!-- relay drive FET -->
+  <line x1="270" y1="470" x2="270" y2="540" class="wsig"/>
+  <rect x="250" y="540" width="40" height="30" rx="5" class="box"/>
+  <text x="270" y="558" text-anchor="middle" class="td" font-size="9">RLY FET</text>
+  <line x1="270" y1="570" x2="270" y2="848" class="wgnd thin"/>
+  <line x1="250" y1="555" x2="200" y2="555" class="wsig"/>
+
+  <!-- I2C devices -->
+  <rect x="380" y="600" width="120" height="44" rx="8" class="bi2c"/>
+  <text x="440" y="620" text-anchor="middle" class="li2c">INA226</text>
+  <text x="440" y="636" text-anchor="middle" class="td" font-size="9">bus V + current</text>
+  <rect x="520" y="600" width="120" height="44" rx="8" class="bi2c"/>
+  <text x="580" y="620" text-anchor="middle" class="li2c">6-AXIS IMU</text>
+  <text x="580" y="636" text-anchor="middle" class="td" font-size="9">motion / crash / tilt</text>
+  <line x1="340" y1="628" x2="380" y2="628" class="wi2c"/>
+  <line x1="500" y1="622" x2="520" y2="622" class="wi2c"/>
+  <text x="345" y="662" class="li2c">I2C SDA/SCL shared bus</text>
+  <line x1="440" y1="600" x2="440" y2="362" class="wi2c thin"/>
+  <text x="446" y="500" class="tf" font-size="9">V-sense tap (I2C)</text>
+  <line x1="580" y1="644" x2="580" y2="668" class="wsig"/>
+  <line x1="580" y1="668" x2="300" y2="668" class="wsig"/>
+  <line x1="300" y1="668" x2="300" y2="650" class="wsig"/>
+  <text x="316" y="684" class="lsig" font-size="9">IMU_INT → ESP</text>
+
+  <!-- ignition sense -->
+  <rect x="700" y="430" width="180" height="86" rx="9" class="box"/>
+  <text x="790" y="452" text-anchor="middle" class="t">IGNITION SENSE</text>
+  <text x="790" y="470" text-anchor="middle" class="td" font-size="10">keyed-fuse tap (Add-A-Fuse)</text>
+  <text x="790" y="486" text-anchor="middle" class="td" font-size="10">100k/27k divider + 3V3 Zener</text>
+  <text x="790" y="502" text-anchor="middle" class="tf" font-size="10">≈3.1V @ 14.4V → IGN_SENSE</text>
+  <line x1="700" y1="488" x2="342" y2="488" class="wsig" marker-end="url(#d)"/>
+  <text x="470" y="482" class="lsig" font-size="9">W12 SIG → wake / run-detect</text>
+
+  <!-- tablet power -->
+  <line x1="880" y1="360" x2="880" y2="392" class="wsw"/>
+  <rect x="864" y="392" width="32" height="18" rx="3" class="box" stroke-width="2"/><line x1="868" y1="401" x2="892" y2="401" class="wsw"/>
+  <text x="824" y="430" class="lsw">5A · W10</text>
+  <line x1="880" y1="410" x2="880" y2="450" class="wsw"/>
+  <rect x="820" y="450" width="120" height="44" rx="8" class="b12v"/>
+  <text x="880" y="470" text-anchor="middle" class="l12v">PD BUCK</text>
+  <text x="880" y="486" text-anchor="middle" class="td" font-size="9">12V→USB-C PD ≥21W</text>
+
+  <!-- disconnect -->
+  <line x1="930" y1="40" x2="930" y2="740" stroke="#444" stroke-width="1.6" stroke-dasharray="7 5"/>
+  <text x="908" y="560" class="t" font-size="10" transform="rotate(-90 908 560)">WATERPROOF DISCONNECT · service loop</text>
+  <line x1="880" y1="494" x2="1000" y2="494" class="wsw" marker-end="url(#d)"/>
+  <text x="936" y="488" class="lsw" font-size="9">W13 SW</text>
+  <line x1="700" y1="848" x2="1000" y2="848" class="wgnd"/>
+  <text x="936" y="842" class="lgnd" font-size="9">GND fwd</text>
+
+  <!-- cockpit -->
+  <rect x="1000" y="450" width="150" height="60" rx="9" class="box"/>
+  <text x="1075" y="476" text-anchor="middle" class="t">TABLET</text>
+  <text x="1075" y="492" text-anchor="middle" class="td" font-size="10">Tab Active5 · No-Batt</text>
+  <line x1="1000" y1="494" x2="1000" y2="480" class="wsw"/>
+  <rect x="1000" y="560" width="150" height="60" rx="9" class="box"/>
+  <text x="1075" y="586" text-anchor="middle" class="t">ROTARY CTRL</text>
+  <text x="1075" y="602" text-anchor="middle" class="lble" font-size="10">BLE — no wire</text>
+  <path d="M340,560 C700,740 980,740 1060,620" class="wble"/>
+  <text x="680" y="730" class="lble" font-size="9">BLE link (ESP ↔ tablet ↔ controller)</text>
+
+  <!-- ground star bus -->
+  <line x1="60" y1="848" x2="1000" y2="848" class="wgnd"/>
+  <text x="70" y="840" class="lgnd">GND · GROUND STAR BUS</text>
+  <line x1="116" y1="242" x2="116" y2="848" class="wgnd"/>
+  <text x="60" y="878" class="lgnd" font-size="10">W14 · single 12AWG return → battery −</text>
+  <line x1="500" y1="848" x2="500" y2="872" class="wgnd"/>
+  <line x1="488" y1="872" x2="512" y2="872" class="wgnd"/>
+  <line x1="492" y1="878" x2="508" y2="878" stroke="#111111" stroke-width="1.6"/>
+  <line x1="496" y1="884" x2="504" y2="884" stroke="#111111" stroke-width="1.2"/>
+  <line x1="160" y1="650" x2="160" y2="848" class="wgnd thin"/>
+  <line x1="440" y1="644" x2="440" y2="848" class="wgnd thin"/>
+</svg>
+</figure>
+
+<h2>Detail — ULN2803A coil driver</h2>
+<p style="margin:-4px 0 12px;color:#5a6675;font-size:13px">How the ESP drives the four relay-box coils: the commoned pin 86 is reused as the +12 V coil rail, each white/85 wire is low-side sunk by one ULN2803 channel, and flyback is handled inside the chip — so no external 1N4007s on the box.</p>
+<figure>
+<svg class="sheet" viewBox="0 0 1300 500" xmlns="http://www.w3.org/2000/svg" font-size="11">
+  <!-- +12 coil rail (= commoned pin 86) -->
+  <line x1="300" y1="74" x2="980" y2="74" class="w12v"/>
+  <text x="470" y="66" class="l12v">+12V COIL RAIL  =  the box's commoned pin 86</text>
+
+  <!-- ESP -->
+  <rect x="40" y="170" width="160" height="206" rx="10" class="b12v"/>
+  <text x="120" y="196" text-anchor="middle" class="l12v">ESP32 GPIO</text>
+  <text x="120" y="212" text-anchor="middle" class="tf">active-high outputs</text>
+  <text x="56" y="250" class="lsig">MASTER_EN</text>
+  <text x="56" y="290" class="lsig">FOG_EN</text>
+  <text x="56" y="330" class="lsig">GRIP_EN</text>
+  <text x="56" y="366" class="lsig">SPARE</text>
+
+  <!-- input lines ESP -> ULN -->
+  <line x1="200" y1="246" x2="430" y2="246" class="wsig"/>
+  <line x1="200" y1="286" x2="430" y2="286" class="wsig"/>
+  <line x1="200" y1="326" x2="430" y2="326" class="wsig"/>
+  <line x1="200" y1="362" x2="430" y2="362" class="wsig"/>
+
+  <!-- representative pull-down + note -->
+  <line x1="300" y1="362" x2="300" y2="454" class="wgnd thin"/>
+  <rect x="292" y="398" width="16" height="26" rx="2" class="box"/>
+  <text x="232" y="392" class="lsig" font-size="9">10 kΩ pull-down on every input → relays off while ESP boots</text>
+
+  <!-- ULN chip -->
+  <rect x="430" y="150" width="250" height="280" rx="10" class="box"/>
+  <text x="555" y="176" text-anchor="middle" class="t">ULN2803A</text>
+  <text x="555" y="192" text-anchor="middle" class="tf">8× Darlington low-side sink · 500 mA/ch · 3V3 logic</text>
+  <text x="555" y="418" text-anchor="middle" class="tf" font-size="9">inputs 1–8   ↔   outputs 18–11      ·      COM = 10      ·      GND = 9</text>
+  <text x="440" y="250" class="td" font-size="9">1</text>
+  <text x="440" y="290" class="td" font-size="9">2</text>
+  <text x="440" y="330" class="td" font-size="9">3</text>
+  <text x="440" y="366" class="td" font-size="9">4</text>
+  <text x="654" y="250" class="td" font-size="9">18</text>
+  <text x="654" y="290" class="td" font-size="9">17</text>
+  <text x="654" y="330" class="td" font-size="9">16</text>
+  <text x="654" y="366" class="td" font-size="9">15</text>
+
+  <!-- COM pin 10 -> +12 with internal clamp -->
+  <line x1="600" y1="150" x2="600" y2="74" class="w12v"/>
+  <line x1="593" y1="116" x2="607" y2="116" stroke="#0072B2" stroke-width="1.8"/>
+  <path d="M593,130 l14,0 l-7,-14 z" fill="none" stroke="#0072B2" stroke-width="1.4"/>
+  <text x="612" y="120" class="l12v" font-size="9">COM 10 → +12 · internal clamp = flyback</text>
+
+  <!-- GND pin 9 -> star -->
+  <line x1="500" y1="430" x2="500" y2="454" class="wgnd"/>
+  <text x="508" y="448" class="lgnd" font-size="9">GND 9 → star</text>
+
+  <!-- outputs to coils (85 white) -->
+  <line x1="680" y1="246" x2="800" y2="246" class="wsw"/>
+  <text x="700" y="238" class="lsw" font-size="9">85 (white)</text>
+  <rect x="800" y="231" width="160" height="30" rx="5" class="box"/>
+  <text x="880" y="250" text-anchor="middle" class="lsw" font-size="10">MASTER coil → +12 (86)</text>
+  <line x1="880" y1="231" x2="880" y2="74" class="w12v"/>
+
+  <line x1="680" y1="286" x2="800" y2="286" class="wsw"/>
+  <rect x="800" y="271" width="160" height="30" rx="5" class="bsw"/>
+  <text x="880" y="290" text-anchor="middle" class="lsw" font-size="10">FOG coil → +12 (86)</text>
+
+  <line x1="680" y1="326" x2="800" y2="326" class="wsw"/>
+  <rect x="800" y="311" width="160" height="30" rx="5" class="bmute"/>
+  <text x="880" y="330" text-anchor="middle" class="td" font-size="10">GRIP coil → +12 (86)</text>
+
+  <line x1="680" y1="362" x2="800" y2="362" class="wsw"/>
+  <rect x="800" y="347" width="160" height="30" rx="5" class="box"/>
+  <text x="880" y="366" text-anchor="middle" class="td" font-size="10">SPARE</text>
+
+  <!-- GND star rail -->
+  <line x1="120" y1="454" x2="980" y2="454" class="wgnd"/>
+  <text x="128" y="446" class="lgnd">GND star</text>
+
+  <!-- notes -->
+  <rect x="1006" y="150" width="278" height="252" rx="10" class="frame"/>
+  <text x="1022" y="178" class="t">How it works</text>
+  <text x="1022" y="206" class="td" font-size="10">Active-HIGH: GPIO high → the</text>
+  <text x="1022" y="222" class="td" font-size="10">output sinks its 85 line to ground</text>
+  <text x="1022" y="238" class="td" font-size="10">→ relay pulls in.</text>
+  <text x="1022" y="266" class="td" font-size="10">COM → +12 rail (= commoned</text>
+  <text x="1022" y="282" class="td" font-size="10">pin 86). Built-in clamp diodes</text>
+  <text x="1022" y="298" class="td" font-size="10">= flyback; no external 1N4007s.</text>
+  <text x="1022" y="326" class="td" font-size="10">~1 V Darlington drop → coil sees</text>
+  <text x="1022" y="342" class="td" font-size="10">~11 V, pulls in fine.</text>
+  <text x="1022" y="370" class="td" font-size="10">One chip also drives the</text>
+  <text x="1022" y="386" class="td" font-size="10">master-relay coil (spare ch).</text>
+</svg>
+</figure>
+
+<h2>Wire Schedule — the colour-free master key</h2>
+<table>
+  <thead><tr><th>Ref</th><th>Pattern</th><th>From → To</th><th>Gauge</th><th>Fuse</th></tr></thead>
+  <tbody>
+    <tr><td class="ref">W1/W2</td><td class="pat" style="color:var(--c12v)">+12V solid</td><td><b>Battery +</b> → main fuse → +12V dist rail</td><td>12 AWG</td><td>25 A</td></tr>
+    <tr><td class="ref">W3</td><td class="pat" style="color:var(--c12v)">+12V solid</td><td>+12V rail → <b>relay pin 30</b></td><td>12 AWG</td><td>(main)</td></tr>
+    <tr><td class="ref">W4</td><td class="pat" style="color:var(--c12v)">+12V solid</td><td>+12V rail → <b>relay pin 85</b> (coil +)</td><td>18 AWG</td><td>—</td></tr>
+    <tr><td class="ref">W5</td><td class="pat" style="color:var(--c12v)">+12V solid</td><td>+12V rail → 2A → rev-pol → TVS/cap → <b>buck → ESP 5V</b></td><td>18→20 AWG</td><td>2 A</td></tr>
+    <tr><td class="ref">W6</td><td class="pat" style="color:var(--csw)">SW solid</td><td><b>Relay pin 87</b> → switched acc bus</td><td>12 AWG</td><td>per-load</td></tr>
+    <tr><td class="ref">W7</td><td class="pat" style="color:var(--csig)">SIG dashed</td><td><b>Relay pin 86</b> → relay-drive FET → GND (flyback = W7b)</td><td>18 AWG</td><td>—</td></tr>
+    <tr><td class="ref">W8</td><td class="pat" style="color:var(--csw)">SW solid</td><td>Switched bus → 7.5A → <b>fog relay</b> → fog lights → GND. ESP <b>FOG_EN</b> (SIG) drives coil. v1 on/off; v2 → MOSFET PWM</td><td>16 AWG</td><td>7.5 A</td></tr>
+    <tr><td class="ref">W9</td><td class="pat" style="color:var(--csw)">SW solid</td><td>Switched bus → 7.5A → <b>grip relay</b> → heated grips → GND (future). ESP <b>GRIP_EN</b> drives coil. v1 on/off; v2 → MOSFET PWM</td><td>16 AWG</td><td>7.5 A</td></tr>
+    <tr><td class="ref">W10</td><td class="pat" style="color:var(--csw)">SW solid</td><td>Switched bus → 5A → <b>PD buck</b> → spine → tablet</td><td>18 AWG</td><td>5 A</td></tr>
+    <tr><td class="ref">W11</td><td class="pat" style="color:var(--csw)">SW solid</td><td>Switched bus → 7.5A → <b>spare</b> (capped)</td><td>16 AWG</td><td>7.5 A</td></tr>
+    <tr><td class="ref">W12</td><td class="pat" style="color:var(--csig)">SIG dashed</td><td>Keyed-fuse tap → divider/Zener → <b>ESP IGN_SENSE</b></td><td>22 AWG</td><td>(tap)</td></tr>
+    <tr><td class="ref">W13</td><td class="pat" style="color:var(--csw)">SW + GND</td><td><b>Spine</b>: SW12V + GND + spare pair + 2× shielded signal</td><td>18/22 AWG</td><td>—</td></tr>
+    <tr><td class="ref">W14</td><td class="pat" style="color:var(--cgnd)">GND solid</td><td><b>Battery −</b> → ground star bus (single return)</td><td>12 AWG</td><td>—</td></tr>
+    <tr><td class="ref">I2C</td><td class="pat" style="color:var(--ci2c)">I2C dotted</td><td>ESP SDA/SCL ↔ <b>INA226</b> + <b>IMU</b></td><td>22–24 AWG</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <b>v1 control = your mechanical relay box (on/off only).</b> The ESP drives each coil through a <b>ULN2803A</b> Darlington array (see detail above): the box's commoned pin 86 becomes the +12 V coil rail, each white/85 wire is low-side sunk by one channel, and the chip's <b>COM→+12 internal clamp diodes</b> handle flyback — so no 1N4007s on the box. <b>FOG_EN</b> and <b>GRIP_EN</b> are simple on/off enables, not PWM, and active-high (GPIO high → relay on). The external master relay gates the whole box on the engine-running logic. <b>v2 upgrade:</b> swap a load's relay for a logic-level MOSFET on the same enable line to gain PWM dimming — same wiring, same ESP pin, only the switching element changes.
+</div>
+<div class="note">
+  <b>Build order on the bike:</b> battery − off first → mount ground bus, relay box, ESP enclosure → run + label the spine and set service loops → main fuse on battery + → build &amp; bench-verify the ESP buck (5.0 V) before connecting the ESP → land the master-relay coil + flyback → wire each load relay (coil ← ESP enable, contact passes fused +12V to the load) → all grounds to the star → reconnect &amp; bench-test the engine-running logic with a variable supply before fairings go back on.
+</div>
+<div class="note">
+  <b>Reserve for v2 (so fairings stay on):</b> leave one spine pair unused, route an antenna path forward, and leave bay volume near the ESP for the LTE + GPS + backup-LiPo board. The relay drive, I²C bus, and ground star already accommodate it — v2 is additive, not a rewire.
+</div>
+
+<footer>
+  DL650 Smart Cockpit · Wiring Schematic Rev B (colourblind-safe) · Companion to the full Electrical Plan. Wire types encoded by pattern + tag, not colour alone. Symbols simplified for build planning, not certification. Confirm the keyed-fuse choice, relay pinout, and real load currents on your bike before final fusing.
+</footer>
+
+</div>
+</body>
+</html>
