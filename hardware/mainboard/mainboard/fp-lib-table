@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "mainboard") (type "KiCad") (uri "D:/projects/moto-11/repo/moto-11/hardware/mainboard/mainboard.pretty") (options "") (descr ""))
+)

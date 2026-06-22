@@ -10,7 +10,7 @@ Q1,1,P-MOSFET,Reverse-polarity protect,DPAK or TO-220,AOD4185 / DMP3017SFG / IRF
 D1,1,SMBJ24A,TVS diode unidirectional 24V,SMB DO-214AA,Littelfuse SMBJ24A,Load-dump clamp on +12V_PROT
 D2,1,LED,Power indicator green,3mm THT,generic,Optional
 D3,1,SMBJ20A,TVS diode unidirectional 20V,SMB DO-214AA,Littelfuse SMBJ20A,Clamp INA3221 sense input (26V limit)
-Dz1,1,12V Zener,Gate clamp 0.5W,SOD-123 or THT,BZX84C12 / 1N5242B,Protect Q1 Vgs
+Dz1,1,18V Zener,Gate-source clamp 0.5W,SOD-123 or THT,BZX84C18 / 1N5248B,>14.4V idle while charging; <20V Vgs(max)
 C1,1,470uF/35V,Bulk electrolytic,radial 8mm,generic 105C,On +12V_PROT
 C2,1,100uF/16V,Bulk electrolytic,radial 6.3mm,generic 105C,On +5V
 C3,1,100nF,Decoupling X7R,0805 or THT,generic,ESP power pin
@@ -35,11 +35,11 @@ R11,1,100k,Q1 gate-source,0805,generic,reverse-pol FET
 R12,1,100R,Q1 gate series,0805,generic,optional slew limit
 R13,1,220R,Power LED series,0805,generic,D2
 R14,1,100R,INA3221 sense series,0805,generic,Light RC with C10; keep low to avoid bus-measure error
-J1,1,2-pos 5.08mm,Terminal block,5.08mm THT,Phoenix MKDS or generic,+12V_HOT / GND
-J2,1,2-pos 5.08mm,Terminal block,5.08mm THT,Phoenix MKDS or generic,COIL_RAIL / GND
-J3,1,4-pos 3.5mm,Terminal block,3.5mm THT,generic,Coil outputs to 85 wires
-J4,1,3-pos 3.5mm,Terminal block,3.5mm THT,generic,IGN_12V / START_12V / SENSE_GND
-J5,1,2-pos 3.5mm,Terminal block,3.5mm THT,generic,INA226 VBUS_SENSE / GND
+J1,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,+12V_HOT / GND
+J2,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,COIL_RAIL / GND
+J3,1,4-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-04P_1x04_P5.00mm,MX126-5.0 or any 4P 5.0/5.08mm,Coil outputs to 85 wires
+J4,1,3-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-03P_1x03_P5.00mm,MX126-5.0 or any 3P 5.0/5.08mm,IGN_12V / START_12V / SENSE_GND
+J5,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,INA3221 VBUS_SENSE / GND
 J6,1,1x4 header,I2C expansion,2.54mm THT,generic,+3V3 SDA SCL GND
 J7,1,2x4 header,ULN spare ch5-8 breakout,2.54mm THT,generic,future relays
 TP1,1,Testpoint,+12V_PROT,THT loop,generic,

@@ -9,6 +9,10 @@ _autosave-*
 fp-info-cache
 *-cache.lib
 *.net
+*.lck
+_restore_backup_*/
+# VS Code "Local History" extension
+.history/
 # Fabrication outputs are regenerated from source — keep the source, not the export.
 # (Comment the next line out if you want to version a tagged release's Gerbers.)
 gerbers/

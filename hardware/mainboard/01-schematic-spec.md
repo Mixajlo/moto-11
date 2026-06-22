@@ -99,14 +99,14 @@ control and coil current — **never** load current.
 | R9, R10 | Res | 10 kΩ | 0805 | Pull-ups on GPIO34/35 (opto outputs; input-only pins). |
 | R11 | Res | 100 kΩ | 0805 | Q1 gate–source. |
 | R12 | Res | 100 Ω | 0805 | Q1 gate series (optional, slew). |
-| Dz1 | Zener | 12 V, 0.5 W | SOD-123 / THT | Q1 gate clamp (protect Vgs from load dump). |
+| Dz1 | Zener | 18 V, 0.5 W | SOD-123 / THT | Q1 gate–source clamp. >14.4 V so idle while charging; <20 V Vgs(max). |
 | R13 | Res | 220 Ω | 0805 | D2 LED series. |
 | R14 | Res | 100 Ω | 0805 | INA3221 sense series (light RC with C10; keep low to avoid bus-measure error). |
 | J1 | Term block | 2-pos, 5.08 mm | THT | `+12V_HOT`, `GND` (power in). |
 | J2 | Term block | 2-pos, 5.08 mm | THT | `COIL_RAIL` (+12 to box pin86 / ULN COM), `GND`. |
 | J3 | Term block | 4-pos, 3.5 mm | THT | Coil outputs → 85 wires: MASTER, FOG, GRIP, SPARE. |
 | J4 | Term block | 3-pos, 3.5 mm | THT | `IGN_12V`, `START_12V`, `SENSE_GND`. |
-| J5 | Term block | 2-pos, 3.5 mm | THT | INA226 `VBUS_SENSE` (clean lead to batt +), `GND`. |
+| J5 | Term block | 2-pos, 3.5 mm | THT | INA3221 `VBUS_SENSE` (clean lead to batt +), `GND`. |
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
 | J7 | Header | 2×4, 2.54 mm | THT | ULN spare ch5–8 in/out break-out (future relays). |
 | TP1–TP4 | Test point | — | THT loop | `+12V_PROT`, `+5V`, `+3V3`, `GND`. |
@@ -143,8 +143,8 @@ Decoupling caps: place one 100 nF physically next to each IC's V+/GND.
 ### Power & ground
 | Net | Connects |
 |-----|----------|
-| `+12V_HOT` | `J1.1`, Q1 source, `D1`(via prot? no)… → Q1 source. External 2 A fuse upstream. |
-| `+12V_PROT` | Q1 drain, `D1` cathode-to-net (TVS across PROT→GND), `C1+`, `A3.IN+`, `TP1`. |
+| `+12V_HOT` | `J1.1`, Q1 **drain**. External 2 A fuse upstream. |
+| `+12V_PROT` | Q1 **source**, `D1` cathode (TVS across PROT→GND), `C1+`, `A3.IN+`, `TP1`. |
 | `+5V` | `A3.OUT+`, `C2+`, `A1.5V/VIN`, `TP2`. |
 | `+3V3` | `A1.3V3`, `U3.VS`/`U3.VCC`, `A2.VCC`, `R5`, `R6`, `R9`, `R10`, `D2`(via R13), `C9+`, `TP3`. |
 | `GND` | `J1.2`, `J2.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J5.2`, `J6.4`, all cap −, `TP4`. |
@@ -153,11 +153,13 @@ Decoupling caps: place one 100 nF physically next to each IC's V+/GND.
 ### Reverse-polarity + TVS (input protection)
 | Net | Connects |
 |-----|----------|
-| Q1 gate | `R11` to source, `R12`(series) , `Dz1` (gate–source clamp). Gate pulled to GND through R11 so the P-FET conducts on correct polarity. |
-| `D1` (TVS) | across `+12V_PROT` ↔ `GND` (cathode/anode per uni-directional part). |
+| Q1 gate | → `GND` via `R12` (100 Ω series); `R11` (100 k) gate→source; `Dz1` zener gate→source clamp. |
+| `D1` (TVS) | cathode → `+12V_PROT`, anode → `GND` (unidirectional). |
 
-*P-FET orientation: source = +12V_HOT, drain = +12V_PROT, body diode pointing source→drain so
-reverse polarity blocks. Gate to GND via R11 (≈ −12 V Vgs when powered → fully on).*
+*P-FET reverse-polarity (high-side): **drain = +12V_HOT (battery in), source = +12V_PROT (load)**,
+gate to GND via R12. Correct polarity → body diode forward (HOT→PROT), then Vgs ≈ −12 V turns the
+channel fully on (tiny drop). Reverse polarity → body diode reverse-biased → blocked. R11 keeps a
+defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 
 ### Relay coil driver (ULN2803 U2)
 | Net | Connects |
