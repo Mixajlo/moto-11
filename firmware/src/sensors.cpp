@@ -11,6 +11,9 @@ void Sensors::begin() {
   pinMode(PIN_IGN_SENSE, INPUT);
   // TODO(INA3221): Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL) + ina.begin() once the
   // board/driver is in hand; then busVoltage()'s real branch returns CH1.
+  // Configure on-chip averaging (e.g. 64-128 samples) so the reading is already
+  // low-pass-filtered against ADC noise / bus ripple before the supervisor's
+  // charge-health logic sees it (pairs with that logic's hysteresis + debounce).
   LOGI("sensors: %s mode", sim_ ? "SIM" : "real");
 }
 

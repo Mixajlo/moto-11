@@ -721,8 +721,10 @@
 <span class="k">const</span> STALL_DEBOUNCE = 2000;   <span class="c">// ms below V_RUN_OFF before POWERED</span>
 <span class="k">const</span> OFF_DELAY     = 30000;   <span class="c">// ms relay held after KEY-OFF</span>
 <span class="k">const</span> BACKSTOP      = 600000;  <span class="c">// ms in POWERED before battery-save cut (10 min)</span>
-<span class="k">const</span> CHARGE_OK     = 13.4;    <span class="c">// V: at/above = healthy (below, while RUNNING = warn)</span>
-<span class="c">// clean ladder, no overlap:  V_RUN_OFF (12.9) &lt; V_RUN_ON (13.2) &lt; CHARGE_OK (13.4)</span>
+<span class="k">const</span> CHARGE_WARN   = 13.4;    <span class="c">// below (5s, hysteresis) while RUNNING -&gt; marginal</span>
+<span class="k">const</span> CHARGE_CLEAR  = 13.6;    <span class="c">// at/above (5s) -&gt; cleared (deadband 13.4..13.6 avoids chatter)</span>
+<span class="k">const</span> CHG_DEBOUNCE  = 5000;    <span class="c">// ms a charge condition must hold before the warning flips</span>
+<span class="c">// clean ladder:  V_RUN_OFF 12.9 &lt; V_RUN_ON 13.2 &lt; CHARGE_WARN 13.4 &lt; CHARGE_CLEAR 13.6</span>
 
 <span class="k">void</span> <span class="f">supervisorLoop</span>() {
   ign  = <span class="f">digitalRead</span>(IGN_SENSE);        <span class="c">// HIGH only with key on</span>
@@ -746,8 +748,8 @@
       <span class="k">if</span> (!ign) { <span class="f">startTimer</span>(OFF_DELAY); state = OFF_DELAY_HOLD; <span class="k">break</span>; }
       <span class="k">if</span> (vbus &lt; V_RUN_OFF <span class="k">for</span> STALL_DEBOUNCE) {
         state = POWERED;                 <span class="c">// stall/kill, key on — relay STAYS on</span>
-      } <span class="k">else if</span> (vbus &lt; CHARGE_OK) {        <span class="c">// running but below healthy -&gt; warn</span>
-        <span class="f">warn</span>(<span class="s">"charging marginal — loads high or R/R weak"</span>);
+      } <span class="k">else</span> {
+        <span class="f">chargeHealth</span>(vbus);             <span class="c">// marginal warn: hysteresis 13.4/13.6 + 5s debounce</span>
         <span class="f">manageLoads</span>(vbus);              <span class="c">// (future) shed grips -&gt; fog -&gt; ...</span>
       }
       <span class="k">break</span>;

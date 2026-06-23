@@ -41,10 +41,15 @@ public:
   uint32_t stallDebounceMs = 2000;     // ms below vRunOff before RUNNING -> POWERED
   uint32_t offDelayMs      = 30000;    // ms MASTER held after KEY-OFF before cut+sleep
   uint32_t backstopMs      = 600000;   // ms in POWERED before battery-save cut (10 min; 0 = off)
-  // Charge-health: while RUNNING the bus is always >= vRunOff (else -> POWERED),
-  // so the marginal band is naturally [vRunOff, chargeOk); at/above chargeOk it's
-  // healthy. Clean ladder, no overlap:  vRunOff (12.9) < vRunOn (13.2) < chargeOk (13.4).
-  float    chargeOk        = 13.4f;    // V: at/above = healthy; below (while RUNNING) = warn
+  // Charge-health (while RUNNING). Hysteresis deadband + debounce so bus ripple and
+  // brief load-switch dips near the threshold don't raise/clear a false warning:
+  //   marginal  when vbus <  chargeWarn  sustained chargeDebounceMs
+  //   cleared   when vbus >= chargeClear sustained chargeDebounceMs
+  // Clean ladder: vRunOff 12.9 < vRunOn 13.2 < chargeWarn 13.4 < chargeClear 13.6.
+  // (The INA3221 driver will also hardware-average samples to pre-filter noise.)
+  float    chargeWarn       = 13.4f;   // V: below = heading marginal
+  float    chargeClear      = 13.6f;   // V: at/above = healthy again (deadband 13.4..13.6)
+  uint32_t chargeDebounceMs = 5000;    // ms a charge condition must hold before the flag flips
 
   bool chargeMarginal() const { return marginal_; }   // latched flag for UI/load-shed later
 
@@ -58,8 +63,9 @@ private:
   uint32_t offTimer_    = 0;           // off-delay start
   uint32_t poweredSince_= 0;           // POWERED entry time (for the backstop)
   uint32_t lastTick_    = 0;           // throttle for the periodic debug log
-  uint32_t warnTick_    = 0;           // throttle for the charge-marginal warning
-  bool     marginal_    = false;       // current charge-marginal state
+  uint32_t warnTick_    = 0;           // throttle for the charge-marginal nag
+  uint32_t chgSince_    = 0;           // charge-health debounce timer (0 = not counting)
+  bool     marginal_    = false;       // current charge-marginal state (debounced)
 };
 
 extern Supervisor Engine;

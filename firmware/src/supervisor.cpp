@@ -43,19 +43,34 @@ void Supervisor::enter(SupState s) {
   state_ = s;
   aboveSince_ = 0;
   belowSince_ = 0;
+  chgSince_   = 0;
   if (s != SUP_RUNNING) marginal_ = false;     // charge-health only meaningful while running
   if (s == SUP_POWERED) poweredSince_ = millis();
 }
 
-// While RUNNING: flag/throttle-warn when the bus is charging but marginal.
-// Caller only invokes this once vbus >= vRunOff, so the band floor is vRunOff —
-// no separate low bound (that would overlap the engine-stopped threshold).
+// While RUNNING: warn when the bus is charging but marginal. Hysteresis +
+// debounce so ripple / brief load-switch dips near the threshold don't raise or
+// clear a false warning. Caller only invokes this once vbus >= vRunOff.
 void Supervisor::checkChargeHealth(float vbus) {
-  bool m = (vbus < chargeOk);
-  if (m && !marginal_) LOGW("charging MARGINAL: vbus=%.2f — loads too high or R/R weak", vbus);
-  if (!m && marginal_) LOGI("charging recovered: vbus=%.2f", vbus);
-  marginal_ = m;
-  if (m && millis() - warnTick_ >= 15000) {     // keep nagging, but not every loop
+  // Hysteresis: which way we WANT to go depends on the current state.
+  bool want = marginal_ ? (vbus < chargeClear)   // stay marginal until comfortably healthy
+                        : (vbus < chargeWarn);    // only go marginal below the warn point
+
+  if (want != marginal_) {                        // condition disagrees with current flag
+    if (chgSince_ == 0) chgSince_ = millis();      // start debounce
+    else if (millis() - chgSince_ >= chargeDebounceMs) {
+      marginal_ = want;
+      chgSince_ = 0;
+      if (marginal_) { warnTick_ = millis();
+        LOGW("charging MARGINAL: vbus=%.2f — loads too high or R/R weak", vbus); }
+      else
+        LOGI("charging recovered: vbus=%.2f", vbus);
+    }
+  } else {
+    chgSince_ = 0;                                 // matches current state — cancel pending flip
+  }
+
+  if (marginal_ && millis() - warnTick_ >= 15000) {  // periodic nag while marginal
     warnTick_ = millis();
     LOGW("charging still marginal: vbus=%.2f", vbus);
   }
