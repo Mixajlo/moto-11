@@ -6,6 +6,16 @@ hardware is in hand) just to validate size/shape. Work through this before gener
 See [03-design-rules.md](03-design-rules.md) for the numbers and [04-kicad-guide.md](04-kicad-guide.md)
 for the how-to.
 
+## Board strategy / phasing (decided 2026-06)
+- **Now:** bench-validate the design using through-hole parts / modules / the existing
+  ESP + relay box. No PCB ordered yet.
+- **Before fab:** lock the **form factor against the real mounting location** — the current
+  rectangular outline is a *reference prototype* only; final shape is TBD (likely non-rectangular).
+- **Production board:** redesign as **SMD**, with parts chosen from the assembler's catalog
+  (JLCPCB/LCSC, prefer "basic" parts), and **manufacturer-assembled (PCBA)** so there are no
+  parts to hand-source/solder. The **schematic/netlist carries over** — only footprints
+  (THT→SMD) and the outline change.
+
 ## Placeholders to replace (put in for the rough pass)
 - [ ] **U3 (INA3221)** — currently `PinSocket_1x06` placeholder. Replace with the real custom
   footprint once measured (header pin count + 2.54 mm pitch + CH1 hole-pair spacing). Goes in
@@ -17,8 +27,8 @@ for the how-to.
   physical board** at assembly (pad 1 = IN+, pad 3 = OUT+).
 
 ## Decisions still open
-- [ ] **Opto**: bare PC817 DIP-4 (integrated, current design) vs the 2-channel module (external).
-  If switching to the module, Block 4 gets reworked.
+- [x] **Opto**: resolved — **bare PC817 DIP-4, integrated** (current design). Buy new chips;
+  the 2-channel module stays whole as a bench tool. (Production board uses an SMD opto.)
 - [ ] Confirm **MP1584 / INA3221 / IMU** module pin orders vs their silkscreens.
 
 ## Board setup (Board Setup → Design Rules / Net Classes)
