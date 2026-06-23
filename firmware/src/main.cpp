@@ -25,6 +25,10 @@
 #define DEVICE_NAME "vstrom-esp"   // fallback if no build flag is set
 #endif
 
+// The live firmware (setup/loop + WiFi/OTA) is excluded from unit-test builds —
+// `pio test` provides its own runner. PIO_UNIT_TESTING is defined during tests.
+#ifndef PIO_UNIT_TESTING
+
 uint32_t lastBlink  = 0;
 bool      ledOn      = false;
 bool      netUp      = false;   // true once WiFi+OTA+telnet are live
@@ -105,3 +109,5 @@ void loop() {
     digitalWrite(PIN_LED, ledOn);
   }
 }
+
+#endif  // PIO_UNIT_TESTING

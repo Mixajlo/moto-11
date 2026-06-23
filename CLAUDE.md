@@ -110,6 +110,8 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 - Build:          `pio run -e bench`
 - USB flash:      `pio run -e bench -t upload`
 - Serial monitor: `pio device monitor` (115200)
+- Unit tests:     `pio test -e bench` (Unity supervisor tests run on the ESP; SIM sensors,
+  shrunk timers, no host compiler/INA3221/relay-box needed; `test/test_supervisor/`)
 - OTA flash:      `pio run -e bench_ota -t upload`
   (device must be on the same WiFi; if `vstrom-bench.local` won't resolve on Windows, set the
   device's IP as `upload_port`)
