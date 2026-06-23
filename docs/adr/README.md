@@ -21,3 +21,5 @@ editing history.
 - [0010](0010-twelve-volt-sense-opto.md) — 12 V sense front-end: PC817 opto over a resistor divider
 - [0011](0011-ina3221-replaces-ina226.md) — INA3221 (3-channel) in place of the INA226 (amends 0005)
 - [0012](0012-ignition-master-switch-powered-state.md) — Ignition-as-master-switch; RUNNING vs POWERED; battery backstop; charge warning (refines §13)
+- [0013](0013-runtime-config-nvs-console.md) — Runtime-configurable tunables: NVS-backed, console-edited (BLE/app later)
+- [0014](0014-aux-button-inputs-per-gpio.md) — Aux button inputs: one-wire-per-button, per-GPIO, JST-XH connector
