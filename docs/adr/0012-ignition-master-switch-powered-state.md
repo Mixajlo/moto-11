@@ -41,9 +41,12 @@ the key goes **OFF**. Engine-run (`Vbus ≥ V_RUN_ON`, debounced) only gates the
   battery from a forgotten key. Far longer than any normal stop, so it never bites.
 - **OFF_DELAY** — entered only on key-off; holds MASTER for the delay (default 30 s)
   so a quick key-cycle/restart keeps power, then cuts and sleeps.
-- **Charge-health warning** — while RUNNING, `Vbus` in `[12.8, 13.4) V` raises a
-  (throttled) warning "loads too high or R/R weak", with a latched `chargeMarginal()`
-  flag for a future tablet alert / automatic load-shed.
+- **Charge-health warning** — while RUNNING, `Vbus` below the healthy threshold
+  `CHARGE_OK` (13.4 V) raises a (throttled) warning "loads too high or R/R weak", with a
+  latched `chargeMarginal()` flag for a future tablet alert / automatic load-shed. RUNNING
+  already implies `Vbus >= V_RUN_OFF`, so the effective band is `[12.9, 13.4)` with **no
+  separate low bound** (that would overlap the engine-stopped threshold). Clean ladder:
+  `V_RUN_OFF (12.9) < V_RUN_ON (13.2) < CHARGE_OK (13.4)`.
 
 All thresholds and timers are tunables, intended to become tablet-configurable over
 BLE (persisted to NVS) — see the roadmap.

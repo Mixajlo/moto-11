@@ -35,10 +35,10 @@ public:
   uint32_t stallDebounceMs = 2000;     // ms below vRunOff before RUNNING -> POWERED
   uint32_t offDelayMs      = 30000;    // ms MASTER held after KEY-OFF before cut+sleep
   uint32_t backstopMs      = 600000;   // ms in POWERED before battery-save cut (10 min; 0 = off)
-  // Charge-health: while RUNNING, a bus in [chargeWarnLo, chargeWarnHi) means the
-  // engine's turning but barely charging — loads too high or the R/R is weak.
-  float    chargeWarnHi    = 13.4f;
-  float    chargeWarnLo    = 12.8f;
+  // Charge-health: while RUNNING the bus is always >= vRunOff (else -> POWERED),
+  // so the marginal band is naturally [vRunOff, chargeOk); at/above chargeOk it's
+  // healthy. Clean ladder, no overlap:  vRunOff (12.9) < vRunOn (13.2) < chargeOk (13.4).
+  float    chargeOk        = 13.4f;    // V: at/above = healthy; below (while RUNNING) = warn
 
   bool chargeMarginal() const { return marginal_; }   // latched flag for UI/load-shed later
 

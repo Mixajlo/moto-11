@@ -27,8 +27,10 @@ void Supervisor::enter(SupState s) {
 }
 
 // While RUNNING: flag/throttle-warn when the bus is charging but marginal.
+// Caller only invokes this once vbus >= vRunOff, so the band floor is vRunOff —
+// no separate low bound (that would overlap the engine-stopped threshold).
 void Supervisor::checkChargeHealth(float vbus) {
-  bool m = (vbus < chargeWarnHi && vbus >= chargeWarnLo);
+  bool m = (vbus < chargeOk);
   if (m && !marginal_) LOGW("charging MARGINAL: vbus=%.2f — loads too high or R/R weak", vbus);
   if (!m && marginal_) LOGI("charging recovered: vbus=%.2f", vbus);
   marginal_ = m;
