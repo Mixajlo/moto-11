@@ -28,6 +28,12 @@ public:
   const char* stateName() const;
   bool engineRunning() const { return state_ == SUP_RUNNING; }  // charging — engine-only loads OK
 
+  // Remaining ms until the next time-based transition (POWERED backstop or
+  // OFF_DELAY). Returns 0 if the current state has no countdown. If `what` is
+  // non-null it receives a short label of the pending transition (nullptr when
+  // there is no active timer).
+  uint32_t timeLeftMs(const char** what = nullptr) const;
+
   // Tunables (future: tablet-configurable over BLE — see roadmap).
   float    vRunOn          = 13.2f;    // V: engine confirmed running
   float    vRunOff         = 12.9f;    // V: below = not charging (engine stopped)

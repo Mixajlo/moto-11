@@ -12,6 +12,27 @@ const char* const NAMES[] = { "SLEEP", "ARMED", "RUNNING", "POWERED", "OFF_DELAY
 
 const char* Supervisor::stateName() const { return NAMES[state_]; }
 
+uint32_t Supervisor::timeLeftMs(const char** what) const {
+  uint32_t elapsed, total;
+  const char* w;
+  switch (state_) {
+    case SUP_OFF_DELAY:
+      elapsed = millis() - offTimer_;     total = offDelayMs;
+      w = "key off -> cut MASTER + SLEEP";
+      break;
+    case SUP_POWERED:
+      if (backstopMs == 0) { if (what) *what = "engine off -> backstop disabled"; return 0; }
+      elapsed = millis() - poweredSince_; total = backstopMs;
+      w = "engine off -> MASTER off + ARMED (battery save)";
+      break;
+    default:
+      if (what) *what = nullptr;
+      return 0;
+  }
+  if (what) *what = w;
+  return (elapsed >= total) ? 0 : (total - elapsed);
+}
+
 void Supervisor::begin() {
   state_ = SUP_SLEEP;
   LOGI("supervisor: start in SLEEP");

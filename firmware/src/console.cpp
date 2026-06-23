@@ -30,13 +30,21 @@ void printHelp() {
   outln("  off  <ch|all>      de-energise a channel");
   outln("  toggle <ch>        flip a channel");
   outln("  selftest           click each relay in turn (300ms each)");
-  outln("  state | sup        show engine-run supervisor state");
+  outln("  state | sup        show engine-run state (+ countdown to next timed change)");
+  outln("  timer | t          time left until the next timed state change");
   outln("  sim ign on|off     (bench) fake the ignition input");
   outln("  sim vbus <volts>   (bench) fake the bus voltage, e.g. sim vbus 13.4");
   outln("  sim real | sim     switch to real sensors / back to sim");
   outln("  help | ?           this list");
   outln("  channels: master  fog  grip  spare");
   outln("(onboard LED: heartbeat when all off, solid ON when any relay is on)");
+}
+
+// Format a millisecond span as "9m41s" or "41s".
+void fmtDuration(uint32_t ms, char* buf, size_t n) {
+  uint32_t s = ms / 1000;
+  if (s >= 60) snprintf(buf, n, "%lum%02lus", (unsigned long)(s / 60), (unsigned long)(s % 60));
+  else         snprintf(buf, n, "%lus", (unsigned long)s);
 }
 
 void printSupState() {
@@ -49,6 +57,16 @@ void printSupState() {
            Sensor.sim() ? "yes" : "no",
            Relays.isOn(RELAY_MASTER) ? "ON" : "off");
   outln(line);
+
+  const char* what = nullptr;
+  uint32_t left = Engine.timeLeftMs(&what);
+  if (what) {
+    char d[16]; fmtDuration(left, d, sizeof(d));
+    char t[140]; snprintf(t, sizeof(t), "  timer: %s in %s", what, d);
+    outln(t);
+  } else {
+    outln("  timer: none in this state");
+  }
 }
 
 // Handle "sim ..." subcommands. `a` = first arg, `b` = second (may be null).
@@ -145,7 +163,8 @@ void dispatch(char* line) {
     else setOne(static_cast<RelayId>(id), !Relays.isOn(static_cast<RelayId>(id)));
   } else if (!strcasecmp(cmd, "selftest")) {
     selftest();
-  } else if (!strcasecmp(cmd, "state") || !strcasecmp(cmd, "sup")) {
+  } else if (!strcasecmp(cmd, "state") || !strcasecmp(cmd, "sup") ||
+             !strcasecmp(cmd, "timer") || !strcasecmp(cmd, "t")) {
     printSupState();
   } else if (!strcasecmp(cmd, "sim")) {
     handleSim(arg, arg2);
