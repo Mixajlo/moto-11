@@ -713,39 +713,54 @@
 
 <!-- 13 -->
 <h2 id="firmware"><span class="num">13</span> Firmware State Logic</h2>
-<p class="lede">The supervisor loop, in plain pseudocode. Thresholds with hysteresis avoid relay chatter; the off-delay is a single user-set value.</p>
-<pre><span class="c">// ---- tunable parameters (expose over BLE) ----</span>
-<span class="k">const</span> V_RUN_ON   = 13.2;   <span class="c">// engine confirmed running</span>
-<span class="k">const</span> V_RUN_OFF  = 12.9;   <span class="c">// hysteresis — drop below = not charging</span>
-<span class="k">const</span> RUN_DEBOUNCE = 1000;  <span class="c">// ms above V_RUN_ON before "running"</span>
-<span class="k">const</span> OFF_DELAY  = 30000;  <span class="c">// ms; user-set 0..600000</span>
+<p class="lede">The supervisor loop, in plain pseudocode. The <b>ignition key is the master switch</b> — once powered, accessories stay on until the key goes OFF; engine-run (bus voltage) only gates the first power-on and tells <b>RUNNING</b> (charging) apart from <b>POWERED</b> (engine off, key on). Hysteresis + debounce avoid chatter. Full rationale in <a href="adr/0012-ignition-master-switch-powered-state.md">ADR-0012</a>.</p>
+<pre><span class="c">// ---- tunable parameters (tablet-configurable over BLE) ----</span>
+<span class="k">const</span> V_RUN_ON      = 13.2;    <span class="c">// engine confirmed running</span>
+<span class="k">const</span> V_RUN_OFF     = 12.9;    <span class="c">// below = not charging (engine stopped)</span>
+<span class="k">const</span> RUN_DEBOUNCE  = 1000;    <span class="c">// ms above V_RUN_ON before RUNNING</span>
+<span class="k">const</span> STALL_DEBOUNCE = 2000;   <span class="c">// ms below V_RUN_OFF before POWERED</span>
+<span class="k">const</span> OFF_DELAY     = 30000;   <span class="c">// ms relay held after KEY-OFF</span>
+<span class="k">const</span> BACKSTOP      = 600000;  <span class="c">// ms in POWERED before battery-save cut (10 min)</span>
+<span class="k">const</span> CHARGE_WARN   = [12.8, 13.4);  <span class="c">// V band: marginal-charging warning</span>
 
 <span class="k">void</span> <span class="f">supervisorLoop</span>() {
   ign  = <span class="f">digitalRead</span>(IGN_SENSE);        <span class="c">// HIGH only with key on</span>
-  vbus = <span class="f">readBusVoltage</span>();              <span class="c">// from INA226, not raw ADC</span>
+  vbus = <span class="f">readBusVoltage</span>();              <span class="c">// from INA3221, not raw ADC</span>
 
   <span class="k">switch</span> (state) {
 
-    <span class="k">case</span> SLEEP:
-      <span class="c">// woke on ignition rising edge (ext0)</span>
+    <span class="k">case</span> SLEEP:                          <span class="c">// woke on ignition edge (ext0)</span>
       <span class="k">if</span> (ign) state = ARMED;
       <span class="k">else</span>     <span class="f">enterDeepSleep</span>(WAKE_ON_IGN);
       <span class="k">break</span>;
 
-    <span class="k">case</span> ARMED:                          <span class="c">// key on, engine not yet running</span>
+    <span class="k">case</span> ARMED:                          <span class="c">// key on, engine not running; relay OFF</span>
       <span class="k">if</span> (!ign) { state = SLEEP; <span class="k">break</span>; }
       <span class="k">if</span> (vbus &gt;= V_RUN_ON <span class="k">for</span> RUN_DEBOUNCE) {
         <span class="f">setRelay</span>(<span class="s">ON</span>);  state = RUNNING;   <span class="c">// engine confirmed</span>
       }
       <span class="k">break</span>;
 
-    <span class="k">case</span> RUNNING:
+    <span class="k">case</span> RUNNING:                        <span class="c">// key on, engine running; relay ON</span>
       <span class="k">if</span> (!ign) { <span class="f">startTimer</span>(OFF_DELAY); state = OFF_DELAY_HOLD; <span class="k">break</span>; }
-      <span class="f">manageLoads</span>(vbus);                <span class="c">// dim/shed if vbus &lt; 12.8</span>
+      <span class="k">if</span> (vbus &lt; V_RUN_OFF <span class="k">for</span> STALL_DEBOUNCE) {
+        state = POWERED;                 <span class="c">// stall/kill, key on — relay STAYS on</span>
+      } <span class="k">else if</span> (vbus <span class="k">in</span> CHARGE_WARN) {
+        <span class="f">warn</span>(<span class="s">"charging marginal — loads high or R/R weak"</span>);
+        <span class="f">manageLoads</span>(vbus);              <span class="c">// (future) shed grips -&gt; fog -&gt; ...</span>
+      }
       <span class="k">break</span>;
 
-    <span class="k">case</span> OFF_DELAY_HOLD:                 <span class="c">// relay still ON, counting down</span>
-      <span class="k">if</span> (ign &amp;&amp; vbus &gt;= V_RUN_ON) { state = RUNNING; <span class="k">break</span>; } <span class="c">// restart</span>
+    <span class="k">case</span> POWERED:                        <span class="c">// key on, engine OFF; relay STILL ON</span>
+      <span class="k">if</span> (!ign) { <span class="f">startTimer</span>(OFF_DELAY); state = OFF_DELAY_HOLD; <span class="k">break</span>; }
+      <span class="k">if</span> (vbus &gt;= V_RUN_ON <span class="k">for</span> RUN_DEBOUNCE) { state = RUNNING; <span class="k">break</span>; }  <span class="c">// restarted</span>
+      <span class="k">if</span> (<span class="f">elapsed</span>(POWERED) &gt;= BACKSTOP) {
+        <span class="f">setRelay</span>(<span class="s">OFF</span>);  state = ARMED;  <span class="c">// forgot the key — save battery</span>
+      }
+      <span class="k">break</span>;
+
+    <span class="k">case</span> OFF_DELAY_HOLD:                 <span class="c">// key off, relay ON, counting down</span>
+      <span class="k">if</span> (ign) { state = (vbus &gt;= V_RUN_ON) ? RUNNING : POWERED; <span class="k">break</span>; } <span class="c">// key back</span>
       <span class="k">if</span> (<span class="f">timerExpired</span>()) {
         <span class="f">setRelay</span>(<span class="s">OFF</span>);  state = SLEEP;     <span class="c">// then deep sleep</span>
       }
@@ -753,8 +768,9 @@
   }
 }
 
-<span class="c">// CHARGER CASE: key off => ign LOW => can only ever sit in SLEEP,
-// no matter how high a battery tender pushes vbus. Solved.</span></pre>
+<span class="c">// CHARGER CASE: key off =&gt; ign LOW =&gt; only ever SLEEP, however high a tender
+// pushes vbus. A stall/kill keeps power (POWERED); a forgotten key is caught
+// by the BACKSTOP. Solved.</span></pre>
 
 <!-- 14 -->
 <h2 id="sensing"><span class="num">14</span> Sensing &amp; Multi-Wake Architecture</h2>

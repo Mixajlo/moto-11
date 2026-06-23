@@ -36,7 +36,11 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 - **Charging:** series R/R (Shindengen SH775 / SH847), not a MOSFET unit (still shunt).
   Stator: **measure with the INA3221 before any upgrade** — do not pre-emptively replace it.
 - **Engine-run detection:** `engineRunning = ignitionHIGH && (Vbus >= 13.2 V)`. Resolves the
-  charger-vs-running ambiguity (a tender can't fake it because the key is off).
+  charger-vs-running ambiguity (a tender can't fake it because the key is off). **Power model
+  (ADR-0012):** the ignition key is the master switch — once powered, accessories stay on until
+  key-off; engine-run only gates first power-on and separates `RUNNING` (charging) from `POWERED`
+  (engine off, key on — stall/kill/stop keep power). 10-min POWERED backstop saves the battery
+  on a forgotten key; charge-marginal warning when Vbus sits in [12.8, 13.4) V.
 - **Relay coil drive:** ULN2803A Darlington array. The relay box's commoned coil **pin 86 is
   reused as the +12 V coil rail**; each white **pin-85 wire is low-side sunk** by one ULN
   channel. ULN **COM (pin 10) → +12 rail** gives internal flyback — **no external 1N4007s**.
@@ -87,9 +91,13 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 - `RelayController` (`src/relays.{h,cpp}`) owns the four coil enables (fail-OFF at boot). A
   serial/Telnet **bench console** (`src/console.{h,cpp}`) drives them by hand: `status`, `on/off
   <ch|all>`, `toggle <ch>`, `selftest`. Onboard LED = heartbeat when all off, solid when any on.
-- Current milestone: relay control on the bench (manual console). **Next:** INA3221 bus-voltage +
-  ignition-sense front-end, then the autonomous engine-run supervisor (SLEEP/ARMED/RUNNING/
-  OFF_DELAY) built on top of `RelayController`.
+- Engine-run supervisor (`src/supervisor.{h,cpp}`, ADR-0012): `SLEEP→ARMED→RUNNING⇄POWERED` +
+  `OFF_DELAY`, drives the master relay; reads via `src/sensors.{h,cpp}` (bench SIM until the
+  INA3221/opto are wired — console `sim ign`/`sim vbus`). Leveled logging (`src/log.h`): `LOGD`
+  compiles out unless `MOTO_DEBUG` (bench only).
+- Current milestone: engine-run supervisor proven on the bench (simulated inputs). **Next:** wire
+  the real INA3221 (driver) + PC817 ignition-sense and flip `sim real`; then `manageLoads()`
+  load-shedding and the IMU/security layer.
 
 ## Dev environment
 - **Windows only, PowerShell only.** All shell commands must be PowerShell (or plain `pio`/git
