@@ -257,11 +257,15 @@ WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console li
   </table>
 
   <h2><span class="n">8</span>Where this fits</h2>
-  <p>This is the manual, hands-on layer. The next milestone adds <b>sensing</b> (INA226 bus
-  voltage + the ignition-sense front-end) and the <b>autonomous engine-run supervisor</b>
-  &mdash; <code>SLEEP &rarr; ARMED &rarr; RUNNING &rarr; OFF_DELAY</code>, the state machine in
-  the <a href="electrical-plan.html#firmware">electrical plan &sect;13</a> &mdash; which drives
-  this exact same <code>RelayController</code>. The bench console stays as a diagnostic tool
+  <p>This is the manual, hands-on layer. On top of it runs the <b>autonomous engine-run
+  supervisor</b> &mdash; <code>SLEEP &rarr; ARMED &rarr; RUNNING &harr; POWERED</code> (+
+  <code>OFF_DELAY</code>), the state machine in the
+  <a href="electrical-plan.html#firmware">electrical plan &sect;13</a> /
+  <a href="adr/0012-ignition-master-switch-powered-state.md">ADR-0012</a> &mdash; which drives
+  this exact same <code>RelayController</code>. It's already implemented and bench-tested with
+  simulated sensors (console: <code>sim ign</code> / <code>sim vbus</code>, <code>state</code>);
+  the remaining milestone is the real <b>INA3221</b> + PC817 sensing front-end (then
+  <code>sim real</code>) and load-shedding. The bench console stays as a diagnostic tool
   underneath it.</p>
 
   <footer>

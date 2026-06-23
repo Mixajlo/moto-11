@@ -165,7 +165,7 @@
 
 <!-- 02 -->
 <h2 id="logic"><span class="num">02</span> Engine-Running Logic <span style="font-size:14px;color:var(--faint);font-weight:400">— the heart of the system</span></h2>
-<p class="lede">You want accessories live only when the <em>engine runs</em>, a customizable off-delay after key-off, and immunity to a battery tender. One ignition wire plus a voltage reading does all three.</p>
+<p class="lede">You want accessories live whenever the <em>key is on</em>, the engine-run signal to gate the first power-on (and tell charging apart from a stall), a customizable off-delay after key-off, and immunity to a battery tender. One ignition wire plus a bus-voltage reading does it all — see <a href="adr/0012-ignition-master-switch-powered-state.md">ADR-0012</a>.</p>
 
 <div class="panel alert cyan">
   <span class="tag">The rule</span>
@@ -177,75 +177,97 @@
 <table>
   <thead><tr><th>Ignition wire</th><th>Bus voltage</th><th>Real situation</th><th>Master relay</th><th>ESP state</th></tr></thead>
   <tbody>
-    <tr><td class="mono">LOW</td><td class="mono">~12.5 V</td><td>Parked, key out</td><td class="bad">OFF</td><td>Deep sleep (µA)</td></tr>
-    <tr><td class="mono">LOW</td><td class="mono">13.6–14.4 V</td><td><b>Battery tender connected</b></td><td class="ok">OFF ✓</td><td>Deep sleep — <span class="ok">not fooled</span></td></tr>
-    <tr><td class="mono">HIGH</td><td class="mono">~12.4 V</td><td>Key on, engine off / cranking</td><td class="bad">OFF</td><td>Awake, waiting</td></tr>
-    <tr><td class="mono">HIGH</td><td class="mono">≥ 13.2 V</td><td><b>Engine running</b></td><td class="ok">ON</td><td>Awake, active</td></tr>
-    <tr><td class="mono">HIGH→LOW</td><td class="mono">any</td><td>Just switched off</td><td class="warn">ON during delay</td><td>Awake, timing out</td></tr>
+    <tr><td class="mono">LOW</td><td class="mono">~12.5 V</td><td>Parked, key out</td><td class="bad">OFF</td><td><b>SLEEP</b> (deep sleep, µA)</td></tr>
+    <tr><td class="mono">LOW</td><td class="mono">13.6–14.4 V</td><td><b>Battery tender connected</b></td><td class="ok">OFF ✓</td><td><b>SLEEP</b> — <span class="ok">not fooled</span></td></tr>
+    <tr><td class="mono">HIGH</td><td class="mono">~12.4 V</td><td>Key on, engine not started yet</td><td class="bad">OFF</td><td><b>ARMED</b> (waiting for run)</td></tr>
+    <tr><td class="mono">HIGH</td><td class="mono">≥ 13.2 V</td><td><b>Engine running</b> (charging)</td><td class="ok">ON</td><td><b>RUNNING</b></td></tr>
+    <tr><td class="mono">HIGH</td><td class="mono">12.9–13.4 V</td><td>Running but barely charging</td><td class="ok">ON</td><td><b>RUNNING</b> + <span class="warn">charge warning</span></td></tr>
+    <tr><td class="mono">HIGH</td><td class="mono">&lt; 12.9 V</td><td><b>Stall / kill switch</b> — engine off, key on</td><td class="ok">ON (held)</td><td><b>POWERED</b> — kept for restart</td></tr>
+    <tr><td class="mono">HIGH</td><td class="mono">&lt; 12.9 V, &gt;10 min</td><td>Key left on, engine off (forgotten)</td><td class="warn">OFF</td><td>POWERED → <b>ARMED</b> (backstop)</td></tr>
+    <tr><td class="mono">HIGH→LOW</td><td class="mono">any</td><td>Key switched off</td><td class="warn">ON during delay</td><td><b>OFF_DELAY</b> → SLEEP</td></tr>
   </tbody>
 </table>
 
 <figure>
-<svg viewBox="0 0 980 470" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+<svg viewBox="0 0 980 420" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
   <defs>
     <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#44505d"/></marker>
     <marker id="arA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#C77700"/></marker>
+    <marker id="arB" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#0072B2"/></marker>
   </defs>
-  <text x="24" y="34" fill="#7b4ea3" font-size="13" letter-spacing="3">STATE MACHINE — ESP32 POWER SUPERVISOR</text>
+  <text x="24" y="28" fill="#7b4ea3" font-size="13" letter-spacing="3">STATE MACHINE — ESP32 POWER SUPERVISOR</text>
 
   <!-- SLEEP -->
-  <rect x="40" y="70" width="200" height="78" rx="10" fill="#ffffff" stroke="#cdd5de"/>
-  <text x="140" y="100" text-anchor="middle" fill="#161b24" font-size="16" font-weight="700">SLEEP</text>
-  <text x="140" y="122" text-anchor="middle" fill="#44505d" font-size="11">deep sleep · relay OFF</text>
-  <text x="140" y="138" text-anchor="middle" fill="#6b7682" font-size="10">wake on ignition rising edge</text>
+  <rect x="40" y="58" width="200" height="76" rx="10" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="140" y="86" text-anchor="middle" fill="#161b24" font-size="16" font-weight="700">SLEEP</text>
+  <text x="140" y="108" text-anchor="middle" fill="#44505d" font-size="11">deep sleep · relay OFF</text>
+  <text x="140" y="124" text-anchor="middle" fill="#6b7682" font-size="10">wake on ignition edge</text>
 
   <!-- ARMED -->
-  <rect x="390" y="70" width="200" height="78" rx="10" fill="#ffffff" stroke="#cdd5de"/>
-  <text x="490" y="100" text-anchor="middle" fill="#161b24" font-size="16" font-weight="700">ARMED</text>
-  <text x="490" y="122" text-anchor="middle" fill="#44505d" font-size="11">ign HIGH · relay OFF</text>
-  <text x="490" y="138" text-anchor="middle" fill="#6b7682" font-size="10">waiting for V ≥ 13.2 V</text>
+  <rect x="380" y="58" width="200" height="76" rx="10" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="480" y="86" text-anchor="middle" fill="#161b24" font-size="16" font-weight="700">ARMED</text>
+  <text x="480" y="108" text-anchor="middle" fill="#44505d" font-size="11">key on · relay OFF</text>
+  <text x="480" y="124" text-anchor="middle" fill="#6b7682" font-size="10">waiting for V ≥ 13.2 V</text>
 
-  <!-- RUN -->
-  <rect x="740" y="70" width="200" height="78" rx="10" fill="#ffffff" stroke="#111111"/>
-  <text x="840" y="100" text-anchor="middle" fill="#111111" font-size="16" font-weight="700">RUNNING</text>
-  <text x="840" y="122" text-anchor="middle" fill="#44505d" font-size="11">relay ON · loads live</text>
-  <text x="840" y="138" text-anchor="middle" fill="#6b7682" font-size="10">PWM + load mgmt active</text>
+  <!-- RUNNING -->
+  <rect x="720" y="58" width="200" height="76" rx="10" fill="#ffffff" stroke="#111111"/>
+  <text x="820" y="86" text-anchor="middle" fill="#111111" font-size="16" font-weight="700">RUNNING</text>
+  <text x="820" y="108" text-anchor="middle" fill="#44505d" font-size="11">engine on · relay ON</text>
+  <text x="820" y="124" text-anchor="middle" fill="#6b7682" font-size="10">charging · load mgmt</text>
 
-  <!-- DELAY -->
-  <rect x="565" y="300" width="200" height="86" rx="10" fill="#ffffff" stroke="#C77700"/>
-  <text x="665" y="330" text-anchor="middle" fill="#C77700" font-size="16" font-weight="700">OFF-DELAY</text>
-  <text x="665" y="352" text-anchor="middle" fill="#44505d" font-size="11">relay held ON</text>
-  <text x="665" y="368" text-anchor="middle" fill="#6b7682" font-size="10">user timer 0–600 s</text>
+  <!-- OFF-DELAY -->
+  <rect x="380" y="300" width="200" height="96" rx="10" fill="#ffffff" stroke="#C77700"/>
+  <text x="480" y="328" text-anchor="middle" fill="#C77700" font-size="16" font-weight="700">OFF-DELAY</text>
+  <text x="480" y="350" text-anchor="middle" fill="#44505d" font-size="11">relay held ON</text>
+  <text x="480" y="366" text-anchor="middle" fill="#6b7682" font-size="10">user timer 0–600 s</text>
+  <text x="480" y="382" text-anchor="middle" fill="#009E73" font-size="10">key back → resume</text>
 
-  <!-- arrows -->
-  <line x1="240" y1="109" x2="384" y2="109" stroke="#C77700" stroke-width="2" marker-end="url(#arA)"/>
-  <text x="312" y="100" text-anchor="middle" fill="#C77700" font-size="10.5">ign → HIGH</text>
+  <!-- POWERED -->
+  <rect x="720" y="300" width="200" height="96" rx="10" fill="#ffffff" stroke="#0072B2"/>
+  <text x="820" y="328" text-anchor="middle" fill="#0072B2" font-size="16" font-weight="700">POWERED</text>
+  <text x="820" y="350" text-anchor="middle" fill="#44505d" font-size="11">engine off, key on · relay ON</text>
+  <text x="820" y="366" text-anchor="middle" fill="#6b7682" font-size="10">stall / kill — power held</text>
+  <text x="820" y="382" text-anchor="middle" fill="#6b7682" font-size="10">10 min → relay OFF (save) → ARMED</text>
 
-  <line x1="590" y1="109" x2="734" y2="109" stroke="#111111" stroke-width="2" marker-end="url(#ar)"/>
-  <text x="662" y="100" text-anchor="middle" fill="#111111" font-size="10.5">V ≥ 13.2 V (1 s)</text>
+  <!-- SLEEP <-> ARMED -->
+  <line x1="240" y1="84" x2="376" y2="84" stroke="#C77700" stroke-width="2" marker-end="url(#arA)"/>
+  <text x="308" y="77" text-anchor="middle" fill="#C77700" font-size="10.5">ign → HIGH</text>
+  <line x1="376" y1="104" x2="244" y2="104" stroke="#44505d" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <text x="308" y="119" text-anchor="middle" fill="#6b7682" font-size="9.5">ign LOW (never ran)</text>
 
-  <!-- RUN -> DELAY -->
-  <path d="M820,148 C820,235 720,250 690,296" fill="none" stroke="#C77700" stroke-width="2" marker-end="url(#arA)"/>
-  <text x="800" y="235" fill="#C77700" font-size="10.5">ign → LOW</text>
+  <!-- ARMED -> RUNNING -->
+  <line x1="580" y1="92" x2="716" y2="92" stroke="#111111" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="648" y="85" text-anchor="middle" fill="#111111" font-size="10.5">V ≥ 13.2 V (1 s)</text>
 
-  <!-- DELAY -> SLEEP -->
-  <path d="M565,352 C300,352 140,280 140,152" fill="none" stroke="#44505d" stroke-width="2" marker-end="url(#ar)"/>
-  <text x="300" y="300" fill="#44505d" font-size="10.5">timer expires → cut relay → sleep</text>
+  <!-- RUNNING -> POWERED -->
+  <line x1="832" y1="134" x2="832" y2="300" stroke="#0072B2" stroke-width="2" marker-end="url(#arB)"/>
+  <text x="846" y="205" fill="#0072B2" font-size="10">engine off</text>
+  <text x="846" y="219" fill="#0072B2" font-size="10">V &lt; 12.9 (2 s)</text>
 
-  <!-- DELAY -> RUN (restart within delay) -->
-  <path d="M740,330 C800,320 838,250 840,152" fill="none" stroke="#111111" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ar)"/>
-  <text x="855" y="250" fill="#111111" font-size="10">restart</text>
+  <!-- POWERED -> RUNNING -->
+  <line x1="806" y1="300" x2="806" y2="134" stroke="#111111" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <text x="800" y="235" text-anchor="end" fill="#111111" font-size="10">restart</text>
 
-  <!-- ARMED -> SLEEP (key off before run) -->
-  <path d="M420,148 C380,210 220,200 175,150" fill="none" stroke="#44505d" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ar)"/>
-  <text x="300" y="200" fill="#6b7682" font-size="10">ign LOW (never ran)</text>
+  <!-- RUNNING -> OFF-DELAY -->
+  <path d="M740,134 C660,205 600,265 576,300" fill="none" stroke="#C77700" stroke-width="2" marker-end="url(#arA)"/>
+  <text x="628" y="200" fill="#C77700" font-size="10">key OFF</text>
+
+  <!-- POWERED -> OFF-DELAY -->
+  <line x1="720" y1="344" x2="584" y2="344" stroke="#C77700" stroke-width="2" marker-end="url(#arA)"/>
+  <text x="652" y="337" text-anchor="middle" fill="#C77700" font-size="10">key OFF</text>
+
+  <!-- OFF-DELAY -> SLEEP -->
+  <path d="M380,330 C250,250 150,210 140,138" fill="none" stroke="#44505d" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="196" y="250" fill="#44505d" font-size="10">timer → cut relay</text>
 
   <!-- charger note -->
-  <rect x="40" y="200" width="330" height="58" rx="9" fill="#ffffff" stroke="#cdd5de"/>
-  <text x="56" y="224" fill="#7b4ea3" font-size="11" font-weight="700">CHARGER-AWARE</text>
-  <text x="56" y="244" fill="#44505d" font-size="10.5">Tender raises V but ign = LOW → stays in SLEEP.</text>
+  <rect x="40" y="300" width="300" height="96" rx="9" fill="#ffffff" stroke="#cdd5de"/>
+  <text x="56" y="326" fill="#7b4ea3" font-size="11" font-weight="700">CHARGER-AWARE</text>
+  <text x="56" y="348" fill="#44505d" font-size="10">Tender raises V but ign = LOW →</text>
+  <text x="56" y="363" fill="#44505d" font-size="10">can only sit in SLEEP. Once powered,</text>
+  <text x="56" y="378" fill="#44505d" font-size="10">the key is the master switch.</text>
 </svg>
-<figcaption><b>Fig 2.1</b> — Supervisor state machine. The dashed green path is "engine restarted before the off-delay expired" (e.g. a stall at a light). The charger case can never leave SLEEP because the ignition wire gates everything.</figcaption>
+<figcaption><b>Fig 2.1</b> — Supervisor state machine (ADR-0012). The <b>ignition key is the master switch</b>: once RUNNING, power is held until key-off. A stall / kill switch (engine off, key on) drops to <b>POWERED</b> with the relay still on, so a restart is seamless; only a forgotten key (10 min in POWERED) or key-off cuts power. Dashed = automatic returns (restart, key-back resume). The charger case can never leave SLEEP because the ignition wire gates everything.</figcaption>
 </figure>
 
 <div class="panel alert">
@@ -706,7 +728,7 @@
     <tr><td class="mono">08</td><td>Wire the <b>relay coil</b>: 85→+12, 86→ESP MOSFET (low-side), flyback diode across coil. 87→accessory bus.</td></tr>
     <tr><td class="mono">09</td><td>Land per-load <b>MOSFETs</b> (gate resistor + 10 k pulldown), sources to the ground bus. Fuse each load on the switched bus.</td></tr>
     <tr><td class="mono">10</td><td>Land <b>all grounds to the star bus</b>; single 12 AWG return to battery −. No daisy-chains, no frame grounds.</td></tr>
-    <tr><td class="mono">11</td><td>Reconnect battery. <b>Bench-test the state machine</b> with a variable supply: simulate 12.5 V (off), 12.5 V + ign (armed), 13.5 V + ign (run), ign-off (delay), charger case (13.8 V no ign → stays off).</td></tr>
+    <tr><td class="mono">11</td><td>Reconnect battery. <b>Bench-test the state machine</b> with a variable supply: 12.5 V no ign (sleep), 12.5 V + ign (armed), 13.5 V + ign (run), drop V with ign still on (powered — relay stays on), ign-off (off-delay → sleep), charger case (13.8 V no ign → stays off).</td></tr>
     <tr><td class="mono">12</td><td>Only after the logic passes, refit fairings. Leave the USB programming pigtail accessible and sealed.</td></tr>
   </tbody>
 </table>

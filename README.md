@@ -29,12 +29,14 @@ relay box driven by a ULN2803, and battery/charging telemetry from an INA226.
 ## Status
 
 **Early development.** OTA firmware (WiFi + ArduinoOTA + heartbeat) is proven on the bench
-across both ESP units. Relay control is now in: a `RelayController` drives the four ULN2803
-coil enables (fail-OFF at boot) and a serial/Telnet **bench console** actuates them by hand
-(`status`, `on/off`, `toggle`, `selftest`) for pre-install testing. Next firmware milestone:
-INA226 bus-voltage + ignition-sense, then the autonomous engine-run supervisor
-(SLEEP/ARMED/RUNNING/OFF_DELAY). Hardware is at the bench-prototyping stage. See `docs/adr/`
-for the decisions made so far.
+across both ESP units. Relay control and the **engine-run supervisor** are in and
+bench-validated: a `RelayController` drives the four ULN2803 coil enables (fail-OFF at boot),
+a serial/Telnet **bench console** actuates them by hand, and the supervisor runs the power
+state machine — `SLEEP → ARMED → RUNNING ⇄ POWERED` (+ `OFF_DELAY`) with ignition-as-master,
+a battery backstop, and a charge-health warning — driven by simulated sensors and covered by
+unit tests. Next firmware milestone: the real **INA3221** driver + PC817 ignition-sense (then
+flip `sim real`), and load-shedding. Hardware is at the bench-prototyping stage (KiCad schematic
++ first-pass PCB). See `docs/adr/` for the decisions made so far.
 
 ## Architecture
 
