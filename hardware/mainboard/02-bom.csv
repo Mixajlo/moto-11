@@ -42,7 +42,7 @@ J4,1,3-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-03P_1x03_P5.00mm,M
 J5,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,INA3221 VBUS_SENSE / GND
 J6,1,1x4 header,I2C expansion,2.54mm THT,generic,+3V3 SDA SCL GND
 J7,1,2x4 header,ULN spare ch5-8 breakout,2.54mm THT,generic,future relays
-J8,1,1x9 JST-XH,Handlebar aux buttons connector,Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical,JST B9B-XH-A,BTN1..8 + common GND (ADR-0014)
+J10,1,1x9 JST-XH,Handlebar aux buttons connector,Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical,JST B9B-XH-A,BTN1..8 + common GND (ADR-0014)
 R15,1,1k,Button series (RC),0805 or THT,generic,BTN1; omit on bench
 R16,1,1k,Button series (RC),0805 or THT,generic,BTN2; omit on bench
 R17,1,1k,Button series (RC),0805 or THT,generic,BTN3; omit on bench
