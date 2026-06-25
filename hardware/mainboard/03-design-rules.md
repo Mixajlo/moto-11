@@ -52,8 +52,8 @@ pour resist vibration fatigue and give clean returns, even though the amps are s
   one edge). Adjust after placement.
 - **4× M3 mounting holes**, 4 mm from corners, with keep-out and a ground stitch ring (chassis
   option via a 0 Ω / ferrite, default isolated — star ground only).
-- **Terminal blocks on one board edge** (J1–J5) so field wiring enters from one side; pluggable
-  type preferred for serviceability.
+- **Terminal blocks on one board edge** (J1–J4) so field wiring enters from one side; pluggable
+  type preferred for serviceability. The button JST (J10) sits on an edge the handlebar cable reaches.
 - Keep the **DevKitC antenna end overhanging the board edge** (no copper under the PCB-antenna
   keep-out) — critical for WiFi/BLE range.
 - USB port of the DevKitC must remain **physically accessible** for reflashing (orient the
@@ -62,8 +62,8 @@ pour resist vibration fatigue and give clean returns, even though the amps are s
 ## RF / analog hygiene
 
 - ESP32 antenna keep-out: no copper (any layer) under/around the WROOM antenna cutout.
-- Route I²C as a pair, away from the buck switch node; keep INA226 sense (`VBUS_SENSE`/`R14`/`C10`)
-  short and away from the buck.
+- Route I²C as a pair, away from the buck switch node. (INA3221 CH1 bus-sense is off-board — a
+  dedicated batt+ lead to the module terminal — so there's no on-board sense trace to keep short.)
 - Place buck input/output bulk caps tight to A3; keep the buck's high-di/dt loop small.
 - One 100 nF per IC power pin, within ~5 mm.
 

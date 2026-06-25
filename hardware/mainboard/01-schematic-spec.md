@@ -88,12 +88,11 @@ battery feed. It carries only control and coil current — **never** load curren
 | Q1 | P-MOSFET | AOD4185 / DMP3017SFG / IRF4905 | DPAK / TO-220 | Reverse-polarity (ideal-diode orientation). |
 | D1 | TVS | SMBJ24A (uni, 24 V standoff) | SMB / DO-214AA | Load-dump clamp on +12V_PROT. |
 | D2 | LED | green, 3 mm | THT | +3V3 power indicator (optional). |
-| D3 | TVS | SMBJ20A (uni, 20 V standoff) | SMB / DO-214AA | Clamp on INA3221 sense input (26 V limit). |
+| D3 | TVS | SMBJ20A (uni, 20 V standoff) — leaded easiest | **off-board**, at module CH1 | Clamp across the CH1 sense lead → GND (INA 26 V input limit). Mounted at the module / in the harness, **not on the PCB** (sense lead runs batt+ → CH1 directly). |
 | C1 | Cap | 470 µF / 35 V electrolytic | radial 8 mm | Bulk on +12V_PROT. |
 | C2 | Cap | 100 µF / 16 V electrolytic | radial 6.3 mm | Bulk on +5V. |
 | C3–C8 | Cap | 100 nF X7R | 0805 / THT | Decoupling: ESP, ULN, INA3221, opto, IMU. |
 | C9 | Cap | 10 µF X7R | 0805 / THT | +3V3 bulk near ESP. |
-| C10 | Cap | 1 µF | 0805 | RC filter on INA3221 VBUS sense. |
 | R1–R4 | Res | 10 kΩ | 0805 / THT | ULN input pull-downs (boot-safe OFF). |
 | R5, R6 | Res | 4.7 kΩ | 0805 | I²C SDA/SCL pull-ups to +3V3. |
 | R7, R8 | Res | 2.2 kΩ, 0.25 W | THT/1206 | PC817 LED series (12 V side), ~5 mA. |
@@ -102,12 +101,10 @@ battery feed. It carries only control and coil current — **never** load curren
 | R12 | Res | 100 Ω | 0805 | Q1 gate series (optional, slew). |
 | Dz1 | Zener | 18 V, 0.5 W | SOD-123 / THT | Q1 gate–source clamp. >14.4 V so idle while charging; <20 V Vgs(max). |
 | R13 | Res | 220 Ω | 0805 | D2 LED series. |
-| R14 | Res | 100 Ω | 0805 | INA3221 sense series (light RC with C10; keep low to avoid bus-measure error). |
 | J1 | Term block | 2-pos, 5.08 mm | THT | `+12V_HOT`, `GND` (power in). |
 | J2 | Term block | 2-pos, 5.08 mm | THT | `COIL_RAIL` (+12 to box pin86 / ULN COM), `GND`. |
 | J3 | Term block | 4-pos, 3.5 mm | THT | Coil outputs → 85 wires: MASTER, FOG, GRIP, SPARE. |
 | J4 | Term block | 3-pos, 3.5 mm | THT | `IGN_12V`, `START_12V`, `SENSE_GND`. |
-| J5 | Term block | 2-pos, 3.5 mm | THT | INA3221 `VBUS_SENSE` (clean lead to batt +), `GND`. |
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
 | J7 | Header | 2×4, 2.54 mm | THT | ULN spare ch5–8 in/out break-out (future relays). |
 | J10 | Connector | JST-XH, 1×9, 2.50 mm | `Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical` | Handlebar aux buttons: BTN1..8 + common GND (ADR-0014). |
@@ -159,7 +156,7 @@ Decoupling caps: place one 100 nF physically next to each IC's V+/GND.
 | `+12V_PROT` | Q1 **source**, `D1` cathode (TVS across PROT→GND), `C1+`, `A3.IN+`, `TP1`. |
 | `+5V` | `A3.OUT+`, `C2+`, `A1.5V/VIN`, `TP2`. |
 | `+3V3` | `A1.3V3`, `U3.VS`/`U3.VCC`, `A2.VCC`, `R5`, `R6`, `R9`, `R10`, `D2`(via R13), `C9+`, `TP3`. |
-| `GND` | `J1.2`, `J2.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J5.2`, `J6.4`, all cap −, `TP4`. |
+| `GND` | `J1.2`, `J2.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J6.4`, all cap −, `TP4`. |
 | `COIL_RAIL` | `J2.1`, `U2.10 (COM)`. (Externally wired to box pin 86.) |
 
 ### Reverse-polarity + TVS (input protection)
@@ -194,13 +191,17 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 | `SDA` | `A1.21`, `U3.SDA`, `A2.SDA`, `R5`→+3V3, `J6.2`. |
 | `SCL` | `A1.22`, `U3.SCL`, `A2.SCL`, `R6`→+3V3, `J6.3`. |
 | `IMU_INT` | `A2.INT` → `A1.33`. |
-| INA3221 sense | `J5.1` (`VBUS_SENSE`) → `R14` (100 Ω) → INA3221 **CH1** input; `C10` CH1→GND (light filter); `D3` (TVS) CH1→GND (26 V clamp). Tie CH1 VIN+/VIN− to the sense node for a zero-current voltage read. |
-| INA3221 CH2/CH3 | Reserved — leave on the module terminals for future per-branch current sensing. |
+| INA3221 CH1 sense | **Off-board** — a dedicated clean lead from **battery +** runs straight to the module's **CH1 IN+ & IN−** screw terminals (both tied = zero-current bus-voltage read). Does **not** route through the mainboard; CH1 is not on the 8-pin socket. |
+| INA3221 GND ref | Comes through the header: `U3.2` → board `GND` → (external) battery −. This is what makes the off-board CH1 reading correct. |
+| INA3221 CH2/CH3 | Reserved — module terminals, future per-branch current sensing. |
 
 > INA3221 measures bus voltage on a **clean dedicated lead to battery +** (zero current = no IR
-> drop), per ADR-0005/0011. Default I²C address **0x40** (A0→GND) — same as the old INA226, so no
-> firmware address change, but the **register map / driver differs**. Verify CH wiring against
-> your specific breakout's silkscreen. Populate shunts only when you want branch current.
+> drop), per ADR-0005/0011. The lead goes **directly to the module CH1 terminal** (no on-board
+> filter/clamp network — J5/R14/C10 dropped). **Protection:** keep a TVS (D3, SMBJ20A — leaded is
+> easiest) across that CH1 lead → GND at the module/harness to hold the INA's **26 V input limit**;
+> the always-hot battery tap normally clamps the bus, so this is belt-and-suspenders. Default I²C
+> address **0x40** (A0 set on the module — confirm). The PV/CRI/WAR/TC alert pins (header 5–8) stay
+> **unconnected** — alerts are read over I²C. Populate shunts only when you want branch current.
 
 **INA3221 module header pin map (U3) — confirmed from the board silk.** The custom
 `INA3221_Module` footprint is a 1×8 row matching the labeled header. We wire only VS/GND/SCL/SDA;

@@ -40,8 +40,9 @@ for the how-to.
 - [ ] DevKitC (J8/J9) along one edge, **antenna end overhanging** — copper keep-out under the
   WROOM antenna, any layer.
 - [ ] **USB end of the DevKitC reachable** for reflashing (orient to a board edge).
-- [ ] Terminal blocks J1–J5 on the **field-wiring edge**, one side.
-- [ ] Buck loop tight; INA3221 sense (`R14`/`C10`/`D3`) short, away from the buck switch node.
+- [ ] Terminal blocks J1–J4 on the **field-wiring edge**, one side; J10 (button JST) on an edge the handlebar cable reaches.
+- [ ] Buck loop tight, away from the I²C pair. (INA CH1 sense is off-board — no on-board sense network to place.)
+- [ ] INA3221 module (U3) socketed near the I²C side; leave clearance for its body (~25×19 mm) per the custom footprint keep-out.
 - [ ] **Opto isolation gap ≥ 4 mm** across U4/U5; **no ground pour under the opto barrier**.
 - [ ] 4× **M3 mounting holes**, ~4 mm from corners.
 - [ ] Resize **Edge.Cuts** to the real outline once placement settles (~90 × 70 mm guess).
