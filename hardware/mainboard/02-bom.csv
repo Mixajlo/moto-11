@@ -3,7 +3,7 @@ A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),2x 1x19 female header 2.
 A2,1,IMU,6-axis accel+gyro breakout (I2C),1x5 female header 2.54mm,ST LSM6DSO (pref) or InvenSense MPU-6050,Wake-on-motion INT; LSM6DSO preferred
 A3,1,Buck,MP1584EN mini buck module,4-pad 2.54mm,MP1584EN module,Pre-set 5.0V and verify before fitting
 U2,1,ULN2803A,Darlington array 8ch low-side,DIP-18 (socket) or SOIC-18,Texas Instruments ULN2803A,Active-HIGH; COM to coil rail
-U3,1,INA3221,3-channel bus voltage/current monitor breakout,header + 3x channel terminals,TI INA3221 module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); needs INA3221 driver
+U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via labeled VS/GND/SCL/SDA/A0 row; confirm count/order
 U4,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,IGN 12V sense
 U5,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,START/headlight 12V sense
 Q1,1,P-MOSFET,Reverse-polarity protect,DPAK or TO-220,AOD4185 / DMP3017SFG / IRF4905,Source=+12V_HOT drain=+12V_PROT
@@ -15,12 +15,12 @@ C1,1,470uF/35V,Bulk electrolytic,radial 8mm,generic 105C,On +12V_PROT
 C2,1,100uF/16V,Bulk electrolytic,radial 6.3mm,generic 105C,On +5V
 C3,1,100nF,Decoupling X7R,0805 or THT,generic,ESP power pin
 C4,1,100nF,Decoupling X7R,0805 or THT,generic,ULN2803
-C5,1,100nF,Decoupling X7R,0805 or THT,generic,INA226
+C5,1,100nF,Decoupling X7R,0805 or THT,generic,INA3221
 C6,1,100nF,Decoupling X7R,0805 or THT,generic,PC817 U4/U5 area
 C7,1,100nF,Decoupling X7R,0805 or THT,generic,IMU
 C8,1,100nF,Decoupling X7R,0805 or THT,generic,spare/input
 C9,1,10uF,Bulk X7R,0805 or THT,generic,+3V3 near ESP
-C10,1,1uF,RC filter,0805,generic,INA226 VBUS sense filter
+C10,1,1uF,RC filter,0805,generic,INA3221 VBUS sense filter
 R1,1,10k,ULN input pulldown,0805 or THT,generic,MASTER_EN
 R2,1,10k,ULN input pulldown,0805 or THT,generic,FOG_EN
 R3,1,10k,ULN input pulldown,0805 or THT,generic,GRIP_EN
@@ -42,6 +42,23 @@ J4,1,3-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-03P_1x03_P5.00mm,M
 J5,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,INA3221 VBUS_SENSE / GND
 J6,1,1x4 header,I2C expansion,2.54mm THT,generic,+3V3 SDA SCL GND
 J7,1,2x4 header,ULN spare ch5-8 breakout,2.54mm THT,generic,future relays
+J8,1,1x9 JST-XH,Handlebar aux buttons connector,Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical,JST B9B-XH-A,BTN1..8 + common GND (ADR-0014)
+R15,1,1k,Button series (RC),0805 or THT,generic,BTN1; omit on bench
+R16,1,1k,Button series (RC),0805 or THT,generic,BTN2; omit on bench
+R17,1,1k,Button series (RC),0805 or THT,generic,BTN3; omit on bench
+R18,1,1k,Button series (RC),0805 or THT,generic,BTN4; omit on bench
+R19,1,1k,Button series (RC),0805 or THT,generic,BTN5; omit on bench
+R20,1,1k,Button series (RC),0805 or THT,generic,BTN6; omit on bench
+R21,1,1k,Button series (RC),0805 or THT,generic,BTN7; omit on bench
+R22,1,1k,Button series (RC),0805 or THT,generic,BTN8; omit on bench
+C11,1,100nF,Button RC to GND,0805 or THT,generic,BTN1
+C12,1,100nF,Button RC to GND,0805 or THT,generic,BTN2
+C13,1,100nF,Button RC to GND,0805 or THT,generic,BTN3
+C14,1,100nF,Button RC to GND,0805 or THT,generic,BTN4
+C15,1,100nF,Button RC to GND,0805 or THT,generic,BTN5
+C16,1,100nF,Button RC to GND,0805 or THT,generic,BTN6
+C17,1,100nF,Button RC to GND,0805 or THT,generic,BTN7
+C18,1,100nF,Button RC to GND,0805 or THT,generic,BTN8
 TP1,1,Testpoint,+12V_PROT,THT loop,generic,
 TP2,1,Testpoint,+5V,THT loop,generic,
 TP3,1,Testpoint,+3V3,THT loop,generic,

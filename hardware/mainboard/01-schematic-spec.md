@@ -6,9 +6,9 @@ designators, and a **net-by-net connection table**. This is the source of truth 
 capture ([04-kicad-guide.md](04-kicad-guide.md)).
 
 **What this board is:** the brain. It sockets an ESP32-DevKitC, drives the existing relay-box
-coils through a ULN2803, senses the 12 V bus (INA226) and two 12 V logic inputs (PC817 opto),
-carries a 6-axis IMU, and makes its own 5 V from the always-hot battery feed. It carries only
-control and coil current — **never** load current.
+coils through a ULN2803, senses the 12 V bus (INA3221) and two 12 V logic inputs (PC817 opto),
+carries a 6-axis IMU, takes 8 handlebar aux buttons, and makes its own 5 V from the always-hot
+battery feed. It carries only control and coil current — **never** load current.
 
 ---
 
@@ -53,10 +53,11 @@ control and coil current — **never** load current.
  COIL_RAIL +12 (box pin 86, external) ──► ULN2803 COM (pin10, flyback)
 
  ESP GPIO 13/25/26/27 ─► ULN2803 in1..4 ─► out1..4 ─► coil 85 wires (screw terminals)
- ESP I2C 21/22 ─────────► INA226 module + IMU module (shared bus, 4k7 pull-ups)
+ ESP I2C 21/22 ─────────► INA3221 module + IMU module (shared bus, 4k7 pull-ups)
  12V IGN  ─► PC817 U4 ─► GPIO34 (pull-up 3V3)   [LOW when 12V present]
  12V START─► PC817 U5 ─► GPIO35 (pull-up 3V3)   [LOW when 12V present]
  IMU INT  ─────────────► GPIO33 (wake)
+ BTN1..8  ─► J8 (JST-XH) ─► GPIO 4/14/16/17/18/19/23/32 (INPUT_PULLUP, active-LOW, RC)
 ```
 
 ---
@@ -68,7 +69,7 @@ control and coil current — **never** load current.
 | `+12V_HOT` | Always-hot battery feed, after the external 2 A inline fuse (board input). |
 | `+12V_PROT` | After reverse-polarity FET + TVS — the protected board 12 V. Feeds the buck. |
 | `+5V` | Buck output → ESP 5V/VIN pin. |
-| `+3V3` | From the ESP DevKitC onboard regulator → powers INA226, IMU, opto pull-ups. |
+| `+3V3` | From the ESP DevKitC onboard regulator → powers INA3221, IMU, opto + button pull-ups. |
 | `COIL_RAIL` | +12 V coil common (the box's commoned pin 86). Feeds ULN COM. Externally sourced. |
 | `GND` | Single board ground; ties to the star ground externally. |
 
@@ -82,7 +83,7 @@ control and coil current — **never** load current.
 | A2 | IMU module | LSM6DSO (pref.) / MPU-6050 breakout | 1×5 (or 1×8) female header, 2.54 mm | 6-axis, I²C, INT out. |
 | A3 | Buck module | MP1584EN mini buck | 4-pad (IN+ IN− OUT+ OUT−), 2.54 mm | Pre-set to 5.0 V **and verify** before fitting. |
 | U2 | ULN2803A | Darlington array, 8-ch | DIP-18 (socketed) or SOIC-18 | Active-HIGH; COM→COIL_RAIL for flyback. |
-| U3 | INA3221 module | INA3221 3-ch breakout (+ shunts) | header (VS/GND/SDA/SCL) + 3× channel terminals | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. |
+| U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module` (custom, `mainboard.pretty`) — 1×5 labeled edge row | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the labeled VS/GND/SCL/SDA/A0 row; **confirm count/order** against the silk. |
 | U4, U5 | PC817 | Optocoupler, single | DIP-4 | One per 12 V sense channel (IGN, START). |
 | Q1 | P-MOSFET | AOD4185 / DMP3017SFG / IRF4905 | DPAK / TO-220 | Reverse-polarity (ideal-diode orientation). |
 | D1 | TVS | SMBJ24A (uni, 24 V standoff) | SMB / DO-214AA | Load-dump clamp on +12V_PROT. |
@@ -92,7 +93,7 @@ control and coil current — **never** load current.
 | C2 | Cap | 100 µF / 16 V electrolytic | radial 6.3 mm | Bulk on +5V. |
 | C3–C8 | Cap | 100 nF X7R | 0805 / THT | Decoupling: ESP, ULN, INA3221, opto, IMU. |
 | C9 | Cap | 10 µF X7R | 0805 / THT | +3V3 bulk near ESP. |
-| C10 | Cap | 1 µF | 0805 | RC filter on INA226 VBUS sense. |
+| C10 | Cap | 1 µF | 0805 | RC filter on INA3221 VBUS sense. |
 | R1–R4 | Res | 10 kΩ | 0805 / THT | ULN input pull-downs (boot-safe OFF). |
 | R5, R6 | Res | 4.7 kΩ | 0805 | I²C SDA/SCL pull-ups to +3V3. |
 | R7, R8 | Res | 2.2 kΩ, 0.25 W | THT/1206 | PC817 LED series (12 V side), ~5 mA. |
@@ -109,6 +110,9 @@ control and coil current — **never** load current.
 | J5 | Term block | 2-pos, 3.5 mm | THT | INA3221 `VBUS_SENSE` (clean lead to batt +), `GND`. |
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
 | J7 | Header | 2×4, 2.54 mm | THT | ULN spare ch5–8 in/out break-out (future relays). |
+| J8 | Connector | JST-XH, 1×9, 2.50 mm | `Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical` | Handlebar aux buttons: BTN1..8 + common GND (ADR-0014). |
+| R15–R22 | Res | 1 kΩ | 0805 / THT | Button series (RC with C11–C18); bench can omit, fit for the bike (noise). |
+| C11–C18 | Cap | 100 nF | 0805 / THT | Button RC to GND (debounce/noise); pairs with R15–R22. |
 | TP1–TP4 | Test point | — | THT loop | `+12V_PROT`, `+5V`, `+3V3`, `GND`. |
 
 ---
@@ -126,6 +130,14 @@ control and coil current — **never** load current.
 | 33 | `IMU_INT` | in | ← IMU INT. RTC (wake-on-motion). *(added; ADR-0009)* |
 | 21 | `SDA` | I/O | I²C; pull-up R5. |
 | 22 | `SCL` | I/O | I²C; pull-up R6. |
+| 4 | `BTN1` | in | ← `J8.1`; INPUT_PULLUP + RC (R15/C11). Active-LOW. *(ADR-0014)* |
+| 14 | `BTN2` | in | ← `J8.2`; INPUT_PULLUP + RC (R16/C12). |
+| 16 | `BTN3` | in | ← `J8.3`; INPUT_PULLUP + RC (R17/C13). |
+| 17 | `BTN4` | in | ← `J8.4`; INPUT_PULLUP + RC (R18/C14). |
+| 18 | `BTN5` | in | ← `J8.5`; INPUT_PULLUP + RC (R19/C15). |
+| 19 | `BTN6` | in | ← `J8.6`; INPUT_PULLUP + RC (R20/C16). |
+| 23 | `BTN7` | in | ← `J8.7`; INPUT_PULLUP + RC (R21/C17). |
+| 32 | `BTN8` | in | ← `J8.8`; INPUT_PULLUP + RC (R22/C18). Spare. |
 | 5V (VIN) | `+5V` | pwr in | from buck A3. |
 | 3V3 | `+3V3` | pwr out | from ESP LDO → board 3V3 rail. |
 | GND (×) | `GND` | pwr | tie all DevKitC GND pins. |
@@ -189,6 +201,41 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 > drop), per ADR-0005/0011. Default I²C address **0x40** (A0→GND) — same as the old INA226, so no
 > firmware address change, but the **register map / driver differs**. Verify CH wiring against
 > your specific breakout's silkscreen. Populate shunts only when you want branch current.
+
+**INA3221 module header pin map (U3) — socketed via the LABELED edge row; CONFIRM count/order
+against the board silk.** The custom `INA3221_Module` footprint is a 1×5 row matching that
+labeled edge. Pad names live in the schematic symbol, so if your silk order differs just remap
+the symbol pins (or rotate 180°). `A0→GND` sets I²C address **0x40**. The alert pins
+(PV/WARN/CRIT/TC) and CH2/CH3 terminals are left unconnected here — we read everything over I²C.
+
+| Pad | Silk label (assumed) | Net |
+|-----|----------------------|-----|
+| 1 | VS  | `+3V3` |
+| 2 | GND | `GND` |
+| 3 | SCL | `SCL` |
+| 4 | SDA | `SDA` |
+| 5 | A0  | `GND` (address 0x40) |
+
+### Aux buttons — handlebar (J8, ADR-0014)
+Dry contacts, **active-LOW**: each button shorts its GPIO to GND when pressed; the ESP's
+internal pull-up idles it HIGH. Debounced in firmware (`src/buttons.cpp`). The per-line RC
+(series R15–R22 + C11–C18 to GND) filters bus noise on the bike run — optional on the bench.
+
+| Net | Connects |
+|-----|----------|
+| `BTN1` | `J8.1` → `R15` (1k) → `A1.4`; `C11` (100n) node→GND. |
+| `BTN2` | `J8.2` → `R16` → `A1.14`; `C12`→GND. |
+| `BTN3` | `J8.3` → `R17` → `A1.16`; `C13`→GND. |
+| `BTN4` | `J8.4` → `R18` → `A1.17`; `C14`→GND. |
+| `BTN5` | `J8.5` → `R19` → `A1.18`; `C15`→GND. |
+| `BTN6` | `J8.6` → `R20` → `A1.19`; `C16`→GND. |
+| `BTN7` | `J8.7` → `R21` → `A1.23`; `C17`→GND. |
+| `BTN8` | `J8.8` → `R22` → `A1.32`; `C18`→GND. |
+| button GND | `J8.9` → `GND` (common return for all 8 buttons). |
+
+> Pull-ups are the ESP's internal ones (`INPUT_PULLUP`), so no external pull-up resistors are
+> needed. Keep the RC light (1 kΩ / 100 nF ≈ 0.1 ms) — far faster than the 25 ms firmware
+> debounce, so it only knocks down spikes. Past 8 buttons → swap to an MCP23017 on I²C (ADR-0014).
 
 ### 12 V sense — opto-isolated (PC817 U4 = IGN, U5 = START)
 PC817 pins: 1 = anode (LED+), 2 = cathode (LED−), 3 = emitter, 4 = collector.
