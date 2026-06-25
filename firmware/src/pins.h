@@ -25,5 +25,10 @@ constexpr uint8_t PIN_IMU_INT     = 33; // IMU wake-on-motion interrupt; RTC (de
 constexpr uint8_t PIN_I2C_SDA   = 21;
 constexpr uint8_t PIN_I2C_SCL   = 22;
 
+// --- Aux buttons (ADR-0014): dry contacts, active-LOW with internal pull-up ---
+// BTN1..BTN8; 7 used by the handlebar case + 1 spare. All pull-up-capable, no
+// strapping/flash pins. Past 8 buttons -> MCP23017 on I2C (board rev, no re-wire).
+constexpr uint8_t PIN_BTN[] = { 4, 14, 16, 17, 18, 19, 23, 32 };
+
 // --- Onboard LED (heartbeat / bench relay-activity indicator) ---
 constexpr uint8_t PIN_LED       = 2;

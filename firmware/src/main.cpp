@@ -20,6 +20,8 @@
 #include "console.h"
 #include "sensors.h"
 #include "supervisor.h"
+#include "config.h"
+#include "buttons.h"
 
 #ifndef DEVICE_NAME
 #define DEVICE_NAME "vstrom-esp"   // fallback if no build flag is set
@@ -68,6 +70,8 @@ void setup() {
   Relays.begin();
   Sensor.begin();
   Engine.begin();
+  Cfg.begin();      // overlay NVS-saved tunables onto the supervisor defaults
+  Btns.begin();     // handlebar aux buttons (INPUT_PULLUP, fail to "not pressed")
 
   pinMode(PIN_LED, OUTPUT);
   delay(300);
@@ -96,6 +100,7 @@ void loop() {
   }
 
   consolePoll(netUp);    // read + dispatch any typed commands (USB always; telnet once netUp)
+  Btns.update();         // debounce handlebar buttons; a press toggles its mapped relay
   Engine.update();       // run the engine-run state machine (drives the MASTER relay)
 
   // Onboard LED doubles as a bench indicator: heartbeat (proof of life) while

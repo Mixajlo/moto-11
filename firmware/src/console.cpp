@@ -7,6 +7,9 @@
 #include "relays.h"
 #include "sensors.h"
 #include "supervisor.h"
+#include "config.h"
+#include "buttons.h"
+#include "pins.h"
 
 namespace {
 
@@ -35,6 +38,11 @@ void printHelp() {
   outln("  sim ign on|off     (bench) fake the ignition input");
   outln("  sim vbus <volts>   (bench) fake the bus voltage, e.g. sim vbus 13.4");
   outln("  sim real | sim     switch to real sensors / back to sim");
+  outln("  config             list tunables (config reset = restore defaults)");
+  outln("  get <key>          show one tunable");
+  outln("  set <key> <val>    change + persist a tunable (validated)");
+  outln("  btn                show button states + mapping");
+  outln("  btn press <1-8>    simulate a button press (bench)");
   outln("  help | ?           this list");
   outln("  channels: master  fog  grip  spare");
   outln("(onboard LED: heartbeat when all off, solid ON when any relay is on)");
@@ -84,6 +92,45 @@ void handleSim(const char* a, const char* b) {
     Sensor.setSim(true);  outln("sensors: sim");
   } else {
     outln("usage: sim ign on|off  |  sim vbus <volts>  |  sim real|sim");
+  }
+}
+
+void printConfig() {
+  outln();
+  outln("config (set <key> <val> | config reset):");
+  for (int i = 0; i < Config::KEY_COUNT; i++) {
+    const char* k = Config::key(i);
+    float v = 0;
+    Cfg.getValue(k, v);
+    char line[48];
+    snprintf(line, sizeof(line), "  %-15s %g", k, v);
+    outln(line);
+  }
+}
+
+void handleSet(const char* key, const char* val) {
+  const char* err = nullptr;
+  if (Cfg.set(key, atof(val), &err)) {
+    float v = 0; Cfg.getValue(key, v);
+    char line[48];
+    snprintf(line, sizeof(line), "%s = %g (saved)", key, v);
+    outln(line);
+  } else {
+    out("rejected: "); outln(err ? err : "?");
+  }
+}
+
+void printButtons() {
+  outln();
+  outln("buttons (btn press <1-8> to simulate):");
+  for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+    RelayId r = Btns.mapping(i);
+    char line[56];
+    snprintf(line, sizeof(line), "  BTN%u  gpio%-3u  %-7s -> %s",
+             i + 1, PIN_BTN[i],
+             Btns.pressed(i) ? "PRESSED" : "-",
+             r < RELAY_COUNT ? Relays.name(r) : "(unmapped)");
+    outln(line);
   }
 }
 
@@ -168,6 +215,21 @@ void dispatch(char* line) {
     printSupState();
   } else if (!strcasecmp(cmd, "sim")) {
     handleSim(arg, arg2);
+  } else if (!strcasecmp(cmd, "config")) {
+    if (arg && !strcasecmp(arg, "reset")) { Cfg.resetDefaults(); outln("config reset to defaults"); }
+    else printConfig();
+  } else if (!strcasecmp(cmd, "get") && arg) {
+    float v = 0;
+    if (Cfg.getValue(arg, v)) { char l[48]; snprintf(l, sizeof(l), "%s = %g", arg, v); outln(l); }
+    else { out("unknown key: "); outln(arg); }
+  } else if (!strcasecmp(cmd, "set") && arg && arg2) {
+    handleSet(arg, arg2);
+  } else if (!strcasecmp(cmd, "btn")) {
+    if (arg && !strcasecmp(arg, "press") && arg2) {
+      int n = atoi(arg2);
+      if (n >= 1 && n <= BUTTON_COUNT) Btns.fire(static_cast<uint8_t>(n - 1));
+      else outln("btn press <1-8>");
+    } else printButtons();
   } else {
     out("? unknown command: "); outln(cmd);
     printHelp();

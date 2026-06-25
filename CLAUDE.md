@@ -89,7 +89,8 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   committed template). The OTA password in `secrets.h` must match `--auth` in `platformio.ini`.
 - GPIO pin map lives in `src/pins.h` (ADR-0009): relay enables `MASTER_EN`/`FOG_EN`/`GRIP_EN`/
   `SPARE` = GPIO 13/25/26/27 (active-HIGH into the ULN), `IGN_SENSE` = GPIO 34 (RTC wake),
-  I²C = 21/22, onboard LED = 2.
+  I²C = 21/22, onboard LED = 2, aux buttons `PIN_BTN[8]` = GPIO 4/14/16/17/18/19/23/32
+  (ADR-0014, active-LOW dry contacts).
 - `RelayController` (`src/relays.{h,cpp}`) owns the four coil enables (fail-OFF at boot). A
   serial/Telnet **bench console** (`src/console.{h,cpp}`) drives them by hand: `status`, `on/off
   <ch|all>`, `toggle <ch>`, `selftest`. Onboard LED = heartbeat when all off, solid when any on.
@@ -97,9 +98,18 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   `OFF_DELAY`, drives the master relay; reads via `src/sensors.{h,cpp}` (bench SIM until the
   INA3221/opto are wired — console `sim ign`/`sim vbus`). Leveled logging (`src/log.h`): `LOGD`
   compiles out unless `MOTO_DEBUG` (bench only).
-- Current milestone: engine-run supervisor proven on the bench (simulated inputs). **Next:** wire
-  the real INA3221 (driver) + PC817 ignition-sense and flip `sim real`; then `manageLoads()`
-  load-shedding and the IMU/security layer.
+- Runtime config (`src/config.{h,cpp}`, ADR-0013): supervisor tunables persist in NVS via the
+  `Preferences` lib; firmware values are the defaults + safe fallback, edits are validated
+  (range + threshold ladder) and survive reboot/OTA. Console: `config` / `get <key>` /
+  `set <key> <val>` / `config reset`. BLE/tablet/app are later front-ends on this backend.
+- Aux buttons (`src/buttons.{h,cpp}`, ADR-0014): 8 handlebar dry-contact inputs, per-GPIO,
+  active-LOW + debounce; a press toggles its mapped relay (default fog/grip/spare; MASTER stays
+  supervisor-owned). Console: `btn` (states + mapping), `btn press <1-8>` (bench sim, no
+  hardware needed). Mapping becomes runtime config later.
+- Current milestone: engine-run supervisor + runtime config + aux buttons proven on the bench
+  (config persistence verified across a hardware reset). **Next:** wire the real INA3221 (driver)
+  + PC817 ignition-sense and flip `sim real`; then `manageLoads()` load-shedding and the
+  IMU/security layer. Hardware-side: add the JST-XH button connector to the mainboard.
 
 ## Dev environment
 - **Windows only, PowerShell only.** All shell commands must be PowerShell (or plain `pio`/git
@@ -113,7 +123,7 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 - Unit tests:     `pio test -e bench` (Unity supervisor tests run on the ESP; SIM sensors,
   shrunk timers, no host compiler/INA3221/relay-box needed; `test/test_supervisor/`)
 - Native tests:   `bash test_host/run.sh` under WSL/Linux (g++ only — `sudo apt install
-  build-essential`; fake clock + real tunables, no ESP; `test_host/`)
+  build-essential`; fake clock + real tunables, no ESP; supervisor + config suites in `test_host/`)
 - OTA flash:      `pio run -e bench_ota -t upload`
   (device must be on the same WiFi; if `vstrom-bench.local` won't resolve on Windows, set the
   device's IP as `upload_port`)
