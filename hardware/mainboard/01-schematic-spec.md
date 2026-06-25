@@ -83,7 +83,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | A2 | IMU module | LSM6DSO (pref.) / MPU-6050 breakout | 1×5 (or 1×8) female header, 2.54 mm | 6-axis, I²C, INT out. |
 | A3 | Buck module | MP1584EN mini buck | 4-pad (IN+ IN− OUT+ OUT−), 2.54 mm | Pre-set to 5.0 V **and verify** before fitting. |
 | U2 | ULN2803A | Darlington array, 8-ch | DIP-18 (socketed) or SOIC-18 | Active-HIGH; COM→COIL_RAIL for flyback. |
-| U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module` (custom, `mainboard.pretty`) — 1×5 labeled edge row | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the labeled VS/GND/SCL/SDA/A0 row; **confirm count/order** against the silk. |
+| U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module` (custom, `mainboard.pretty`) — 1×8 labeled header | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the `VS GND SCL SDA PV CRI WAR TC` header; only VS/GND/SCL/SDA wired. |
 | U4, U5 | PC817 | Optocoupler, single | DIP-4 | One per 12 V sense channel (IGN, START). |
 | Q1 | P-MOSFET | AOD4185 / DMP3017SFG / IRF4905 | DPAK / TO-220 | Reverse-polarity (ideal-diode orientation). |
 | D1 | TVS | SMBJ24A (uni, 24 V standoff) | SMB / DO-214AA | Load-dump clamp on +12V_PROT. |
@@ -202,19 +202,26 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 > firmware address change, but the **register map / driver differs**. Verify CH wiring against
 > your specific breakout's silkscreen. Populate shunts only when you want branch current.
 
-**INA3221 module header pin map (U3) — socketed via the LABELED edge row; CONFIRM count/order
-against the board silk.** The custom `INA3221_Module` footprint is a 1×5 row matching that
-labeled edge. Pad names live in the schematic symbol, so if your silk order differs just remap
-the symbol pins (or rotate 180°). `A0→GND` sets I²C address **0x40**. The alert pins
-(PV/WARN/CRIT/TC) and CH2/CH3 terminals are left unconnected here — we read everything over I²C.
+**INA3221 module header pin map (U3) — confirmed from the board silk.** The custom
+`INA3221_Module` footprint is a 1×8 row matching the labeled header. We wire only VS/GND/SCL/SDA;
+the four open-drain alert pins (PV = power-valid, CRI = critical, WAR = warning, TC = timing-
+control) are read over I²C, so they're left unconnected here. CH2/CH3 terminals likewise unused
+for now.
 
-| Pad | Silk label (assumed) | Net |
-|-----|----------------------|-----|
+| Pad | Silk label | Net |
+|-----|-----------|-----|
 | 1 | VS  | `+3V3` |
 | 2 | GND | `GND` |
 | 3 | SCL | `SCL` |
 | 4 | SDA | `SDA` |
-| 5 | A0  | `GND` (address 0x40) |
+| 5 | PV  | — (NC) |
+| 6 | CRI | — (NC) |
+| 7 | WAR | — (NC) |
+| 8 | TC  | — (NC) |
+
+> **I²C address:** `A0` is **not** on this header — it's set on the module (other edge / solder
+> option / default). The firmware + this spec assume **0x40** (`A0→GND`). Confirm the module's
+> A0 state; if it isn't 0x40, change the driver's address rather than the board.
 
 ### Aux buttons — handlebar (J8, ADR-0014)
 Dry contacts, **active-LOW**: each button shorts its GPIO to GND when pressed; the ESP's

@@ -3,7 +3,7 @@ A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),2x 1x19 female header 2.
 A2,1,IMU,6-axis accel+gyro breakout (I2C),1x5 female header 2.54mm,ST LSM6DSO (pref) or InvenSense MPU-6050,Wake-on-motion INT; LSM6DSO preferred
 A3,1,Buck,MP1584EN mini buck module,4-pad 2.54mm,MP1584EN module,Pre-set 5.0V and verify before fitting
 U2,1,ULN2803A,Darlington array 8ch low-side,DIP-18 (socket) or SOIC-18,Texas Instruments ULN2803A,Active-HIGH; COM to coil rail
-U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via labeled VS/GND/SCL/SDA/A0 row; confirm count/order
+U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via 1x8 VS/GND/SCL/SDA/PV/CRI/WAR/TC header; wire VS/GND/SCL/SDA only; addr 0x40
 U4,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,IGN 12V sense
 U5,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,START/headlight 12V sense
 Q1,1,P-MOSFET,Reverse-polarity protect,DPAK or TO-220,AOD4185 / DMP3017SFG / IRF4905,Source=+12V_HOT drain=+12V_PROT
