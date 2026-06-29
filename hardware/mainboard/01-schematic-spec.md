@@ -91,16 +91,16 @@ battery feed. It carries only control and coil current — **never** load curren
 | D3 | TVS | SMBJ20A (uni, 20 V standoff) — leaded easiest | **off-board**, at module CH1 | Clamp across the CH1 sense lead → GND (INA 26 V input limit). Mounted at the module / in the harness, **not on the PCB** (sense lead runs batt+ → CH1 directly). |
 | C1 | Cap | 470 µF / 35 V electrolytic | radial 8 mm | Bulk on +12V_PROT. |
 | C2 | Cap | 100 µF / 16 V electrolytic | radial 6.3 mm | Bulk on +5V. |
-| C3, C4, C5, C7 | Cap | 100 nF X7R | 0805 | Decoupling, one per IC: ESP, ULN, INA3221, IMU. (C6/C8 dropped — optos don't need it.) |
-| C9 | Cap | 10 µF X7R | 0805 | **Optional** +3V3 sensor-rail bulk near ESP (DevKitC already regulates 3V3). Not on v1. |
-| R1–R4 | Res | 10 kΩ | 0805 / THT | ULN input pull-downs (boot-safe OFF). |
-| R5, R6 | Res | 4.7 kΩ | 0805 | I²C SDA/SCL pull-ups to +3V3. |
+| C3, C4, C5, C7 | Cap | 100 nF X7R | 1206 | Decoupling, one per IC: ESP, ULN, INA3221, IMU. (C6/C8 dropped — optos don't need it.) |
+| C9 | Cap | 10 µF X7R | 1206 | **Optional** +3V3 sensor-rail bulk near ESP (DevKitC already regulates 3V3). Not on v1. |
+| R1–R4 | Res | 10 kΩ | 1206 / THT | ULN input pull-downs (boot-safe OFF). |
+| R5, R6 | Res | 4.7 kΩ | 1206 | I²C SDA/SCL pull-ups to +3V3. |
 | R7, R8 | Res | 2.2 kΩ, 0.25 W | THT/1206 | PC817 LED series (12 V side), ~5 mA. |
-| R9, R10 | Res | 10 kΩ | 0805 | Pull-ups on GPIO34/35 (opto outputs; input-only pins). |
-| R11 | Res | 100 kΩ | 0805 | Q1 gate–source. |
-| R12 | Res | 100 Ω | 0805 | Q1 gate series (optional, slew). |
+| R9, R10 | Res | 10 kΩ | 1206 | Pull-ups on GPIO34/35 (opto outputs; input-only pins). |
+| R11 | Res | 100 kΩ | 1206 | Q1 gate–source. |
+| R12 | Res | 100 Ω | 1206 | Q1 gate series (optional, slew). |
 | Dz1 | Zener | 18 V, 0.5 W | SOD-123 / THT | Q1 gate–source clamp. >14.4 V so idle while charging; <20 V Vgs(max). |
-| R13 | Res | 220 Ω | 0805 | D2 LED series. |
+| R13 | Res | 220 Ω | 1206 | D2 LED series. |
 | J1 | Term block | 2-pos, 5.08 mm | THT | `+12V_HOT`, `GND` (power in). |
 | J2 | Term block | 2-pos, 5.08 mm | THT | `COIL_RAIL` (+12 to box pin86 / ULN COM), `GND`. |
 | J3 | Term block | 4-pos, 3.5 mm | THT | Coil outputs → 85 wires: MASTER, FOG, GRIP, SPARE. |
@@ -108,8 +108,8 @@ battery feed. It carries only control and coil current — **never** load curren
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
 | J7 | Header | 2×4, 2.54 mm | THT | ULN spare ch5–8 in/out break-out (future relays). |
 | J10 | Connector | JST-XH, 1×9, 2.50 mm | `Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical` | Handlebar aux buttons: BTN1..8 + common GND (ADR-0014). |
-| R15–R22 | Res | 1 kΩ | 0805 / THT | Button series (RC with C11–C18); bench can omit, fit for the bike (noise). |
-| C11–C18 | Cap | 100 nF | 0805 / THT | Button RC to GND (debounce/noise); pairs with R15–R22. |
+| R15–R22 | Res | 1 kΩ | 1206 / THT | Button series (RC with C11–C18); bench can omit, fit for the bike (noise). |
+| C11–C18 | Cap | 100 nF | 1206 / THT | Button RC to GND (debounce/noise); pairs with R15–R22. |
 | TP1–TP4 | Test point | — | THT loop | `+12V_PROT`, `+5V`, `+3V3`, `GND`. |
 
 ---
