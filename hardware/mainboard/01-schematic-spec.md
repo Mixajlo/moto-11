@@ -80,7 +80,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | Ref | Part | Value / type | Footprint | Notes |
 |-----|------|--------------|-----------|-------|
 | A1 | ESP32-DevKitC | ESP32-WROOM-32D module | 2× 1×19 (or 1×15) female header, 2.54 mm, 0.9″/1.0″ rows | Socketed; verify your board's pin count/row spacing. |
-| A2 | IMU module | LSM6DSO (pref.) / MPU-6050 breakout | 1×5 (or 1×8) female header, 2.54 mm | 6-axis, I²C, INT out. |
+| A2 | IMU module | GY-521 (MPU-6050) breakout | 1×8 female header, 2.54 mm | 6-axis, I²C (0x68). Pins VCC/GND/SCL/SDA/XDA/XCL/AD0/INT; **INT = pin 8 → GPIO33**; XDA/XCL/AD0 NC. |
 | A3 | Buck module | MP1584EN mini buck | 4-pad (IN+ IN− OUT+ OUT−), 2.54 mm | Pre-set to 5.0 V **and verify** before fitting. |
 | U2 | ULN2803A | Darlington array, 8-ch | DIP-18 (socketed) or SOIC-18 | Active-HIGH; COM→COIL_RAIL for flyback. |
 | U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module` (custom, `mainboard.pretty`) — 1×8 labeled header | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the `VS GND SCL SDA PV CRI WAR TC` header; only VS/GND/SCL/SDA wired. |
@@ -91,8 +91,8 @@ battery feed. It carries only control and coil current — **never** load curren
 | D3 | TVS | SMBJ20A (uni, 20 V standoff) — leaded easiest | **off-board**, at module CH1 | Clamp across the CH1 sense lead → GND (INA 26 V input limit). Mounted at the module / in the harness, **not on the PCB** (sense lead runs batt+ → CH1 directly). |
 | C1 | Cap | 470 µF / 35 V electrolytic | radial 8 mm | Bulk on +12V_PROT. |
 | C2 | Cap | 100 µF / 16 V electrolytic | radial 6.3 mm | Bulk on +5V. |
-| C3–C8 | Cap | 100 nF X7R | 0805 / THT | Decoupling: ESP, ULN, INA3221, opto, IMU. |
-| C9 | Cap | 10 µF X7R | 0805 / THT | +3V3 bulk near ESP. |
+| C3, C4, C5, C7 | Cap | 100 nF X7R | 0805 | Decoupling, one per IC: ESP, ULN, INA3221, IMU. (C6/C8 dropped — optos don't need it.) |
+| C9 | Cap | 10 µF X7R | 0805 | **Optional** +3V3 sensor-rail bulk near ESP (DevKitC already regulates 3V3). Not on v1. |
 | R1–R4 | Res | 10 kΩ | 0805 / THT | ULN input pull-downs (boot-safe OFF). |
 | R5, R6 | Res | 4.7 kΩ | 0805 | I²C SDA/SCL pull-ups to +3V3. |
 | R7, R8 | Res | 2.2 kΩ, 0.25 W | THT/1206 | PC817 LED series (12 V side), ~5 mA. |
