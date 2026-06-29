@@ -57,7 +57,7 @@ battery feed. It carries only control and coil current — **never** load curren
  12V IGN  ─► PC817 U4 ─► GPIO34 (pull-up 3V3)   [LOW when 12V present]
  12V START─► PC817 U5 ─► GPIO35 (pull-up 3V3)   [LOW when 12V present]
  IMU INT  ─────────────► GPIO33 (wake)
- BTN1..8  ─► J10 (JST-XH) ─► GPIO 4/14/16/17/18/19/23/32 (INPUT_PULLUP, active-LOW, RC)
+ BTN1..8  ─► J10+J11 (2× 1×5 JST-XH) ─► GPIO 4/14/16/17/18/19/23/32 (INPUT_PULLUP, active-LOW, RC)
 ```
 
 ---
@@ -107,7 +107,8 @@ battery feed. It carries only control and coil current — **never** load curren
 | J4 | Term block | 3-pos, 3.5 mm | THT | `IGN_12V`, `START_12V`, `SENSE_GND`. |
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
 | J7 | Header | 2×4, 2.54 mm | THT | ULN spare ch5–8 in/out break-out (future relays). |
-| J10 | Connector | JST-XH, 1×9, 2.50 mm | `Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical` | Handlebar aux buttons: BTN1..8 + common GND (ADR-0014). |
+| J10 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group A: BTN1–4 + GND (ADR-0014). |
+| J11 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group B: BTN5–8 + GND. |
 | R15–R22 | Res | 1 kΩ | 1206 / THT | Button series (RC with C11–C18); bench can omit, fit for the bike (noise). |
 | C11–C18 | Cap | 100 nF | 1206 / THT | Button RC to GND (debounce/noise); pairs with R15–R22. |
 | TP1–TP4 | Test point | — | THT loop | `+12V_PROT`, `+5V`, `+3V3`, `GND`. |
@@ -131,10 +132,10 @@ battery feed. It carries only control and coil current — **never** load curren
 | 14 | `BTN2` | in | ← `J10.2`; INPUT_PULLUP + RC (R16/C12). |
 | 16 | `BTN3` | in | ← `J10.3`; INPUT_PULLUP + RC (R17/C13). |
 | 17 | `BTN4` | in | ← `J10.4`; INPUT_PULLUP + RC (R18/C14). |
-| 18 | `BTN5` | in | ← `J10.5`; INPUT_PULLUP + RC (R19/C15). |
-| 19 | `BTN6` | in | ← `J10.6`; INPUT_PULLUP + RC (R20/C16). |
-| 23 | `BTN7` | in | ← `J10.7`; INPUT_PULLUP + RC (R21/C17). |
-| 32 | `BTN8` | in | ← `J10.8`; INPUT_PULLUP + RC (R22/C18). Spare. |
+| 18 | `BTN5` | in | ← `J11.1`; INPUT_PULLUP + RC (R19/C15). |
+| 19 | `BTN6` | in | ← `J11.2`; INPUT_PULLUP + RC (R20/C16). |
+| 23 | `BTN7` | in | ← `J11.3`; INPUT_PULLUP + RC (R21/C17). |
+| 32 | `BTN8` | in | ← `J11.4`; INPUT_PULLUP + RC (R22/C18). Spare. |
 | 5V (VIN) | `+5V` | pwr in | from buck A3. |
 | 3V3 | `+3V3` | pwr out | from ESP LDO → board 3V3 rail. |
 | GND (×) | `GND` | pwr | tie all DevKitC GND pins. |
@@ -224,7 +225,7 @@ for now.
 > option / default). The firmware + this spec assume **0x40** (`A0→GND`). Confirm the module's
 > A0 state; if it isn't 0x40, change the driver's address rather than the board.
 
-### Aux buttons — handlebar (J10, ADR-0014)
+### Aux buttons — handlebar (J10 + J11, ADR-0014)
 Dry contacts, **active-LOW**: each button shorts its GPIO to GND when pressed; the ESP's
 internal pull-up idles it HIGH. Debounced in firmware (`src/buttons.cpp`). The per-line RC
 (series R15–R22 + C11–C18 to GND) filters bus noise on the bike run — optional on the bench.
@@ -235,11 +236,11 @@ internal pull-up idles it HIGH. Debounced in firmware (`src/buttons.cpp`). The p
 | `BTN2` | `J10.2` → `R16` → `A1.14`; `C12`→GND. |
 | `BTN3` | `J10.3` → `R17` → `A1.16`; `C13`→GND. |
 | `BTN4` | `J10.4` → `R18` → `A1.17`; `C14`→GND. |
-| `BTN5` | `J10.5` → `R19` → `A1.18`; `C15`→GND. |
-| `BTN6` | `J10.6` → `R20` → `A1.19`; `C16`→GND. |
-| `BTN7` | `J10.7` → `R21` → `A1.23`; `C17`→GND. |
-| `BTN8` | `J10.8` → `R22` → `A1.32`; `C18`→GND. |
-| button GND | `J10.9` → `GND` (common return for all 8 buttons). |
+| `BTN5` | `J11.1` → `R19` → `A1.18`; `C15`→GND. |
+| `BTN6` | `J11.2` → `R20` → `A1.19`; `C16`→GND. |
+| `BTN7` | `J11.3` → `R21` → `A1.23`; `C17`→GND. |
+| `BTN8` | `J11.4` → `R22` → `A1.32`; `C18`→GND. |
+| button GND | `J10.5` **and** `J11.5` → `GND` (each connector carries its own ground return). |
 
 > Pull-ups are the ESP's internal ones (`INPUT_PULLUP`), so no external pull-up resistors are
 > needed. Keep the RC light (1 kΩ / 100 nF ≈ 0.1 ms) — far faster than the 25 ms firmware

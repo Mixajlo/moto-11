@@ -14,8 +14,9 @@ when the case is in hand — it changes firmware interpretation, not the wiring.
 
 ## Decision
 - **Wiring:** one conductor per button from the case to the mainboard, sharing a
-  **common ground**, landing on a keyed **JST-XH** connector (serviceable unplug).
-  Provision **8 button inputs + GND** (7 used now, 1 spare).
+  **common ground**, landing on **two keyed 1×5 JST-XH connectors** (4 buttons + GND
+  each — easier to place/route than one long header, and lets the front/back button
+  groups run as separate cables). Provision **8 button inputs** (7 used now, 1 spare).
 - **Read per-GPIO:** assign 8 free, pull-up-capable GPIOs —
   **`4, 14, 16, 17, 18, 19, 23, 32`** (`BTN1..BTN8`). **Active-low**: enable the
   internal pull-up, the button closes the line to GND (pressed = LOW). Add a small
@@ -38,8 +39,9 @@ when the case is in hand — it changes firmware interpretation, not the wiring.
   pins should go on I²C (and a button move to the MCP23017 frees the GPIOs back).
 - RTC-capable pins among the set (4, 14, 32) keep a future **wake-on-button** option
   open without extra cost.
-- Adds an 8-way JST-XH + 8 RC networks to the board (provision now, since the PCB
-  isn't fabbed). The `pins.h` map and the mainboard schematic spec gain the BTN lines.
+- Adds two 1×5 JST-XH (4 buttons + GND each) + 8 RC networks to the board (provision
+  now, since the PCB isn't fabbed). The `pins.h` map and the mainboard schematic spec
+  gain the BTN lines.
 
 ## Alternatives considered
 - **MCP23017 I²C expander now:** more scalable (16 in, 1 INT, no GPIO cost) but more
