@@ -21,3 +21,11 @@ Thumbs.db
 
 # ===== personal idea-dump — kept local, never committed =====
 docs/roadmap.md
+
+# ===== Claude Code MCP config (machine-specific paths) =====
+.mcp.json
+
+# ===== KiCad export / tool cruft =====
+*.dsn
+DRC.rpt
+*-backups/
