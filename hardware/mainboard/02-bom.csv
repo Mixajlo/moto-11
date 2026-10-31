@@ -1,23 +1,23 @@
 Ref,Qty,Value,Description,Footprint,Suggested part / MPN,Notes
-A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),2x 1x19 female header 2.54mm,Espressif ESP32-DevKitC-32E,Reuse existing units; verify pin count/row pitch
+A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),Plugs into J8 + J9,Espressif ESP32-DevKitC-32E,Reuse existing units; row spacing 25.40 mm confirmed from the module drawing
+J8,1,1x19 socket,"ESP32 socket, 3V3 side",Connector_PinSocket_2.54mm:PinSocket_1x19_P2.54mm_Vertical,generic 2.54mm female header,Holds A1
+J9,1,1x19 socket,"ESP32 socket, GND side",Connector_PinSocket_2.54mm:PinSocket_1x19_P2.54mm_Vertical,generic 2.54mm female header,Holds A1
 A2,1,IMU,6-axis accel+gyro breakout GY-521 (MPU-6050),1x8 female header 2.54mm,GY-521 / MPU-6050,8-pin VCC GND SCL SDA XDA XCL AD0 INT; INT->GPIO33; AD0 float = I2C addr 0x68
-A3,1,Buck,MP1584EN mini buck module,4-pad 2.54mm,MP1584EN module,Pre-set 5.0V and verify before fitting
-U2,1,ULN2803A,Darlington array 8ch low-side,SOIC-18W 7.5x11.6mm (PCBA - ADR-0015),Texas Instruments ULN2803ADW,Active-HIGH; COM to coil rail; no socket - 4 spare channels are the field workaround
+A3,1,Buck,MP1584EN mini buck module,"mainboard:MP1584_Module_22.5x17.2mm (8 pads, 4 pairs)",MP1584EN module,Pre-set 5.0V and verify before fitting
+U2,1,ULN2803A,Darlington array 8ch low-side,Package_DIP:DIP-18_W7.62mm_Socket,ULN2803 DIP-18 (on hand) + 18-pin 7.62mm socket,Active-HIGH; COM to coil rail
 U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module_38.1x31.6mm (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via 1x8 VS/GND/SCL/SDA/PV/CRI/WAR/TC header; wire VS/GND/SCL/SDA only; addr 0x40
 U4,1,PC817,Optocoupler single-channel,DIP-4_W7.62mm,Sharp PC817C,IGN 12V sense; keep THT DIP - the 7.62mm body delivers the >=4mm isolation creepage (ADR-0015). Do not swap to SOP-4
 U5,1,PC817,Optocoupler single-channel,DIP-4_W7.62mm,Sharp PC817C,START/headlight 12V sense; keep THT DIP - see U4
 Q1,1,IRF4905,Reverse-polarity protect,TO-220,Infineon IRF4905,DRAIN=+12V_HOT SOURCE=+12V_PROT (body-diode anode must face the battery; reversed = protection defeated). Symbol must be Q_PMOS_GDS to match pads 1=G 2=D 3=S
 D1,1,SMBJ16A,TVS diode unidirectional 16V,SMB DO-214AA,Littelfuse SMBJ16A,Load-dump clamp on +12V_PROT; 26V max clamp keeps MP1584 under 28V
-D2,1,LED,Power indicator green,3mm THT,generic,Optional
-D3,1,SMBJ20A,TVS diode unidirectional 20V (OFF-BOARD),leaded (P6KE/1.5KE or leaded SMBJ),Littelfuse SMBJ20A,Clamp across module CH1 sense lead to GND (26V limit); at module/harness not PCB
-Dz1,1,18V Zener,Gate-source clamp 0.5W,SOD-123 or THT,BZX84C18 / 1N5248B,>14.4V idle while charging; <20V Vgs(max)
+D3,1,P6KE18A,"TVS diode unidirectional, leaded (OFF-BOARD, not in schematic)","DO-15 leaded, wired at the module",P6KE18A,CH1 sense lead to GND; ~25 V max clamp keeps the INA3221 under its 26 V limit; verify datasheet when buying. Sense lead needs an inline fuse at the battery
+Dz1,1,18V Zener,Gate-source clamp 0.5W,Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal,1N5248B,>14.4V idle while charging; <20V Vgs(max)
 C1,1,470uF/35V,Bulk electrolytic,radial 8mm,generic 105C,On +12V_PROT
 C2,1,100uF/16V,Bulk electrolytic,radial 6.3mm,generic 105C,On +5V
 C3,1,100nF,Decoupling X7R,1206,generic,ESP power pin
 C4,1,100nF,Decoupling X7R,1206,generic,ULN2803
 C5,1,100nF,Decoupling X7R,1206,generic,INA3221
 C7,1,100nF,Decoupling X7R,1206,generic,IMU
-C9,1,10uF,Bulk X7R (OPTIONAL),1206,generic,+3V3 sensor-rail bulk near ESP; add if reworking (not on v1 board)
 R1,1,10k,ULN input pulldown,1206,generic,MASTER_EN
 R2,1,10k,ULN input pulldown,1206,generic,FOG_EN
 R3,1,10k,ULN input pulldown,1206,generic,GRIP_EN
@@ -30,13 +30,11 @@ R9,1,10k,GPIO34 pullup,1206,generic,opto output to +3V3
 R10,1,10k,GPIO35 pullup,1206,generic,opto output to +3V3
 R11,1,100k,Q1 gate-source,1206,generic,reverse-pol FET
 R12,1,10k,Q1 gate pull-down,1206,generic,limits Dz1 current during load dump; required - do not reduce to 100R
-R13,1,220R,Power LED series,1206,generic,D2
 J1,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,+12V_HOT / GND
 J2,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,COIL_RAIL / GND
 J3,1,4-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-04P_1x04_P5.00mm,MX126-5.0 or any 4P 5.0/5.08mm,Coil outputs to 85 wires
 J4,1,3-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-03P_1x03_P5.00mm,MX126-5.0 or any 3P 5.0/5.08mm,IGN_12V / START_12V / SENSE_GND
 J6,1,1x4 header,I2C expansion,2.54mm THT,generic,+3V3 SDA SCL GND
-J7,1,2x4 header,ULN spare ch5-8 breakout,2.54mm THT,generic,future relays
 J10,1,1x5 JST-XH,Handlebar buttons group A,Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical,JST B5B-XH-A,BTN1-4 + GND (ADR-0014)
 J11,1,1x5 JST-XH,Handlebar buttons group B,Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical,JST B5B-XH-A,BTN5-8 + GND
 R15,1,1k,Button series (RC),1206,generic,BTN1; omit on bench
@@ -55,7 +53,4 @@ C15,1,100nF,Button RC to GND,1206,generic,BTN5
 C16,1,100nF,Button RC to GND,1206,generic,BTN6
 C17,1,100nF,Button RC to GND,1206,generic,BTN7
 C18,1,100nF,Button RC to GND,1206,generic,BTN8
-TP1,1,Testpoint,+12V_PROT,THT loop,generic,
-TP2,1,Testpoint,+5V,THT loop,generic,
-TP3,1,Testpoint,+3V3,THT loop,generic,
-TP4,1,Testpoint,GND,THT loop,generic,
+H1-H4,4,M3 hole,Mounting holes (board only),MountingHole_3.2mm,M3 screws + spacers,Drill the enclosure floor to match

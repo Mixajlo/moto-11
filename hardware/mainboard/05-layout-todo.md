@@ -16,9 +16,8 @@ for the how-to.
   ruled out), so the **enclosure** sets the outline — target **~110 × 80 mm**. The exact
   attachment interface (to the box vs. to the tray) is still open; it does not affect the outline. Measurement sets and the ordered work
   queue live in **[06-mechanical-mounting.md](06-mechanical-mounting.md)**; that doc is the fab gate.
-- **This board (v1) = mixed assembly:** passives + ULN2803 go **SMD, JLCPCB PCBA**; the INA3221,
-  MP1584 and GY-521 stay **socketed modules** (field-swappable, and their ~8.5 mm standoff lets
-  1206 passives tuck underneath).
+- **This board (v1) = hand-assembled (revised 2026-10-31):** no JLCPCB assembly. 1206 passives,
+  U2 ULN2803 in a DIP-18 socket, U4/U5 DIP-4, and the INA3221, MP1584 and GY-521 as socketed modules.
 - **Next revision:** full **SMD** from the assembler's catalog (JLCPCB/LCSC, prefer "basic" parts),
   no modules — the only route to a board that matches the relay box's 100 × 70 footprint. The
   **schematic/netlist carries over** — only footprints and the outline change.
@@ -76,8 +75,9 @@ for the how-to.
       and the board sits on spacers (ADR-0015). The board currently has **zero** mounting holes.
 - [x] **Layout redone 2026-10-31:** Edge.Cuts is **110 × 70 mm**, re-placed, re-routed and stitched
       (GND pour both layers, antenna notch). DRC: 0 errors, 0 unconnected, parity 0.
-- [ ] **Before ordering, check against the real modules:** DevKitC row spacing (25.4 mm assumed);
-      MP1584, INA3221 and GY-521 pin order; GY-521 body side relative to its socket; `D3` TVS.
+- [x] **ESP32 row spacing confirmed 25.40 mm** from the module drawing (`wroom-32D-dim.jpg`).
+- [ ] **Before ordering, check against the real modules:** MP1584, INA3221 and GY-521 pin order, and
+      the GY-521 body side relative to its socket.
 
 ## Routing
 - [ ] Route **power nets first** (1.5 mm), then signals (0.3 mm).

@@ -5077,6 +5077,12 @@
 		(uuid "94082106-1267-41d1-a2e2-b7fb398b62ea")
 	)
 	(junction
+		(at 170.18 29.21)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9474cb15-0d99-4c14-98d3-c628472fa12a")
+	)
+	(junction
 		(at 151.13 86.36)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5183,12 +5189,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ea8ff1d5-3601-4eea-9e3a-23b61b281243")
-	)
-	(junction
-		(at 170.18 29.21)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ef2cc2d8-90a1-4906-8617-83794f2f3531")
 	)
 	(junction
 		(at 161.29 96.52)
@@ -5708,7 +5708,7 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 27.94) (xy 170.18 29.21)
+			(xy 170.18 25.4) (xy 170.18 29.21)
 		)
 		(stroke
 			(width 0)
@@ -5948,7 +5948,7 @@
 	)
 	(wire
 		(pts
-			(xy 177.8 27.94) (xy 177.8 29.21)
+			(xy 177.8 25.4) (xy 177.8 29.21)
 		)
 		(stroke
 			(width 0)
@@ -7641,7 +7641,7 @@
 		(uuid "f8807bd7-2ff2-4d3e-bf7c-c0c0c0a2dacd")
 	)
 	(label "+12V_PROT"
-		(at 91.44 27.94 0)
+		(at 90.17 27.94 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9169,7 +9169,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 170.18 27.94 0)
+		(at 170.18 25.4 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -9180,7 +9180,7 @@
 		(fields_autoplaced yes)
 		(uuid "3dec1bfc-015b-45ae-a09e-a308eb396dee")
 		(property "Reference" "#PWR04"
-			(at 170.18 31.75 0)
+			(at 170.18 29.21 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9191,7 +9191,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 170.18 22.86 0)
+			(at 170.18 20.32 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9201,7 +9201,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 27.94 0)
+			(at 170.18 25.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9212,7 +9212,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 170.18 27.94 0)
+			(at 170.18 25.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9223,7 +9223,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 170.18 27.94 0)
+			(at 170.18 25.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13247,7 +13247,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 177.8 27.94 0)
+		(at 177.8 25.4 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -13258,7 +13258,7 @@
 		(fields_autoplaced yes)
 		(uuid "ce16e150-6282-4929-9501-a56f0887b561")
 		(property "Reference" "#FLG02"
-			(at 177.8 26.035 0)
+			(at 177.8 23.495 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13269,7 +13269,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 177.8 22.86 0)
+			(at 177.8 20.32 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -13279,7 +13279,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 177.8 27.94 0)
+			(at 177.8 25.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13290,7 +13290,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 177.8 27.94 0)
+			(at 177.8 25.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13301,7 +13301,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 177.8 27.94 0)
+			(at 177.8 25.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13917,7 +13917,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_SO:SOIC-18W_7.5x11.6mm_P1.27mm"
+		(property "Footprint" "Package_DIP:DIP-18_W7.62mm_Socket"
 			(at 172.72 100.33 0)
 			(hide yes)
 			(show_name no)

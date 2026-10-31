@@ -107,3 +107,9 @@ has to be stiff.
   intent only if the lead stays short.
 - **Which enclosure.** Still unchosen, and it is the gate on the board outline — see
   [06-mechanical-mounting.md](../../hardware/mainboard/06-mechanical-mounting.md), measurement set B.
+
+## Amendment 2026-10-31: fully hand-assembled, U2 back to a socketed DIP
+This replaces the assembly parts of the decision above. There is **no JLCPCB assembly**: the owner
+hand-solders the whole board, using 1206 parts already on hand. **U2 is a ULN2803 in DIP-18 in a
+socket**, because five DIP chips are already on hand and a socket allows a roadside swap of a dead
+coil driver. U4/U5 stay DIP-4 and the modules stay socketed. The SOIC-18W footprint is dropped.

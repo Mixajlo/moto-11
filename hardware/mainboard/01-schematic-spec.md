@@ -87,8 +87,8 @@ battery feed. It carries only control and coil current — **never** load curren
 | U4, U5 | PC817 | Optocoupler, single | DIP-4 | One per 12 V sense channel (IGN, START). |
 | Q1 | P-MOSFET | AOD4185 / DMP3017SFG / IRF4905 | DPAK / TO-220 | Reverse-polarity (ideal-diode orientation). |
 | D1 | TVS | SMBJ16A (uni, 16 V standoff, 17.8 V min breakdown, 26 V max clamp) | SMB / DO-214AA | Load-dump clamp on +12V_PROT. Clamp stays under the MP1584's 28 V operating limit and C1's 35 V; standoff stays above the 14.4 V charging voltage. |
-| D2 | LED | green, 3 mm | THT | +3V3 power indicator (optional). |
-| D3 | TVS | SMBJ20A (uni, 20 V standoff) — leaded easiest | **off-board**, at module CH1 | Clamp across the CH1 sense lead → GND (INA 26 V input limit). Mounted at the module / in the harness, **not on the PCB** (sense lead runs batt+ → CH1 directly). |
+| D2 | LED | **not on the v1 board** | — | Removed from the BOM. |
+| D3 | TVS | P6KE18A (uni, leaded, ~25 V max clamp) | **off-board**, at module CH1 | Clamp across the CH1 sense lead → GND to hold the INA 26 V limit. Wired at the module or in the harness, **not on the PCB or schematic**. Fuse the sense lead at the battery. |
 | C1 | Cap | 470 µF / 35 V electrolytic | radial 8 mm | Bulk on +12V_PROT. |
 | C2 | Cap | 100 µF / 16 V electrolytic | radial 6.3 mm | Bulk on +5V. |
 | C3, C4, C5, C7 | Cap | 100 nF X7R | 1206 | Decoupling, one per IC: ESP, ULN, INA3221, IMU. (C6/C8 dropped — optos don't need it.) |
@@ -100,18 +100,18 @@ battery feed. It carries only control and coil current — **never** load curren
 | R11 | Res | 100 kΩ | 1206 | Q1 gate–source. |
 | R12 | Res | 10 kΩ | 1206 | Q1 gate pull-down. Limits Dz1 current when the clamp conducts: at the 26 V TVS clamp, (26 − 18) V / 10 kΩ = 0.8 mA. Do not reduce to 100 Ω (80 mA, 1.4 W in a 0.5 W zener). |
 | Dz1 | Zener | 18 V, 0.5 W | SOD-123 / THT | Q1 gate–source clamp. >14.4 V so idle while charging; <20 V Vgs(max). |
-| R13 | Res | 220 Ω | 1206 | D2 LED series. |
+| R13 | Res | **not on the v1 board** | — | Removed with D2. |
 | J1 | Term block | 2-pos, 5.08 mm | THT | `+12V_HOT`, `GND` (power in). |
 | J2 | Term block | 2-pos, 5.08 mm | THT | `COIL_RAIL` (+12 to box pin86 / ULN COM), `GND`. |
 | J3 | Term block | 4-pos, 3.5 mm | THT | Coil outputs → 85 wires: MASTER, FOG, GRIP, SPARE. |
 | J4 | Term block | 3-pos, 3.5 mm | THT | `IGN_12V`, `START_12V`, `SENSE_GND`. |
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
-| J7 | Header | 2×4, 2.54 mm | THT | ULN spare ch5–8 in/out break-out (future relays). |
+| J7 | Header | **not on the v1 board** | — | ULN spare channels are unconnected. |
 | J10 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group A: BTN1–4 + GND (ADR-0014). |
 | J11 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group B: BTN5–8 + GND. |
 | R15–R22 | Res | 1 kΩ | 1206 / THT | Button series (RC with C11–C18); bench can omit, fit for the bike (noise). |
 | C11–C18 | Cap | 100 nF | 1206 / THT | Button RC to GND (debounce/noise); pairs with R15–R22. |
-| TP1–TP4 | Test point | — | THT loop | `+12V_PROT`, `+5V`, `+3V3`, `GND`. |
+| TP1–TP4 | Test point | **not on the v1 board** | — | Measure at terminals or module pads. |
 
 ---
 
@@ -198,8 +198,7 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 
 > INA3221 measures bus voltage on a **clean dedicated lead to battery +** (zero current = no IR
 > drop), per ADR-0005/0011. The lead goes **directly to the module CH1 terminal** (no on-board
-> filter/clamp network — J5/R14/C10 dropped). **Protection:** keep a TVS (D3, SMBJ20A — leaded is
-> easiest) across that CH1 lead → GND at the module/harness to hold the INA's **26 V input limit**;
+> filter/clamp network — J5/R14/C10 dropped). **Protection:** keep a TVS (D3, leaded P6KE18A) across that CH1 lead → GND at the module/harness to hold the INA's **26 V input limit**;
 > the always-hot battery tap normally clamps the bus, so this is belt-and-suspenders. Default I²C
 > address **0x40** (A0 set on the module — confirm). The PV/CRI/WAR/TC alert pins (header 5–8) stay
 > **unconnected** — alerts are read over I²C. Populate shunts only when you want branch current.

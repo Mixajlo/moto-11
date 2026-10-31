@@ -19,9 +19,9 @@ Decided 2026-10-31, recorded as [ADR-0015](../../docs/adr/0015-piggyback-enclosu
 - **PCB holes are free.** The owner drills the enclosure floor to match the PCB and uses spacers,
   so measurements B4 and B5 no longer apply and do not gate the order. The PCB only has to fit the
   enclosure's internal envelope.
-- **Mixed assembly** — passives and the ULN2803 go **SMD (JLCPCB PCBA)**; the INA3221, MP1584
-  and GY-521 stay **socketed modules** so they remain field-swappable. **U4/U5 (PC817) stay
-  DIP-4** — the 7.62 mm body is what delivers the ≥4 mm isolation creepage.
+- **Hand-assembled (revised 2026-10-31):** no JLCPCB assembly. 1206 passives, **U2 ULN2803 in a
+  DIP-18 socket**, U4/U5 DIP-4 (the 7.62 mm body delivers the isolation creepage), and the INA3221,
+  MP1584 and GY-521 as socketed modules.
 
 ## Read this first: what blocks what
 
@@ -129,11 +129,8 @@ standoffs and at least one gland position), then measure:
 In order. **KiCad must be running** — PCB edits go over Konnect's IPC API, and it is currently
 not reachable; schematic/netlist is untouched by all of this.
 
-1. ~~**Re-footprint U2** → `Package_SO:SOIC-18W_7.5x11.6mm_P1.27mm` (ULN2803ADW)~~ **done
-   2026-10-31** (schematic and board; the footprint still needs re-placing). **U4/U5 stay DIP-4** —
-   see the assembly note above. The ≥4 mm barrier and the no-GND-pour rule under it still apply as
-   placement rules. Q1's footprint is still a placeholder pending part choice — see
-   [05-layout-todo.md](05-layout-todo.md).
+1. **U2 stays DIP-18 in a socket** and U4/U5 stay DIP-4. The >=4 mm barrier and the no-GND-pour
+   rule under it still apply as placement rules.
 2. **Resize Edge.Cuts** from 188 × 101 to the B1/B2 outline, with the B3 corner radius and the B6
    corner notches.
 3. **Place 4× M3 mounting holes** near the board corners; the enclosure is drilled to match them.
