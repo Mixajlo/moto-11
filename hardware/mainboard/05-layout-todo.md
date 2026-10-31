@@ -6,23 +6,44 @@ hardware is in hand) just to validate size/shape. Work through this before gener
 See [03-design-rules.md](03-design-rules.md) for the numbers and [04-kicad-guide.md](04-kicad-guide.md)
 for the how-to.
 
-## Board strategy / phasing (decided 2026-06)
+## Board strategy / phasing (decided 2026-06, revised 2026-10-31)
 - **Now:** bench-validate the design using through-hole parts / modules / the existing
   ESP + relay box. No PCB ordered yet.
 - **Before fab:** lock the **form factor against the real mounting location** — the current
-  rectangular outline is a *reference prototype* only; final shape is TBD (likely non-rectangular).
-- **Production board:** redesign as **SMD**, with parts chosen from the assembler's catalog
-  (JLCPCB/LCSC, prefer "basic" parts), and **manufacturer-assembled (PCBA)** so there are no
-  parts to hand-source/solder. The **schematic/netlist carries over** — only footprints
-  (THT→SMD) and the outline change.
+  188 × 101 mm rectangle is a *reference prototype* only.
+  **Resolved ([ADR-0015](../../docs/adr/0015-piggyback-enclosure-mixed-assembly.md)):** the board
+  goes in its **own sealed enclosure, close-coupled beside the stock relay box** (inside the box is
+  ruled out), so the **enclosure** sets the outline — target **~110 × 80 mm**. The exact
+  attachment interface (to the box vs. to the tray) is still open; it does not affect the outline. Measurement sets and the ordered work
+  queue live in **[06-mechanical-mounting.md](06-mechanical-mounting.md)**; that doc is the fab gate.
+- **This board (v1) = mixed assembly:** passives + ULN2803 go **SMD, JLCPCB PCBA**; the INA3221,
+  MP1584 and GY-521 stay **socketed modules** (field-swappable, and their ~8.5 mm standoff lets
+  1206 passives tuck underneath).
+- **Next revision:** full **SMD** from the assembler's catalog (JLCPCB/LCSC, prefer "basic" parts),
+  no modules — the only route to a board that matches the relay box's 100 × 70 footprint. The
+  **schematic/netlist carries over** — only footprints and the outline change.
 
 ## Placeholders to replace (put in for the rough pass)
 - [ ] **U3 (INA3221)** — currently `PinSocket_1x06` placeholder. Replace with the real custom
   footprint once measured (header pin count + 2.54 mm pitch + CH1 hole-pair spacing). Goes in
   `mainboard.pretty` alongside `MP1584_Module`.
-- [ ] **Q1 (P-FET)** — currently `TO-220-3_Vertical` placeholder. Confirm once the FET is ordered
-  (suggested **IRF4905**). Its pinout is **G-D-S**, so switch the symbol to `Q_PMOS_GDS` and
-  re-verify pad mapping (D→+12V_HOT, S→+12V_PROT).
+- [x] **Q1 symbol — FIXED 2026-10-31.** Was `Q_PMOS_GSD` (pads 2=S, 3=D) against a real pinout of
+  **1=G, 2=D, 3=S**, which put **Drain on the load and Source on the battery** — i.e. reverse-
+  polarity protection wired backwards, and *invisible on the bench* because a backwards P-FET still
+  conducts normally forward. Swapped to **`Q_PMOS_GDS`**; verified pin 2 = D → `+12V_HOT`,
+  pin 3 = S → `+12V_PROT`. No rewiring was needed (both symbols share the same geometry; only the
+  pin numbers swap). `02-bom.csv` had the orientation stated backwards too — also corrected.
+- [x] **Q1 gate clamp connected — FIXED 2026-10-31.** `Dz1` cathode and `R11` were on a two-pin net
+  with no link to `+12V_PROT`, so the gate had no clamp. Now on `+12V_PROT` (confirmed in the
+  netlist). The PCB still needs the sync.
+- [x] **Schematic values set 2026-10-31:** `R12` 100 → **10k**, `D1` SMBJ24A → **SMBJ16A** (same
+  SMB footprint).
+- [x] **PCB synced 2026-10-31** (KiCad `F8`): schematic parity 0, all pad nets match. The old
+  routing is now invalid around `Q1`, `R12` and `U2`, so DRC fails by design until the re-route.
+  **Do not generate fab files from this routing.**
+- [x] **Q1 package — decided 2026-10-31: IRF4905, TO-220**, matching the existing footprint. Pad
+  order 1=G, 2=D, 3=S, so `Q_PMOS_GDS` stays correct. Check gate drive at 8–11 V against the
+  datasheet when buying.
 - [ ] **A3 (MP1584)** — custom `MP1584_Module` footprint done; **verify pad order against the
   physical board** at assembly (pad 1 = IN+, pad 3 = OUT+).
 
@@ -32,9 +53,16 @@ for the how-to.
 - [ ] Confirm **MP1584 / INA3221 / IMU** module pin orders vs their silkscreens.
 
 ## Board setup (Board Setup → Design Rules / Net Classes)
-- [ ] Net classes: **Power** (`+12V_HOT/PROT`, `+5V`, `COIL_*`, `COIL_RAIL`) = **1.5 mm**;
-  **Rail3V3** (`+3V3`) = **0.8 mm**; **Default/signal** = **0.30 mm**.
-- [ ] Clearance **0.2 mm**; via 0.4/0.8 mm.
+- [x] Net classes exist and match spec — **Power** 1.5 mm, **Rail3V3** 0.8 mm, **Default** 0.30 mm,
+  all with via 0.8/0.4. Note the 3V3 net is actually named **`+3.3V`** (not `+3V3`), and the
+  `Rail3V3` pattern matches it correctly.
+- [x] **Coil outputs assigned to Power — FIXED 2026-10-31.** The only coil pattern was
+  `*COIL_RAIL`, so `/COIL_MASTER`, `/COIL_FOG`, `/COIL_GRIP` and `/COIL_SPARE` were falling through
+  to **Default (0.30 mm)** despite `03-design-rules.md` putting coil outputs in **Power (1.5 mm)**.
+  All four now have explicit `netclass_patterns` entries.
+- [x] Clearance **0.2 mm**; hole-to-hole 0.25 mm; via 0.4/0.8 mm — verified in the project file.
+- [ ] **Reload the project in KiCad** after the above (netclasses live in `mainboard.kicad_pro`; an
+  already-open KiCad holds its own copy and will overwrite them on save).
 
 ## Placement / mechanical
 - [ ] DevKitC (J8/J9) along one edge, **antenna end overhanging** — copper keep-out under the
@@ -44,8 +72,12 @@ for the how-to.
 - [ ] Buck loop tight, away from the I²C pair. (INA CH1 sense is off-board — no on-board sense network to place.)
 - [ ] INA3221 module (U3) socketed near the I²C side; leave clearance for its body (~25×19 mm) per the custom footprint keep-out.
 - [ ] **Opto isolation gap ≥ 4 mm** across U4/U5; **no ground pour under the opto barrier**.
-- [ ] 4× **M3 mounting holes**, ~4 mm from corners.
-- [ ] Resize **Edge.Cuts** to the real outline once placement settles (~90 × 70 mm guess).
+- [ ] 4× **M3 mounting holes** near the board corners; the enclosure floor gets drilled to match
+      and the board sits on spacers (ADR-0015). The board currently has **zero** mounting holes.
+- [x] **Layout redone 2026-10-31:** Edge.Cuts is **110 × 70 mm**, re-placed, re-routed and stitched
+      (GND pour both layers, antenna notch). DRC: 0 errors, 0 unconnected, parity 0.
+- [ ] **Before ordering, check against the real modules:** DevKitC row spacing (25.4 mm assumed);
+      MP1584, INA3221 and GY-521 pin order; GY-521 body side relative to its socket; `D3` TVS.
 
 ## Routing
 - [ ] Route **power nets first** (1.5 mm), then signals (0.3 mm).

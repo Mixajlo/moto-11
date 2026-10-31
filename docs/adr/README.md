@@ -23,3 +23,4 @@ editing history.
 - [0012](0012-ignition-master-switch-powered-state.md) — Ignition-as-master-switch; RUNNING vs POWERED; battery backstop; charge warning (refines §13)
 - [0013](0013-runtime-config-nvs-console.md) — Runtime-configurable tunables: NVS-backed, console-edited (BLE/app later)
 - [0014](0014-aux-button-inputs-per-gpio.md) — Aux button inputs: one-wire-per-button, per-GPIO, JST-XH connector
+- [0015](0015-piggyback-enclosure-mixed-assembly.md) — Mainboard v1: close-coupled enclosure beside the relay box, mixed SMD/module assembly (refines 0004 §21)

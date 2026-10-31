@@ -2,12 +2,12 @@ Ref,Qty,Value,Description,Footprint,Suggested part / MPN,Notes
 A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),2x 1x19 female header 2.54mm,Espressif ESP32-DevKitC-32E,Reuse existing units; verify pin count/row pitch
 A2,1,IMU,6-axis accel+gyro breakout GY-521 (MPU-6050),1x8 female header 2.54mm,GY-521 / MPU-6050,8-pin VCC GND SCL SDA XDA XCL AD0 INT; INT->GPIO33; AD0 float = I2C addr 0x68
 A3,1,Buck,MP1584EN mini buck module,4-pad 2.54mm,MP1584EN module,Pre-set 5.0V and verify before fitting
-U2,1,ULN2803A,Darlington array 8ch low-side,DIP-18 (socket) or SOIC-18,Texas Instruments ULN2803A,Active-HIGH; COM to coil rail
+U2,1,ULN2803A,Darlington array 8ch low-side,SOIC-18W 7.5x11.6mm (PCBA - ADR-0015),Texas Instruments ULN2803ADW,Active-HIGH; COM to coil rail; no socket - 4 spare channels are the field workaround
 U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via 1x8 VS/GND/SCL/SDA/PV/CRI/WAR/TC header; wire VS/GND/SCL/SDA only; addr 0x40
-U4,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,IGN 12V sense
-U5,1,PC817,Optocoupler single-channel,DIP-4,Sharp PC817C,START/headlight 12V sense
-Q1,1,P-MOSFET,Reverse-polarity protect,DPAK or TO-220,AOD4185 / DMP3017SFG / IRF4905,Source=+12V_HOT drain=+12V_PROT
-D1,1,SMBJ24A,TVS diode unidirectional 24V,SMB DO-214AA,Littelfuse SMBJ24A,Load-dump clamp on +12V_PROT
+U4,1,PC817,Optocoupler single-channel,DIP-4_W7.62mm,Sharp PC817C,IGN 12V sense; keep THT DIP - the 7.62mm body delivers the >=4mm isolation creepage (ADR-0015). Do not swap to SOP-4
+U5,1,PC817,Optocoupler single-channel,DIP-4_W7.62mm,Sharp PC817C,START/headlight 12V sense; keep THT DIP - see U4
+Q1,1,IRF4905,Reverse-polarity protect,TO-220,Infineon IRF4905,DRAIN=+12V_HOT SOURCE=+12V_PROT (body-diode anode must face the battery; reversed = protection defeated). Symbol must be Q_PMOS_GDS to match pads 1=G 2=D 3=S
+D1,1,SMBJ16A,TVS diode unidirectional 16V,SMB DO-214AA,Littelfuse SMBJ16A,Load-dump clamp on +12V_PROT; 26V max clamp keeps MP1584 under 28V
 D2,1,LED,Power indicator green,3mm THT,generic,Optional
 D3,1,SMBJ20A,TVS diode unidirectional 20V (OFF-BOARD),leaded (P6KE/1.5KE or leaded SMBJ),Littelfuse SMBJ20A,Clamp across module CH1 sense lead to GND (26V limit); at module/harness not PCB
 Dz1,1,18V Zener,Gate-source clamp 0.5W,SOD-123 or THT,BZX84C18 / 1N5248B,>14.4V idle while charging; <20V Vgs(max)
@@ -29,7 +29,7 @@ R8,1,2.2k 0.25W,PC817 LED series,1206,generic,START 12V side ~5mA; 1206 gives su
 R9,1,10k,GPIO34 pullup,1206,generic,opto output to +3V3
 R10,1,10k,GPIO35 pullup,1206,generic,opto output to +3V3
 R11,1,100k,Q1 gate-source,1206,generic,reverse-pol FET
-R12,1,100R,Q1 gate series,1206,generic,optional slew limit
+R12,1,10k,Q1 gate pull-down,1206,generic,limits Dz1 current during load dump; required - do not reduce to 100R
 R13,1,220R,Power LED series,1206,generic,D2
 J1,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,+12V_HOT / GND
 J2,1,2-pos 5.0mm,Terminal block,TerminalBlock_MaiXu_MX126-5.0-02P_1x02_P5.00mm,MX126-5.0 or any 2P 5.0/5.08mm,COIL_RAIL / GND

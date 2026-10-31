@@ -86,7 +86,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module` (custom, `mainboard.pretty`) — 1×8 labeled header | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the `VS GND SCL SDA PV CRI WAR TC` header; only VS/GND/SCL/SDA wired. |
 | U4, U5 | PC817 | Optocoupler, single | DIP-4 | One per 12 V sense channel (IGN, START). |
 | Q1 | P-MOSFET | AOD4185 / DMP3017SFG / IRF4905 | DPAK / TO-220 | Reverse-polarity (ideal-diode orientation). |
-| D1 | TVS | SMBJ24A (uni, 24 V standoff) | SMB / DO-214AA | Load-dump clamp on +12V_PROT. |
+| D1 | TVS | SMBJ16A (uni, 16 V standoff, 17.8 V min breakdown, 26 V max clamp) | SMB / DO-214AA | Load-dump clamp on +12V_PROT. Clamp stays under the MP1584's 28 V operating limit and C1's 35 V; standoff stays above the 14.4 V charging voltage. |
 | D2 | LED | green, 3 mm | THT | +3V3 power indicator (optional). |
 | D3 | TVS | SMBJ20A (uni, 20 V standoff) — leaded easiest | **off-board**, at module CH1 | Clamp across the CH1 sense lead → GND (INA 26 V input limit). Mounted at the module / in the harness, **not on the PCB** (sense lead runs batt+ → CH1 directly). |
 | C1 | Cap | 470 µF / 35 V electrolytic | radial 8 mm | Bulk on +12V_PROT. |
@@ -98,7 +98,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | R7, R8 | Res | 2.2 kΩ, 0.25 W | THT/1206 | PC817 LED series (12 V side), ~5 mA. |
 | R9, R10 | Res | 10 kΩ | 1206 | Pull-ups on GPIO34/35 (opto outputs; input-only pins). |
 | R11 | Res | 100 kΩ | 1206 | Q1 gate–source. |
-| R12 | Res | 100 Ω | 1206 | Q1 gate series (optional, slew). |
+| R12 | Res | 10 kΩ | 1206 | Q1 gate pull-down. Limits Dz1 current when the clamp conducts: at the 26 V TVS clamp, (26 − 18) V / 10 kΩ = 0.8 mA. Do not reduce to 100 Ω (80 mA, 1.4 W in a 0.5 W zener). |
 | Dz1 | Zener | 18 V, 0.5 W | SOD-123 / THT | Q1 gate–source clamp. >14.4 V so idle while charging; <20 V Vgs(max). |
 | R13 | Res | 220 Ω | 1206 | D2 LED series. |
 | J1 | Term block | 2-pos, 5.08 mm | THT | `+12V_HOT`, `GND` (power in). |
@@ -163,7 +163,7 @@ Decoupling caps: place one 100 nF physically next to each IC's V+/GND.
 ### Reverse-polarity + TVS (input protection)
 | Net | Connects |
 |-----|----------|
-| Q1 gate | → `GND` via `R12` (100 Ω series); `R11` (100 k) gate→source; `Dz1` zener gate→source clamp. |
+| Q1 gate | → `GND` via `R12` (10 k); `R11` (100 k) gate→source; `Dz1` zener gate→source clamp. |
 | `D1` (TVS) | cathode → `+12V_PROT`, anode → `GND` (unidirectional). |
 
 *P-FET reverse-polarity (high-side): **drain = +12V_HOT (battery in), source = +12V_PROT (load)**,
