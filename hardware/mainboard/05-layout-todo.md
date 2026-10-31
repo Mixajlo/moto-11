@@ -26,7 +26,7 @@ for the how-to.
 ## Placeholders to replace (put in for the rough pass)
 - [ ] **U3 (INA3221)** — currently `PinSocket_1x06` placeholder. Replace with the real custom
   footprint once measured (header pin count + 2.54 mm pitch + CH1 hole-pair spacing). Goes in
-  `mainboard.pretty` alongside `MP1584_Module`.
+  `mainboard.pretty` alongside the MP1584 footprint.
 - [x] **Q1 symbol — FIXED 2026-10-31.** Was `Q_PMOS_GSD` (pads 2=S, 3=D) against a real pinout of
   **1=G, 2=D, 3=S**, which put **Drain on the load and Source on the battery** — i.e. reverse-
   polarity protection wired backwards, and *invisible on the bench* because a backwards P-FET still
@@ -44,7 +44,7 @@ for the how-to.
 - [x] **Q1 package — decided 2026-10-31: IRF4905, TO-220**, matching the existing footprint. Pad
   order 1=G, 2=D, 3=S, so `Q_PMOS_GDS` stays correct. Check gate drive at 8–11 V against the
   datasheet when buying.
-- [ ] **A3 (MP1584)** — custom `MP1584_Module` footprint done; **verify pad order against the
+- [ ] **A3 (MP1584)** — custom `MP1584_Module_22.5x17.2mm` footprint done; **verify pad order against the
   physical board** at assembly (pad 1 = IN+, pad 3 = OUT+).
 
 ## Decisions still open

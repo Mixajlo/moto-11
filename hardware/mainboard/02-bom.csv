@@ -3,7 +3,7 @@ A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),2x 1x19 female header 2.
 A2,1,IMU,6-axis accel+gyro breakout GY-521 (MPU-6050),1x8 female header 2.54mm,GY-521 / MPU-6050,8-pin VCC GND SCL SDA XDA XCL AD0 INT; INT->GPIO33; AD0 float = I2C addr 0x68
 A3,1,Buck,MP1584EN mini buck module,4-pad 2.54mm,MP1584EN module,Pre-set 5.0V and verify before fitting
 U2,1,ULN2803A,Darlington array 8ch low-side,SOIC-18W 7.5x11.6mm (PCBA - ADR-0015),Texas Instruments ULN2803ADW,Active-HIGH; COM to coil rail; no socket - 4 spare channels are the field workaround
-U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via 1x8 VS/GND/SCL/SDA/PV/CRI/WAR/TC header; wire VS/GND/SCL/SDA only; addr 0x40
+U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module_38.1x31.6mm (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via 1x8 VS/GND/SCL/SDA/PV/CRI/WAR/TC header; wire VS/GND/SCL/SDA only; addr 0x40
 U4,1,PC817,Optocoupler single-channel,DIP-4_W7.62mm,Sharp PC817C,IGN 12V sense; keep THT DIP - the 7.62mm body delivers the >=4mm isolation creepage (ADR-0015). Do not swap to SOP-4
 U5,1,PC817,Optocoupler single-channel,DIP-4_W7.62mm,Sharp PC817C,START/headlight 12V sense; keep THT DIP - see U4
 Q1,1,IRF4905,Reverse-polarity protect,TO-220,Infineon IRF4905,DRAIN=+12V_HOT SOURCE=+12V_PROT (body-diode anode must face the battery; reversed = protection defeated). Symbol must be Q_PMOS_GDS to match pads 1=G 2=D 3=S

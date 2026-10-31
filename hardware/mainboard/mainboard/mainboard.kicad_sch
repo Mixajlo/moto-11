@@ -8184,7 +8184,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "mainboard:INA3221_Module"
+		(property "Footprint" "mainboard:INA3221_Module_38.1x31.6mm"
 			(at 97.79 93.98 0)
 			(hide yes)
 			(show_name no)
@@ -10563,7 +10563,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "mainboard:MP1584-Module_B22.1x16.8mm"
+		(property "Footprint" "mainboard:MP1584_Module_22.5x17.2mm"
 			(at 152.4 30.48 0)
 			(hide yes)
 			(show_name no)

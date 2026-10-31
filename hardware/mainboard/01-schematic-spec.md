@@ -83,7 +83,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | A2 | IMU module | GY-521 (MPU-6050) breakout | 1×8 female header, 2.54 mm | 6-axis, I²C (0x68). Pins VCC/GND/SCL/SDA/XDA/XCL/AD0/INT; **INT = pin 8 → GPIO33**; XDA/XCL/AD0 NC. |
 | A3 | Buck module | MP1584EN mini buck | 4-pad (IN+ IN− OUT+ OUT−), 2.54 mm | Pre-set to 5.0 V **and verify** before fitting. |
 | U2 | ULN2803A | Darlington array, 8-ch | DIP-18 (socketed) or SOIC-18 | Active-HIGH; COM→COIL_RAIL for flyback. |
-| U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module` (custom, `mainboard.pretty`) — 1×8 labeled header | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the `VS GND SCL SDA PV CRI WAR TC` header; only VS/GND/SCL/SDA wired. |
+| U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module_38.1x31.6mm` (custom, `mainboard.pretty`) — 1×8 labeled header | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the `VS GND SCL SDA PV CRI WAR TC` header; only VS/GND/SCL/SDA wired. |
 | U4, U5 | PC817 | Optocoupler, single | DIP-4 | One per 12 V sense channel (IGN, START). |
 | Q1 | P-MOSFET | AOD4185 / DMP3017SFG / IRF4905 | DPAK / TO-220 | Reverse-polarity (ideal-diode orientation). |
 | D1 | TVS | SMBJ16A (uni, 16 V standoff, 17.8 V min breakdown, 26 V max clamp) | SMB / DO-214AA | Load-dump clamp on +12V_PROT. Clamp stays under the MP1584's 28 V operating limit and C1's 35 V; standoff stays above the 14.4 V charging voltage. |
@@ -205,7 +205,7 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 > **unconnected** — alerts are read over I²C. Populate shunts only when you want branch current.
 
 **INA3221 module header pin map (U3) — confirmed from the board silk.** The custom
-`INA3221_Module` footprint is a 1×8 row matching the labeled header. We wire only VS/GND/SCL/SDA;
+`INA3221_Module_38.1x31.6mm` footprint is a 1×8 row matching the labeled header. We wire only VS/GND/SCL/SDA;
 the four open-drain alert pins (PV = power-valid, CRI = critical, WAR = warning, TC = timing-
 control) are read over I²C, so they're left unconnected here. CH2/CH3 terminals likewise unused
 for now.
