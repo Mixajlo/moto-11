@@ -108,9 +108,8 @@ So add one measurement to set A if you are considering fastening to the box:
 
 ## Measurement set B — the enclosure (this is what unblocks the order)
 
-Not yet chosen — there is **no enclosure line in [02-bom.csv](02-bom.csv)**. Buy to the
-*internal ≥ 115 × 85 × 35 mm* requirement above (sealed ABS/PC, IP65+, with internal PCB
-standoffs and at least one gland position), then measure:
+Model not yet chosen. [02-bom.csv](02-bom.csv) carries it as `ENC1`, by minimum size only. Buy to
+the *internal ≥ 118 × 75 × 40 mm* requirement above (sealed ABS/PC, IP65+), then measure:
 
 | # | Measurement | Value | Why it matters |
 |---|---|---|---|
@@ -153,6 +152,7 @@ not reachable; schematic/netlist is untouched by all of this.
 - [ ] Relay box measured (set A)
 - [ ] Bracket designed: material, fastener points, frame/tray tie for IMU rigidity
 - [ ] Coil/power/GND inter-box lead length fixed from A11
-- [ ] `02-bom.csv` gains the mechanical lines: enclosure, gland(s), bracket, M3 hardware, standoffs
+- [x] `02-bom.csv` carries the enclosure (`ENC1`) by minimum size. Glands, bracket, spacers and
+      screws stay out of it, because they depend on how each builder mounts the unit on their bike
 - [ ] Confirm MP1584 / INA3221 / GY-521 pad order against their silkscreens before PCBA
       (carried over from [05-layout-todo.md](05-layout-todo.md))

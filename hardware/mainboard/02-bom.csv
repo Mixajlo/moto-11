@@ -1,8 +1,8 @@
 Ref,Qty,Value,Description,Footprint,Suggested part / MPN,Notes
-A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board (socketed),Plugs into J8 + J9,Espressif ESP32-DevKitC-32E,Reuse existing units; row spacing 25.40 mm confirmed from the module drawing
-J8,1,1x19 socket,"ESP32 socket, 3V3 side",Connector_PinSocket_2.54mm:PinSocket_1x19_P2.54mm_Vertical,generic 2.54mm female header,Holds A1
-J9,1,1x19 socket,"ESP32 socket, GND side",Connector_PinSocket_2.54mm:PinSocket_1x19_P2.54mm_Vertical,generic 2.54mm female header,Holds A1
-A2,1,IMU,6-axis accel+gyro breakout GY-521 (MPU-6050),1x8 female header 2.54mm,GY-521 / MPU-6050,8-pin VCC GND SCL SDA XDA XCL AD0 INT; INT->GPIO33; AD0 float = I2C addr 0x68
+A1,1,ESP32-DevKitC,ESP32-WROOM-32D dev board,Plugs into J8 + J9 or solders into the same holes,Espressif ESP32-DevKitC-32E,Reuse existing units; row spacing 25.40 mm confirmed from the module drawing
+J8,1,1x19 socket,"OPTIONAL ESP32 socket, 3V3 side",Connector_PinSocket_2.54mm:PinSocket_1x19_P2.54mm_Vertical,generic 2.54mm female header,Optional: omit to solder A1 directly; A1 then cannot be swapped without desoldering and sits over H4 with only ~2.5 mm clearance (see H1-H4)
+J9,1,1x19 socket,"OPTIONAL ESP32 socket, GND side",Connector_PinSocket_2.54mm:PinSocket_1x19_P2.54mm_Vertical,generic 2.54mm female header,Optional: see J8
+A2,1,IMU,6-axis accel+gyro breakout GY-521 (MPU-6050),mainboard:GY-521_Module_20.8x15.9mm + 1x8 female header 2.54mm,GY-521 / MPU-6050,8-pin VCC GND SCL SDA XDA XCL AD0 INT; chip faces up with the header on the underside; INT->GPIO33; AD0 float = I2C addr 0x68
 A3,1,Buck,MP1584EN mini buck module,"mainboard:MP1584_Module_22.5x17.2mm (8 pads, 4 pairs)",MP1584EN module,Pre-set 5.0V and verify before fitting
 U2,1,ULN2803A,Darlington array 8ch low-side,Package_DIP:DIP-18_W7.62mm_Socket,ULN2803 DIP-18 (on hand) + 18-pin 7.62mm socket,Active-HIGH; COM to coil rail
 U3,1,INA3221,3-channel bus voltage/current monitor breakout (CJMCU-3221),INA3221_Module_38.1x31.6mm (custom),CJMCU-3221 purple module,CH1=bus voltage; CH2/3 spare; 26V input max (clamp D3); socket via 1x8 VS/GND/SCL/SDA/PV/CRI/WAR/TC header; wire VS/GND/SCL/SDA only; addr 0x40
@@ -53,4 +53,6 @@ C15,1,100nF,Button RC to GND,1206,generic,BTN5
 C16,1,100nF,Button RC to GND,1206,generic,BTN6
 C17,1,100nF,Button RC to GND,1206,generic,BTN7
 C18,1,100nF,Button RC to GND,1206,generic,BTN8
-H1-H4,4,M3 hole,Mounting holes (board only),MountingHole_3.2mm,M3 screws + spacers,Drill the enclosure floor to match
+H1-H4,4,M3 hole,Mounting holes (board only),MountingHole_3.2mm,M3 screws + spacers,Drill the enclosure floor to match. H4 is under A1: unplug A1 to reach it. If A1 is soldered directly leave H4 empty or fit a low-profile screw first since it cannot be reached afterwards
+H5-H7,3,M3 hole,Holes for fixing U3 to the board,MountingHole_3.2mm,M3 screws + spacers,Line up with the three holes on the INA3221 module. Spacer height must match the module's height on its header. Board only: U3's 8-pin header makes the connections
+ENC1,1,Enclosure,"Sealed enclosure, internal min 118 x 75 x 40 mm",Off-board,"Any sealed ABS/PC box, IP65 or better",Minimum is measured inside at the PCB plane. Length includes the ESP antenna overhang. Height allows ~10 mm spacers + 1.6 mm PCB + ~16 mm tallest part + ~10 mm wire bend. Bike mounting hardware is left to the builder

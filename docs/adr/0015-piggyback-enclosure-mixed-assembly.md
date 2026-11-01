@@ -113,3 +113,9 @@ This replaces the assembly parts of the decision above. There is **no JLCPCB ass
 hand-solders the whole board, using 1206 parts already on hand. **U2 is a ULN2803 in DIP-18 in a
 socket**, because five DIP chips are already on hand and a socket allows a roadside swap of a dead
 coil driver. U4/U5 stay DIP-4 and the modules stay socketed. The SOIC-18W footprint is dropped.
+
+The BOM lists the enclosure by minimum size only. Glands, bracket, spacers and screws are left out
+because they depend on how each builder mounts the unit on their bike, which replaces the
+`02-bom.csv` consequence above. The ESP sockets J8/J9 are optional: a builder may solder the ESP
+into the same holes instead. Mounting hole H4 sits under the ESP, so a soldered ESP leaves about
+2.5 mm above it and blocks access: leave H4 empty or fit a low-profile screw first.

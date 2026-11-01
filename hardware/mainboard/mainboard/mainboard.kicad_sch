@@ -9674,7 +9674,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical"
+		(property "Footprint" "mainboard:GY-521_Module_20.8x15.9mm"
 			(at 58.42 182.88 0)
 			(hide yes)
 			(show_name no)
