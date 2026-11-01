@@ -102,10 +102,14 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   `Preferences` lib; firmware values are the defaults + safe fallback, edits are validated
   (range + threshold ladder) and survive reboot/OTA. Console: `config` / `get <key>` /
   `set <key> <val>` / `config reset`. BLE/tablet/app are later front-ends on this backend.
-- Aux buttons (`src/buttons.{h,cpp}`, ADR-0014): 8 handlebar dry-contact inputs, per-GPIO,
-  active-LOW + debounce; a press toggles its mapped relay (default fog/grip/spare; MASTER stays
-  supervisor-owned). Console: `btn` (states + mapping), `btn press <1-8>` (bench sim, no
-  hardware needed). Mapping becomes runtime config later.
+- Aux buttons (`src/buttons.{h,cpp}`, ADR-0014, ADR-0016): 8 handlebar dry-contact inputs,
+  per-GPIO, active-LOW + debounce. Mapping is runtime config in NVS: each input has a relay and a
+  type, momentary (press toggles) or latching (position sets). Defaults: BTN1 fog latching, BTN2
+  grip, BTN3 spare; MASTER stays supervisor-owned. Console: `btn` (states + mapping), `btn press
+  <1-8>` (bench sim, no hardware needed), `btn map <1-8> <fog|grip|spare|none> [push|latch]`,
+  `btn reset`. Ring mode (`btn ring <on|off>`, default on, `src/button_ring.h`) reads the case's
+  factory button loop by pulling BTN5 low (never high) and reports it as BTN4-7; turn it off once
+  each button has its own wire.
 - Current milestone: engine-run supervisor + runtime config + aux buttons proven on the bench
   (config persistence verified across a hardware reset). **Next:** wire the real INA3221 (driver)
   + PC817 ignition-sense and flip `sim real`; then `manageLoads()` load-shedding and the

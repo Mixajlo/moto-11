@@ -1,6 +1,6 @@
 # 14. Aux button inputs: one-wire-per-button, read per-GPIO, on a JST-XH connector
 
-- Status: Accepted
+- Status: Accepted; switch type, case wiring and mapping refined by [ADR-0016](0016-button-wiring-and-runtime-mapping.md)
 - Date: 2026-06-23
 - Deciders: Miki
 

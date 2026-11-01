@@ -22,3 +22,11 @@ g++ -std=c++17 -DMOTO_DEBUG=1 \
     -o "$TMP/moto_cfg_test"
 "$TMP/moto_cfg_test"
 echo "native config tests: PASS"
+
+g++ -std=c++17 -DMOCK_PINS -DMOCK_NVS \
+    -I test_host/mock -I src \
+    test_host/test_buttons_native.cpp \
+    src/buttons.cpp src/relays.cpp \
+    -o "$TMP/moto_btn_test"
+"$TMP/moto_btn_test"
+echo "native button tests: PASS"

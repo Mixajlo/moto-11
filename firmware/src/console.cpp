@@ -43,6 +43,10 @@ void printHelp() {
   outln("  set <key> <val>    change + persist a tunable (validated)");
   outln("  btn                show button states + mapping");
   outln("  btn press <1-8>    simulate a button press (bench)");
+  outln("  btn map <1-8> <fog|grip|spare|none> [push|latch]");
+  outln("                     change + persist what a button does");
+  outln("  btn reset          restore the default button mapping");
+  outln("  btn ring <on|off>  on = factory loop wiring, off = one wire per button");
   outln("  help | ?           this list");
   outln("  channels: master  fog  grip  spare");
   outln("(onboard LED: heartbeat when all off, solid ON when any relay is on)");
@@ -122,16 +126,55 @@ void handleSet(const char* key, const char* val) {
 
 void printButtons() {
   outln();
-  outln("buttons (btn press <1-8> to simulate):");
+  outln("buttons (btn press <1-8> to simulate, btn map to change):");
+  out("  ring scan: "); outln(Btns.ring() ? "on (BTN4-7 read through the loop)" : "off");
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     RelayId r = Btns.mapping(i);
-    char line[56];
-    snprintf(line, sizeof(line), "  BTN%u  gpio%-3u  %-7s -> %s",
-             i + 1, PIN_BTN[i],
+    char line[64];
+    char source[8];
+    if (Btns.inRing(i)) snprintf(source, sizeof(source), "ring");
+    else                snprintf(source, sizeof(source), "gpio%u", PIN_BTN[i]);
+    snprintf(line, sizeof(line), "  BTN%u  %-6s  %-7s  %-5s -> %s",
+             i + 1, source,
              Btns.pressed(i) ? "PRESSED" : "-",
+             Btns.latching(i) ? "latch" : "push",
              r < RELAY_COUNT ? Relays.name(r) : "(unmapped)");
     outln(line);
   }
+}
+
+// btn map <1-8> <fog|grip|spare|none> [push|latch]; the type defaults to the current one.
+void handleBtnMap(const char* num, const char* target, const char* type) {
+  int n = num ? atoi(num) : 0;
+  if (n < 1 || n > BUTTON_COUNT || !target) {
+    outln("btn map <1-8> <fog|grip|spare|none> [push|latch]");
+    return;
+  }
+  uint8_t i = static_cast<uint8_t>(n - 1);
+
+  RelayId relay = RELAY_MASTER;              // refused by configure() unless a name matches
+  if (!strcasecmp(target, "none")) relay = RELAY_COUNT;
+  else if (strcasecmp(target, "master")) {
+    bool found = false;
+    for (uint8_t r = RELAY_FOG; r < RELAY_COUNT; r++) {
+      if (!strcasecmp(target, Relays.name(static_cast<RelayId>(r)))) {
+        relay = static_cast<RelayId>(r);
+        found = true;
+      }
+    }
+    if (!found) { out("rejected: unknown relay "); outln(target); return; }
+  }
+
+  bool latching = Btns.latching(i);
+  if (type) {
+    if      (!strcasecmp(type, "latch")) latching = true;
+    else if (!strcasecmp(type, "push"))  latching = false;
+    else { out("rejected: unknown type "); outln(type); return; }
+  }
+
+  const char* err = nullptr;
+  if (Btns.configure(i, relay, latching, &err)) printButtons();
+  else { out("rejected: "); outln(err ? err : "?"); }
 }
 
 void printStatus() {
@@ -229,6 +272,16 @@ void dispatch(char* line) {
       int n = atoi(arg2);
       if (n >= 1 && n <= BUTTON_COUNT) Btns.fire(static_cast<uint8_t>(n - 1));
       else outln("btn press <1-8>");
+    } else if (arg && !strcasecmp(arg, "map")) {
+      char* target = strtok(nullptr, " \t");
+      handleBtnMap(arg2, target, strtok(nullptr, " \t"));
+    } else if (arg && !strcasecmp(arg, "reset")) {
+      Btns.resetMapping();
+      printButtons();
+    } else if (arg && !strcasecmp(arg, "ring")) {
+      if (arg2 && !strcasecmp(arg2, "on"))       { Btns.setRing(true);  printButtons(); }
+      else if (arg2 && !strcasecmp(arg2, "off")) { Btns.setRing(false); printButtons(); }
+      else outln("btn ring <on|off>");
     } else printButtons();
   } else {
     out("? unknown command: "); outln(cmd);
