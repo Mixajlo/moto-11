@@ -34,8 +34,11 @@ battery feed. It carries only control and coil current — **never** load curren
    [ADR-0011](../../docs/adr/0011-ina3221-replaces-ina226.md).
 5. **INA3221, IMU, and buck are breakout modules on headers**, not raw chips — keeps this
    hand-solderable. *(All-SMD alternative is denser but needs reflow/hot-air.)*
-6. **ULN2803 has 8 channels; only 4 are used.** The other 4 inputs/outputs are broken out to a
-   header + terminals for future relays (e.g. the headlight-shed NC relay). "Fairings off once."
+6. **ULN2803: 5 of 8 channels used** ([ADR-0018](../../docs/adr/0018-five-channel-relay-drive.md)).
+   ch1 = master relay (J2), ch2–5 = the four box relays FOG/GRIP/SPARE/AUX (J3). ch5 is driven
+   from **GPIO 12** (`AUX_EN`, pull-down R23). ch6–8 inputs are tied to GND and their outputs are
+   unconnected. The headlight relay is **not** on the ULN: it is driven from the start button
+   (fail-ON, ADR-0004).
 
 ---
 
@@ -50,10 +53,11 @@ battery feed. It carries only control and coil current — **never** load curren
         │                                                                    │
         │                                                          ESP onboard LDO ──► +3V3
         │
- COIL_RAIL +12 ALWAYS-HOT (J2, external) ──► ULN2803 COM (pin10, flyback)   [ADR-0017]
-   (box pin 86 goes to the box's own gated red supply, NOT to J2)
+ +12V_PROT (always-hot) ──► ULN2803 COM (pin10, flyback)  +  J2.1 (master coil +)   [ADR-0017]
+   (box pin 86 goes to the box's own gated red supply, NOT to the board)
 
- ESP GPIO 13/25/26/27 ─► ULN2803 in1..4 ─► out1..4 ─► coil 85 wires (screw terminals)
+ ESP GPIO 13          ─► ULN in1 ─► out1 ─► J2.2  master relay coil 85
+ ESP GPIO 25/26/27/12 ─► ULN in2..5 ─► out2..5 ─► J3.1..4  box relay 85 wires (FOG/GRIP/SPARE/AUX)
  ESP I2C 21/22 ─────────► INA3221 module + IMU module (shared bus, 4k7 pull-ups)
  12V IGN  ─► PC817 U4 ─► GPIO34 (pull-up 3V3)   [LOW when 12V present]
  12V START─► PC817 U5 ─► GPIO35 (pull-up 3V3)   [LOW when 12V present]
@@ -71,7 +75,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | `+12V_PROT` | After reverse-polarity FET + TVS — the protected board 12 V. Feeds the buck. |
 | `+5V` | Buck output → ESP 5V/VIN pin. |
 | `+3V3` | From the ESP DevKitC onboard regulator → powers INA3221, IMU, opto + button pull-ups. |
-| `COIL_RAIL` | **Always-hot** +12 V for ULN COM (flyback clamp), wired at J2 to the fused battery tap (battery side of the master relay). **Not** the box's pin 86, which sits on the master-gated box supply (ADR-0017). The master-relay coil + goes to the same always-hot tap. |
+| *(no `COIL_RAIL`)* | Removed in v1 ([ADR-0018](../../docs/adr/0018-five-channel-relay-drive.md)). ULN COM is tied to `+12V_PROT` on the board, which is always-hot, and `+12V_PROT` also comes out on J2.1 as the master-relay coil +. **Not** the box's pin 86, which sits on the master-gated box supply (ADR-0017). |
 | `GND` | Single board ground; ties to the star ground externally. |
 
 ---
@@ -83,7 +87,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | A1 | ESP32-DevKitC | ESP32-WROOM-32D module | 2× 1×19 (or 1×15) female header, 2.54 mm, 0.9″/1.0″ rows | Socketed; verify your board's pin count/row spacing. |
 | A2 | IMU module | GY-521 (MPU-6050) breakout | 1×8 female header, 2.54 mm | 6-axis, I²C (0x68). Pins VCC/GND/SCL/SDA/XDA/XCL/AD0/INT; **INT = pin 8 → GPIO33**; XDA/XCL/AD0 NC. |
 | A3 | Buck module | MP1584EN mini buck | 4-pad (IN+ IN− OUT+ OUT−), 2.54 mm | Pre-set to 5.0 V **and verify** before fitting. |
-| U2 | ULN2803A | Darlington array, 8-ch | DIP-18 (socketed) or SOIC-18 | Active-HIGH; COM→COIL_RAIL for flyback. |
+| U2 | ULN2803A | Darlington array, 8-ch | DIP-18 (socketed) or SOIC-18 | Active-HIGH; COM→`+12V_PROT` (always-hot) for flyback. ch1–5 used, ch6–8 inputs to GND. |
 | U3 | INA3221 module | CJMCU-3221 3-ch breakout (+ shunts) | `INA3221_Module_38.1x31.6mm` (custom, `mainboard.pretty`) — 1×8 labeled header | CH1 = bus voltage now; CH2/CH3 reserved for branch current. **26 V input max** → clamp D3. Socketed via the `VS GND SCL SDA PV CRI WAR TC` header; only VS/GND/SCL/SDA wired. |
 | U4, U5 | PC817 | Optocoupler, single | DIP-4 | One per 12 V sense channel (IGN, START). |
 | Q1 | P-MOSFET | AOD4185 / DMP3017SFG / IRF4905 | DPAK / TO-220 | Reverse-polarity (ideal-diode orientation). |
@@ -94,7 +98,8 @@ battery feed. It carries only control and coil current — **never** load curren
 | C2 | Cap | 100 µF / 16 V electrolytic | radial 6.3 mm | Bulk on +5V. |
 | C3, C4, C5, C7 | Cap | 100 nF X7R | 1206 | Decoupling, one per IC: ESP, ULN, INA3221, IMU. (C6/C8 dropped — optos don't need it.) |
 | C9 | Cap | 10 µF X7R | 1206 | **Optional** +3V3 sensor-rail bulk near ESP (DevKitC already regulates 3V3). Not on v1. |
-| R1–R4 | Res | 10 kΩ | 1206 / THT | ULN input pull-downs (boot-safe OFF). |
+| R1–R4 | Res | 10 kΩ | 1206 / THT | ULN input pull-downs ch1–4 (boot-safe OFF). |
+| R23 | Res | 10 kΩ | 1206 | ULN ch5 (`AUX_EN`, GPIO 12) pull-down. Doubles as the GPIO 12 strap: LOW at reset = 3.3 V flash. Must stay a pull-**down**. |
 | R5, R6 | Res | 4.7 kΩ | 1206 | I²C SDA/SCL pull-ups to +3V3. |
 | R7, R8 | Res | 2.2 kΩ, 0.25 W | THT/1206 | PC817 LED series (12 V side), ~5 mA. |
 | R9, R10 | Res | 10 kΩ | 1206 | Pull-ups on GPIO34/35 (opto outputs; input-only pins). |
@@ -103,11 +108,11 @@ battery feed. It carries only control and coil current — **never** load curren
 | Dz1 | Zener | 18 V, 0.5 W | SOD-123 / THT | Q1 gate–source clamp. >14.4 V so idle while charging; <20 V Vgs(max). |
 | R13 | Res | **not on the v1 board** | — | Removed with D2. |
 | J1 | Term block | 2-pos, 5.08 mm | THT | `+12V_HOT`, `GND` (power in). |
-| J2 | Term block | 2-pos, 5.08 mm | THT | `COIL_RAIL` (always-hot +12 → ULN COM; ADR-0017), `GND`. |
-| J3 | Term block | 4-pos, 3.5 mm | THT | Coil outputs → 85 wires: MASTER, FOG, GRIP, SPARE. |
+| J2 | Term block | 2-pos, 5.08 mm | THT | **Master relay.** J2.1 `+12V_PROT` (master coil + / 86, always-hot), J2.2 `COIL_MASTER` (coil 85, ULN ch1). |
+| J3 | Term block | 4-pos, 3.5 mm | THT | **Relay box** 85 wires: J3.1 FOG, J3.2 GRIP, J3.3 SPARE, J3.4 AUX (ULN ch2–5). Box pin 86 is on the box's own gated supply, not here. |
 | J4 | Term block | 3-pos, 3.5 mm | THT | `IGN_12V`, `START_12V`, `SENSE_GND`. |
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
-| J7 | Header | **not on the v1 board** | — | ULN spare channels are unconnected. |
+| J7 | Header | **not on the v1 board** | — | ULN ch6–8 are not broken out (inputs tied to GND). |
 | J10 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group A: BTN1–4 + GND (ADR-0014). |
 | J11 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group B: BTN5–8 + GND. |
 | R15–R22 | Res | 1 kΩ | 1206 / THT | Button series (RC with C11–C18); bench can omit, fit for the bike (noise). |
@@ -124,6 +129,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | 25 | `FOG_EN` | out | → ULN in2 |
 | 26 | `GRIP_EN` | out | → ULN in3 |
 | 27 | `SPARE_EN` | out | → ULN in4 |
+| 12 | `AUX_EN` | out | → ULN in5. **Strapping pin** (flash voltage): R23 holds it LOW at reset = 3.3 V flash, correct for the WROOM-32D. Firmware drives it only after boot. *(ADR-0018)* |
 | 34 | `IGN_SENSE` | in | ← opto U4, pull-up R9. Input-only/RTC (ext0 wake). |
 | 35 | `START_SENSE` | in | ← opto U5, pull-up R10. Input-only/RTC. *(added; ADR-0009)* |
 | 33 | `IMU_INT` | in | ← IMU INT. RTC (wake-on-motion). *(added; ADR-0009)* |
@@ -155,11 +161,10 @@ Decoupling caps: place one 100 nF physically next to each IC's V+/GND.
 | Net | Connects |
 |-----|----------|
 | `+12V_HOT` | `J1.1`, Q1 **drain**. External 2 A fuse upstream. |
-| `+12V_PROT` | Q1 **source**, `D1` cathode (TVS across PROT→GND), `C1+`, `A3.IN+`, `TP1`. |
+| `+12V_PROT` | Q1 **source**, `D1` cathode (TVS across PROT→GND), `C1+`, `A3.IN+`, `U2.10 (COM)`, `J2.1` (master coil +), `TP1`. |
 | `+5V` | `A3.OUT+`, `C2+`, `A1.5V/VIN`, `TP2`. |
 | `+3V3` | `A1.3V3`, `U3.VS`/`U3.VCC`, `A2.VCC`, `R5`, `R6`, `R9`, `R10`, `D2`(via R13), `C9+`, `TP3`. |
-| `GND` | `J1.2`, `J2.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J6.4`, all cap −, `TP4`. |
-| `COIL_RAIL` | `J2.1`, `U2.10 (COM)`. (Externally wired to the **always-hot** fused tap, not to box pin 86. ADR-0017.) |
+| `GND` | `J1.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U2.6–8` (unused ULN inputs), `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J6.4`, all cap −, `TP4`. |
 
 ### Reverse-polarity + TVS (input protection)
 | Net | Connects |
@@ -179,20 +184,22 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 | `FOG_EN` | `A1.25` → `U2.2`; `R2` `U2.2`→GND. |
 | `GRIP_EN` | `A1.26` → `U2.3`; `R3` `U2.3`→GND. |
 | `SPARE_EN` | `A1.27` → `U2.4`; `R4` `U2.4`→GND. |
-| `COIL_MASTER` | `U2.18` → `J3.1` (master relay coil 85; its coil + / 86 on **always-hot**, same node as `COIL_RAIL`). |
-| `COIL_FOG` | `U2.17` → `J3.2`. |
-| `COIL_GRIP` | `U2.16` → `J3.3`. |
-| `COIL_SPARE` | `U2.15` → `J3.4`. |
-| ULN COM | `U2.10` → `COIL_RAIL` (internal flyback clamps to always-hot +12). |
+| `AUX_EN` | `A1.12` → `U2.5`; `R23` `U2.5`→GND. |
+| `COIL_MASTER` | `U2.18` → `J2.2` (master relay coil 85; its coil + / 86 on `J2.1` = `+12V_PROT`, always-hot). |
+| `COIL_FOG` | `U2.17` → `J3.1`. |
+| `COIL_GRIP` | `U2.16` → `J3.2`. |
+| `COIL_SPARE` | `U2.15` → `J3.3`. |
+| `COIL_AUX` | `U2.14` → `J3.4`. |
+| ULN COM | `U2.10` → `+12V_PROT` (internal flyback clamps to always-hot +12). |
 
-> **Two +12 nodes, kept apart (ADR-0017).** Box coils (fog/grip/spare): coil + = the box's
+> **Two +12 nodes, kept apart (ADR-0017).** Box coils (fog/grip/spare/aux): coil + = the box's
 > commoned black pin 86 → the box's own red supply (master-gated). Master coil + and ULN COM:
 > **always-hot**. If COM were on the gated box rail, the ch1 clamp diode would carry current
 > from always-hot through the master coil into the dead box rail, and the master could turn
 > itself on. Box coils' flyback still clamps fine to always-hot, because the box rail is never
 > higher than always-hot.
 | ULN GND | `U2.9` → `GND`. |
-| spare ch5–8 | `U2.5..8` → `J7` inputs (with their own pull-downs if used); `U2.14..11` → `J7` outputs. |
+| unused ch6–8 | `U2.6..8` → `GND`; `U2.13..11` unconnected. |
 
 ### I²C bus (INA3221 U3 + IMU A2)
 | Net | Connects |
@@ -274,8 +281,8 @@ PC817 pins: 1 = anode (LED+), 2 = cathode (LED−), 3 = emitter, 4 = collector.
 ---
 
 ## Sanity checks baked in
-- **Boot-safe:** R1–R4 hold ULN inputs low while the ESP boots → all relays OFF (fail-OFF).
-- **No external flyback diodes:** ULN COM→COIL_RAIL uses the chip's internal clamps (ADR-0003); `COIL_RAIL` is always-hot, never the gated box rail (ADR-0017).
+- **Boot-safe:** R1–R4 and R23 hold ULN inputs low while the ESP boots → all relays OFF (fail-OFF). R23 also holds the GPIO 12 strap LOW (3.3 V flash).
+- **No external flyback diodes:** ULN COM→`+12V_PROT` uses the chip's internal clamps (ADR-0003); COM is always-hot, never the gated box rail (ADR-0017).
 - **Input-only pins fed:** GPIO34/35 have no internal pull-ups, so R9/R10 are mandatory.
 - **One ground:** single `GND` net, star-tied off-board; sense grounds returned here.
 - **Decoupling:** a 100 nF within ~5 mm of every IC power pin; bulk where rails enter.

@@ -75,6 +75,12 @@ for the how-to.
       and the board sits on spacers (ADR-0015). The board currently has **zero** mounting holes.
 - [x] **Layout redone 2026-10-31:** Edge.Cuts is **110 × 70 mm**, re-placed, re-routed and stitched
       (GND pour both layers, antenna notch). DRC: 0 errors, 0 unconnected, parity 0.
+- [x] **5-channel relay drive, re-routed 2026-11-05** ([ADR-0018](../../docs/adr/0018-five-channel-relay-drive.md)):
+      `COIL_RAIL` removed (ULN COM on `+12V_PROT`), J2 = master relay, J3 = four box relays, ULN ch5
+      = `AUX_EN` on GPIO 12 with R23, `/COIL_AUX` in Power. Re-routed from a blank slate in
+      Freerouting; ~23 GND stitching vias join the pour fragments that the coil and button tracks
+      split. DRC: 0 unconnected; only the H5–H7 NPTH-in-U3-courtyard errors remain (accepted).
+      `fab-v1` gerber zip regenerated.
 - [x] **ESP32 row spacing confirmed 25.40 mm** from the module drawing (`wroom-32D-dim.jpg`).
 - [ ] **Before ordering, check against the real modules:** MP1584, INA3221 and GY-521 pin order, and
       the GY-521 body side relative to its socket.
@@ -86,7 +92,7 @@ for the how-to.
 
 ## Verify before fab
 - [ ] **DRC** clean (Inspect → Design Rules Checker).
-- [ ] Re-check fail-safe: ULN input pull-downs, no external flyback (COM→COIL_RAIL), GPIO34/35
+- [ ] Re-check fail-safe: ULN input pull-downs, no external flyback (COM→`+12V_PROT`), GPIO34/35
   pull-ups, antenna keep-out, opto barrier intact.
 - [ ] **Plot Gerbers** + drill (`File → Plot`, `File → Fabrication Outputs`) → zip → JLCPCB
   (2-layer, 1.6 mm, HASL). Outputs go to `gerbers/` (gitignored).

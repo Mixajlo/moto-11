@@ -42,19 +42,19 @@ Most parts are in KiCad's built-in libs. You'll need a few module symbols:
 Work block by block — the spec is already grouped this way. For each:
 1. Place the symbols for that block.
 2. Wire them, or (faster for a net-heavy board) use **global labels** with the exact net names
-   from the spec (`+12V_PROT`, `COIL_RAIL`, `SDA`, `IGN_SENSE`, …). Matching labels = connected.
+   from the spec (`+12V_PROT`, `COIL_FOG`, `SDA`, `IGN_SENSE`, …). Matching labels = connected.
 3. Set values and reference designators to **match the BOM exactly** (`R1`=10k, etc.).
 
 Recommended order (mirrors the spec):
 1. **Power in**: J1 → Q1 (reverse-pol) → D1 (TVS) → C1 → A3 buck → +5V → A1 5V/VIN. Add R11/R12/Dz1.
 2. **ESP A1**: drop the DevKitC, label its GPIOs per the *pin usage* table.
-3. **ULN U2**: in1–4 from GPIO 13/25/26/27 with R1–R4 pulldowns; out1–4 → J3; COM→COIL_RAIL (J2); GND. Break ch5–8 to J7.
+3. **ULN U2**: in1–5 from GPIO 13/25/26/27/12 with R1–R4 + R23 pulldowns; out1 → J2.2 (master), out2–5 → J3.1–4 (box FOG/GRIP/SPARE/AUX); COM→`+12V_PROT`, also on J2.1; GND. ch6–8 inputs → GND, outputs NC (ADR-0018).
 4. **I²C**: SDA/SCL from A1.21/22 to U3 (pin3=SCL, pin4=SDA) + A2, R5/R6 pull-ups, J6. IMU INT→A1.33. INA3221 VS→+3V3, GND→GND; CH1 bus-sense is **off-board** (batt+ lead straight to the module CH1 terminal, D3 clamp at the module) — nothing to route here. Leave U3 pins 5–8 (PV/CRI/WAR/TC) unconnected.
 5. **Opto**: U4 (IGN) and U5 (START) per the table — R7/R8 on 12 V side, R9/R10 pull-ups, J4.
 6. **Buttons**: J10 (JST-XH 1×9) → R15–R22 (1k series) → GPIO 4/14/16/17/18/19/23/32; C11–C18 (100n) each node→GND; J10.9→GND.
 7. **Indicator + test points + decoupling caps** (one 100 nF per IC).
 7. Run **Inspect → Electrical Rules Checker (ERC)**. Fix every error (un-driven nets, missing
-   power flags — add `PWR_FLAG` on +12V_HOT, +5V, +3V3, GND, COIL_RAIL).
+   power flags — add `PWR_FLAG` on +12V_HOT, +5V, +3V3, GND).
 
 **Cross-check against the spec's net table when ERC is clean** — confirm each net lists the same
 pins. Send me the netlist or a screenshot and I'll diff it against the spec.
@@ -88,7 +88,7 @@ Tools → **Assign Footprints**. Use the footprints column in [02-bom.csv](02-bo
 ## 6. Review against fail-safe rules
 Before fab, confirm:
 - ULN input pulldowns present → relays **OFF at boot** (fail-OFF). ✔
-- No external flyback diodes (ULN COM→COIL_RAIL). ✔
+- No external flyback diodes (ULN COM→`+12V_PROT`, always-hot). ✔
 - GPIO34/35 pull-ups present (input-only pins). ✔
 - Opto isolation gap intact; 12 V kept off the logic side. ✔
 - Antenna keep-out clear. ✔

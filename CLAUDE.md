@@ -43,20 +43,22 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   on a forgotten key; charge-marginal warning (hysteresis 13.4 V warn / 13.6 V clear + 5 s
   debounce, so ripple/transients don't false-trigger) when running but barely charging. Ladder:
   V_RUN_OFF 12.9 < V_RUN_ON 13.2 < CHARGE_WARN 13.4 < CHARGE_CLEAR 13.6.
-- **Relay coil drive:** ULN2803A Darlington array. The relay box's commoned coil **pin 86 is
-  reused as the +12 V coil rail** (wired to the box's own master-gated red supply); each white
-  **pin-85 wire is low-side sunk** by one ULN channel. ULN **COM (pin 10) → always-hot +12**
-  (J2 `COIL_RAIL`, *not* the gated box rail; ADR-0017) gives internal flyback, so **no external
-  1N4007s**. The master-relay coil + is also on always-hot.
+- **Relay coil drive:** ULN2803A Darlington array, 5 of 8 channels (ADR-0018). The relay box's
+  commoned coil **pin 86 is reused as the +12 V coil rail** (wired to the box's own master-gated
+  red supply); each white **pin-85 wire is low-side sunk** by one ULN channel on **J3** (FOG/
+  GRIP/SPARE/AUX = ch2–5). The external master relay is on **J2** (J2.1 always-hot coil +,
+  J2.2 = ch1). ULN **COM (pin 10) → `+12V_PROT`, always-hot, on-board** (*not* the gated box
+  rail; ADR-0017) gives internal flyback, so **no external 1N4007s**.
   Active-HIGH (GPIO high → relay on). 10 kΩ pull-down on every ULN input for boot safety.
 - **Box gating:** an external ESP-driven **master relay** gates the whole combo box on the
   engine-run signal; this also turns the box's 5 A / 30 A direct-out fuses into engine-switched
   feeds. The **ESP is powered from its own always-hot battery tap (inline 2 A fuse), NOT from
   the box** — it must outlive the master relay for the off-delay and parked sentinel.
-- **Headlights:** two bulbs; relay coils triggered from the original start-button feed (relieves
-  the starter switch, preserves the factory cranking cut). One bulb always-on; the second on a
-  **5-pin NC relay** the ESP energises only to shed in a critical low-power moment. Load-shed
-  priority: grips → fog → (last, daylight only) one headlight; never all forward light.
+- **Headlights:** a **5-pin relay whose coil is driven from the start-button signal**: bulbs on
+  **87a** (NC), 30 on an ignition-switched fused feed. Cranking drops the bulbs (factory cranking
+  cut, relieves the starter switch); otherwise lit. **No ESP, no ULN** in the path: fail-ON by
+  construction (ADR-0004 amendment, ADR-0018). Load-shed priority: **grips → fog** only; the ESP
+  never sheds forward light.
 - **Sensing:** INA3221 (3-ch; was INA226 — ADR-0011) over I²C for bus voltage (engine-run +
   battery telemetry). **Always sense
   on a dedicated lead to the battery +** (zero current = no IR drop); never on a load-carrying
@@ -90,10 +92,12 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 - Credentials live in `firmware/include/secrets.h` (**gitignored**; `secrets.h.example` is the
   committed template). The OTA password in `secrets.h` must match `--auth` in `platformio.ini`.
 - GPIO pin map lives in `src/pins.h` (ADR-0009): relay enables `MASTER_EN`/`FOG_EN`/`GRIP_EN`/
-  `SPARE` = GPIO 13/25/26/27 (active-HIGH into the ULN), `IGN_SENSE` = GPIO 34 (RTC wake),
+  `SPARE`/`AUX_EN` = GPIO 13/25/26/27/12 (active-HIGH into ULN in1–5; GPIO 12 is a strapping pin,
+  must be LOW at reset, held by its pull-down; ADR-0018), `IGN_SENSE` = GPIO 34 (RTC wake),
   I²C = 21/22, onboard LED = 2, aux buttons `PIN_BTN[8]` = GPIO 4/14/16/17/18/19/23/32
   (ADR-0014, active-LOW dry contacts).
-- `RelayController` (`src/relays.{h,cpp}`) owns the four coil enables (fail-OFF at boot). A
+- `RelayController` (`src/relays.{h,cpp}`) owns the five coil enables `master/fog/grip/spare/aux`
+  (fail-OFF at boot). A
   serial/Telnet **bench console** (`src/console.{h,cpp}`) drives them by hand: `status`, `on/off
   <ch|all>`, `toggle <ch>`, `selftest`. Onboard LED = heartbeat when all off, solid when any on.
 - Engine-run supervisor (`src/supervisor.{h,cpp}`, ADR-0012): `SLEEP→ARMED→RUNNING⇄POWERED` +
@@ -108,8 +112,9 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   per-GPIO, active-LOW + debounce. Mapping is runtime config in NVS: each input has a relay and a
   type, momentary (press toggles) or latching (position sets). Defaults: BTN1 fog latching, BTN2
   grip, BTN3 spare; MASTER stays supervisor-owned. Console: `btn` (states + mapping), `btn press
-  <1-8>` (bench sim, no hardware needed), `btn map <1-8> <fog|grip|spare|none> [push|latch]`,
-  `btn reset`. Ring mode (`btn ring <on|off>`, default on, `src/button_ring.h`) reads the case's
+  <1-8>` (bench sim, no hardware needed), `btn map <1-8> <fog|grip|spare|aux|none> [push|latch]`,
+  `btn reset`. NVS mapping is schema 2: "unmapped" is stored as a fixed `0xFF`, never as
+  `RELAY_COUNT` (which moves when a channel is added); schema-1 data is migrated once at boot. Ring mode (`btn ring <on|off>`, default on, `src/button_ring.h`) reads the case's
   factory button loop by pulling BTN5 low (never high) and reports it as BTN4-7; turn it off once
   each button has its own wire.
 - Current milestone: engine-run supervisor + runtime config + aux buttons proven on the bench

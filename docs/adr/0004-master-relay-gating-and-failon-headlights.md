@@ -19,6 +19,15 @@ triggered from the original start-button feed (relieving the starter switch and 
 factory cranking cut); one bulb is always-on, the second on a **5-pin NC relay** the ESP
 energises only to shed in a critical low-power moment.
 
+**Amendment (2026-11-05, [ADR-0018](0018-five-channel-relay-drive.md)):** the ESP-energised
+headlight shed relay is dropped. The headlight relay is a **5-pin relay whose coil is driven by
+the start-button signal**: bulbs on **87a** (NC), **30** on an ignition-switched fused feed.
+Cranking opens 87a and drops the bulbs (factory cranking cut, and the starter switch no longer
+carries bulb current); otherwise they are lit. No ESP or ULN in the path, so it is fail-ON by
+construction, and the relay can be mounted up front near the button. **Load-shed is now grips →
+fog only**; the ESP never sheds forward light. The master relay is driven from the mainboard's
+J2 (ULN ch1).
+
 ## Consequences
 - Hardware engine-gate for the whole box → the four internal relays only do user on/off, no
   per-relay firmware engine check.
@@ -26,7 +35,7 @@ energises only to shed in a critical low-power moment.
 - ESP power **must** be a separate battery tap, not the box.
 - Fail-safe directions are deliberate: accessories **fail-OFF** (safe), headlights **fail-ON**
   (safe). Load-shed priority: grips → fog → (last, daylight only) one headlight; never all
-  forward light.
+  forward light. *(Superseded 2026-11-05: grips → fog only; the headlight is off the ESP.)*
 
 ## Alternatives considered
 - **Firmware-only gating, per relay**: rejected — cannot gate the 5 A / 30 A direct-out fuses.

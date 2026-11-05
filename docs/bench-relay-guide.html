@@ -88,7 +88,7 @@
   </header>
 
   <p>This is <a href="https://github.com/mixajlo/moto-11/tree/main/firmware">firmware</a>
-  Milestone&nbsp;2 in practice: a <code>RelayController</code> that owns the four
+  Milestone&nbsp;2 in practice: a <code>RelayController</code> that owns the five
   ULN2803-driven coil enables, plus a hand-driven serial/Telnet console to actuate them. It
   assumes nothing about the bike &mdash; you can do all of this with just an ESP32 dev board on
   a USB cable, and add the relay box later. Physical, hands-on steps (probing pins, listening
@@ -160,7 +160,7 @@ WiFi: connecting to "your-wifi" in the background...
   toggle &lt;ch&gt;        flip a channel
   selftest           click each relay in turn (300ms each)
   help | ?           this list
-  channels: master  fog  grip  spare
+  channels: master  fog  grip  spare  aux
 (onboard LED: heartbeat when all off, solid ON when any relay is on)
 Bench relay console live on USB serial. Type 'help'.
 WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console live</code></pre>
@@ -177,12 +177,12 @@ WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console li
       <tr><td><code>on fog</code></td><td>Energise the fog channel (GPIO goes HIGH &rarr; relay pulls in)</td></tr>
       <tr><td><code>off fog</code></td><td>De-energise it</td></tr>
       <tr><td><code>toggle grip</code></td><td>Flip the grip channel</td></tr>
-      <tr><td><code>on all</code> / <code>off all</code></td><td>Energise / de-energise all four</td></tr>
-      <tr><td><code>selftest</code></td><td>Click each relay in turn &mdash; master, fog, grip, spare &mdash; 300&nbsp;ms each, then all off</td></tr>
+      <tr><td><code>on all</code> / <code>off all</code></td><td>Energise / de-energise all five</td></tr>
+      <tr><td><code>selftest</code></td><td>Click each relay in turn &mdash; master, fog, grip, spare, aux &mdash; 300&nbsp;ms each, then all off</td></tr>
       <tr><td><code>help</code> (or <code>?</code>)</td><td>Reprint the command list</td></tr>
     </tbody>
   </table>
-  <p>The four logical channels and their pins (full rationale in
+  <p>The five logical channels and their pins (full rationale in
   <a href="https://github.com/mixajlo/moto-11/blob/main/docs/adr/0009-gpio-pin-map.md">ADR-0009</a>):</p>
   <table>
     <thead><tr><th>Channel</th><th>GPIO</th><th>Drives</th></tr></thead>
@@ -190,7 +190,8 @@ WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console li
       <tr><td><code>master</code></td><td><code>13</code></td><td>External master relay &mdash; gates the whole box</td></tr>
       <tr><td><code>fog</code></td><td><code>25</code></td><td>Fog lights</td></tr>
       <tr><td><code>grip</code></td><td><code>26</code></td><td>Heated grips (future load)</td></tr>
-      <tr><td><code>spare</code></td><td><code>27</code></td><td>Reserved aux channel</td></tr>
+      <tr><td><code>spare</code></td><td><code>27</code></td><td>Box relay 3 (spare load)</td></tr>
+      <tr><td><code>aux</code></td><td><code>12</code></td><td>Box relay 4 (<a href="https://github.com/mixajlo/moto-11/blob/main/docs/adr/0018-five-channel-relay-drive.md">ADR-0018</a>). Strapping pin: its 10&nbsp;k&Omega; pull-down must hold it LOW at reset</td></tr>
     </tbody>
   </table>
 
@@ -205,24 +206,23 @@ WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console li
       the LED goes <b>solid</b>; <code>off all</code> &rarr; the heartbeat returns. That proves
       the control logic runs.</li>
     <li><b>Multimeter on the pin:</b> black probe to GND, red probe to GPIO
-      <b>13 / 25 / 26 / 27</b>. It should read ~<b>3.3&nbsp;V when that channel is ON</b> and
+      <b>13 / 25 / 26 / 27 / 12</b>. It should read ~<b>3.3&nbsp;V when that channel is ON</b> and
       ~<b>0&nbsp;V when off</b>. (Optionally put a 3.3&nbsp;V LED + ~330&nbsp;&Omega; resistor
       from the pin to GND to watch one channel.)</li>
   </ul>
 
   <h3>B. ULN2803 wired, no relay box</h3>
-  <p>Wire ULN inputs 1&ndash;4 to GPIO <b>13/25/26/27</b> in that order, ULN GND (pin 9) to the
+  <p>Wire ULN inputs 1&ndash;5 to GPIO <b>13/25/26/27/12</b> in that order, each with a 10&nbsp;k&Omega; pull-down to GND (the one on <b>GPIO&nbsp;12</b> is not optional: a HIGH there at reset selects 1.8&nbsp;V flash and the ESP won&rsquo;t boot). Tie unused inputs 6&ndash;8 to GND, and ULN GND (pin 9) to the
   ESP GND. With a channel ON, the matching ULN <b>output</b> sinks to ~0&nbsp;V (it&rsquo;s an
   open-collector low-side switch); off, it floats. Confirm with the multimeter.</p>
 
   <h3>C. Full chain (ULN + relay box + 12&nbsp;V)</h3>
-  <p>Connect per the <a href="wiring-schematic.html">wiring schematic</a> ULN2803 detail: the
-  the box&rsquo;s commoned black <b>pin&nbsp;86 goes to the box&rsquo;s red supply</b> (the box coil
+  <p>Connect per the <a href="wiring-schematic.html">wiring schematic</a> ULN2803 detail: the box&rsquo;s commoned black <b>pin&nbsp;86 goes to the box&rsquo;s red supply</b> (the box coil
   rail; on the bike it is master-gated). ULN <b>COM (pin&nbsp;10) and the master-relay coil +
   go to always-hot +12</b>, never to the box rail (ADR-0017). Each white <b>pin-85</b> coil wire
   is sunk by one ULN output. On the bench, one 12&nbsp;V supply can feed both nodes.
   Now each <code>on &lt;channel&gt;</code> should produce an audible <b>relay click</b>, and
-  <code>selftest</code> clicks all four in sequence. Verify continuity across the relay&rsquo;s
+  <code>selftest</code> clicks all five in sequence (master on J2, then the four box relays on J3). Verify continuity across the relay&rsquo;s
   switched contacts (30&harr;87) closes when energised.</p>
 
   <div class="callout warn">
@@ -253,7 +253,7 @@ WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console li
       <tr><td><code>pio</code> can&rsquo;t find the project</td><td>You opened the repo root &mdash; open <code>firmware/</code> (where <code>platformio.ini</code> lives).</td></tr>
       <tr><td>Console prints nothing</td><td>Wrong baud &mdash; set the monitor to <b>115200</b>. Press Enter; type <code>help</code>.</td></tr>
       <tr><td>WiFi line never appears</td><td>Bad/blank credentials in <code>secrets.h</code>. The <b>USB console still works</b> &mdash; WiFi is optional on the bench.</td></tr>
-      <tr><td>LED heartbeats but no relay click</td><td>(Full chain) check ULN COM&rarr;always-hot +12, the box coil rail (pin&nbsp;86 &rarr; box red supply, live only with the master closed), and ULN GND; confirm inputs land on 13/25/26/27.</td></tr>
+      <tr><td>LED heartbeats but no relay click</td><td>(Full chain) check ULN COM&rarr;always-hot +12, the box coil rail (pin&nbsp;86 &rarr; box red supply, live only with the master closed), and ULN GND; confirm inputs land on 13/25/26/27/12.</td></tr>
       <tr><td>A relay is on at power-up</td><td>Wiring fault &mdash; relays must be fail-OFF. Recheck against ADR-0003 and the pull-downs on the ULN inputs.</td></tr>
     </tbody>
   </table>

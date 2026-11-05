@@ -11,7 +11,7 @@ This board does **not** carry load current. The worst-case currents it sees:
 | Path | Current | Notes |
 |------|---------|-------|
 | `+12V_HOT` → buck | < 0.5 A | ESP + peripherals via the 5 V buck. |
-| `COIL_RAIL` / coil outputs | ~0.15–0.2 A each, ≤ ~1 A total | Relay coils; brief inrush. |
+| Coil outputs (`COIL_*`), master coil + on J2.1 | ~0.15–0.2 A each, ≤ ~1 A total | 5 relay coils; brief inrush. |
 | `+5V` | < 0.6 A | ESP peak (WiFi TX bursts). |
 | `+3V3` | < 0.3 A | Sensors + opto pull-ups. |
 | Sense / signal | µA–mA | INA226 lead, opto, I²C, IMU. |
@@ -23,7 +23,7 @@ pour resist vibration fatigue and give clean returns, even though the amps are s
 
 | Class | Nets | Width | Rated (10 °C rise) |
 |-------|------|-------|--------------------|
-| Power | `+12V_HOT`, `+12V_PROT`, `+5V`, `COIL_RAIL`, coil outputs | **1.5 mm** (≈ 59 mil) | ~3 A — generous margin |
+| Power | `+12V_HOT`, `+12V_PROT`, `+5V`, coil outputs (`COIL_MASTER/FOG/GRIP/SPARE/AUX`) | **1.5 mm** (≈ 59 mil) | ~3 A — generous margin |
 | 3V3 rail | `+3V3` | **0.8 mm** | ~1.7 A |
 | Signal | GPIO, I²C, opto, INT | **0.30 mm** (≈ 12 mil) | ample |
 | Ground | copper **pour** both layers, stitched | — | star-tied off-board |

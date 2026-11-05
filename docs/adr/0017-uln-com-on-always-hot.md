@@ -1,6 +1,6 @@
 # 17. ULN COM and the master-relay coil on always-hot +12, not the gated box rail
 
-- Status: Accepted
+- Status: Accepted (PCB realisation refined by [ADR-0018](0018-five-channel-relay-drive.md))
 - Date: 2026-11-04
 - Deciders: Miki
 - Amends: [ADR-0003](0003-uln2803-coil-driver.md)
@@ -37,8 +37,13 @@ Split the two +12 nodes:
 
 Each white pin-85 wire, and the master coil's 85, land on J3 as before. Firmware is unchanged.
 
-No PCB change: `COIL_RAIL` already comes in on its own terminal (J2). Only what J2 connects to
-changes, from the box's pin 86 to always-hot.
+~~No PCB change: `COIL_RAIL` already comes in on its own terminal (J2). Only what J2 connects to
+changes, from the box's pin 86 to always-hot.~~
+
+**Update (2026-11-05, [ADR-0018](0018-five-channel-relay-drive.md)):** the board was changed after
+all. ULN COM is now tied to `+12V_PROT` on-board (always-hot), the `COIL_RAIL` net is gone, and J2
+became the master-relay connector: J2.1 = `+12V_PROT` (master coil +), J2.2 = `COIL_MASTER`. The
+master coil's 85 moved from J3 to J2.2. The electrical principle here is unchanged.
 
 ## Why this is safe
 - **Box powered (master closed):** the box rail is the battery voltage minus a small drop, so
@@ -55,7 +60,8 @@ changes, from the box's pin 86 to always-hot.
 - The box keeps a single hidden black wire to its red supply. The box needs no other changes.
 - The net name `COIL_RAIL` stays in KiCad. Its meaning is now "always-hot +12 for ULN COM", not
   "the box's pin 86".
-- A future board rev could tie `COIL_RAIL` to `+12V_PROT` on-board and drop the external jumper.
+- ~~A future board rev could tie `COIL_RAIL` to `+12V_PROT` on-board and drop the external jumper.~~
+  Done in v1 (ADR-0018).
 
 ## Alternatives considered
 - **COM on the box rail, master coil fed from the box rail too:** the master can never close

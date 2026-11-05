@@ -305,50 +305,57 @@
 </figure>
 
 <h2>Detail — ULN2803A coil driver</h2>
-<p style="margin:-4px 0 12px;color:#5a6675;font-size:13px">How the ESP drives the relay coils: the box's commoned black pin 86 goes to the box's own red supply (master-gated, SW). Each white/85 wire is low-side sunk by one ULN2803 channel, and flyback is handled inside the chip, so there are no external 1N4007s on the box. <b>ULN COM and the master-relay coil + go to always-hot +12, never to the gated box rail</b> (ADR-0017). If COM sat on the box rail, the master could switch itself on through the ch1 clamp diode.</p>
+<p style="margin:-4px 0 12px;color:#5a6675;font-size:13px">How the ESP drives the relay coils (ADR-0018). Five ULN channels are used: <b>ch1 = the external master relay on J2</b>, <b>ch2–5 = the four box relays on J3</b> (FOG, GRIP, SPARE, AUX). The box's commoned black pin 86 goes to the box's own red supply (master-gated, SW); each white/85 wire is low-side sunk by one channel, and flyback is handled inside the chip, so there are no external 1N4007s. <b>ULN COM is tied on the board to +12V_PROT, which is always-hot, and the same node comes out on J2.1 as the master coil +.</b> Never put COM on the gated box rail (ADR-0017): the master could switch itself on through the ch1 clamp diode. The headlight relay is <b>not</b> here; its coil is driven by the start button (fail-ON, ADR-0004).</p>
 <figure>
 <svg class="sheet" viewBox="0 0 1300 500" xmlns="http://www.w3.org/2000/svg" font-size="11">
-  <!-- always-hot +12: ULN COM + master coil (ADR-0017) -->
+  <!-- always-hot +12: ULN COM + master coil (ADR-0017/0018) -->
   <line x1="300" y1="74" x2="980" y2="74" class="w12v"/>
-  <text x="400" y="66" class="l12v">+12V ALWAYS-HOT (fused tap) · J2 COIL_RAIL → ULN COM + master coil</text>
+  <text x="330" y="66" class="l12v">+12V ALWAYS-HOT · +12V_PROT on board → ULN COM + J2.1 master coil +</text>
   <!-- gated box rail: box red supply = commoned black pin 86 of the box relays -->
   <line x1="700" y1="112" x2="975" y2="112" class="wsw"/>
-  <line x1="975" y1="112" x2="975" y2="362" class="wsw"/>
+  <line x1="975" y1="112" x2="975" y2="382" class="wsw"/>
   <text x="700" y="104" class="lsw" font-size="9">SW · box red supply (master-gated) = box pin 86 (black)</text>
 
   <!-- ESP -->
-  <rect x="40" y="170" width="160" height="206" rx="10" class="b12v"/>
+  <rect x="40" y="170" width="160" height="236" rx="10" class="b12v"/>
   <text x="120" y="196" text-anchor="middle" class="l12v">ESP32 GPIO</text>
   <text x="120" y="212" text-anchor="middle" class="tf">active-high outputs</text>
-  <text x="56" y="250" class="lsig">MASTER_EN</text>
-  <text x="56" y="290" class="lsig">FOG_EN</text>
-  <text x="56" y="330" class="lsig">GRIP_EN</text>
-  <text x="56" y="366" class="lsig">SPARE</text>
+  <text x="50" y="230" class="lsig">MASTER_EN · 13</text>
+  <text x="50" y="268" class="lsig">FOG_EN · 25</text>
+  <text x="50" y="306" class="lsig">GRIP_EN · 26</text>
+  <text x="50" y="344" class="lsig">SPARE_EN · 27</text>
+  <text x="50" y="382" class="lsig">AUX_EN · 12 *</text>
 
   <!-- input lines ESP -> ULN -->
-  <line x1="200" y1="246" x2="430" y2="246" class="wsig"/>
-  <line x1="200" y1="286" x2="430" y2="286" class="wsig"/>
-  <line x1="200" y1="326" x2="430" y2="326" class="wsig"/>
-  <line x1="200" y1="362" x2="430" y2="362" class="wsig"/>
+  <line x1="200" y1="226" x2="430" y2="226" class="wsig"/>
+  <line x1="200" y1="264" x2="430" y2="264" class="wsig"/>
+  <line x1="200" y1="302" x2="430" y2="302" class="wsig"/>
+  <line x1="200" y1="340" x2="430" y2="340" class="wsig"/>
+  <line x1="200" y1="378" x2="430" y2="378" class="wsig"/>
 
-  <!-- representative pull-down + note -->
-  <line x1="300" y1="362" x2="300" y2="454" class="wgnd thin"/>
-  <rect x="292" y="398" width="16" height="26" rx="2" class="box"/>
-  <text x="232" y="392" class="lsig" font-size="9">10 kΩ pull-down on every input → relays off while ESP boots</text>
+  <!-- representative pull-down (R23 on ch5) -->
+  <line x1="300" y1="378" x2="300" y2="454" class="wgnd thin"/>
+  <rect x="292" y="402" width="16" height="26" rx="2" class="box"/>
+  <text x="314" y="420" class="lsig" font-size="9">R23</text>
+  <text x="40" y="476" class="lsig" font-size="9">10 kΩ pull-down on every input (R1–R4, R23) → relays off while the ESP boots.</text>
+  <text x="40" y="490" class="lsig" font-size="9">* GPIO 12 is a strapping pin: R23 also holds it LOW at reset (3.3 V flash). It must stay a pull-DOWN.</text>
 
   <!-- ULN chip -->
   <rect x="430" y="150" width="250" height="280" rx="10" class="box"/>
   <text x="555" y="176" text-anchor="middle" class="t">ULN2803A</text>
   <text x="555" y="192" text-anchor="middle" class="tf">8× Darlington low-side sink · 500 mA/ch · 3V3 logic</text>
-  <text x="555" y="418" text-anchor="middle" class="tf" font-size="9">inputs 1–8   ↔   outputs 18–11      ·      COM = 10      ·      GND = 9</text>
-  <text x="440" y="250" class="td" font-size="9">1</text>
-  <text x="440" y="290" class="td" font-size="9">2</text>
-  <text x="440" y="330" class="td" font-size="9">3</text>
-  <text x="440" y="366" class="td" font-size="9">4</text>
-  <text x="654" y="250" class="td" font-size="9">18</text>
-  <text x="654" y="290" class="td" font-size="9">17</text>
-  <text x="654" y="330" class="td" font-size="9">16</text>
-  <text x="654" y="366" class="td" font-size="9">15</text>
+  <text x="555" y="406" text-anchor="middle" class="tf" font-size="9">ch6–8: inputs 6–8 → GND, outputs 13–11 unconnected</text>
+  <text x="555" y="420" text-anchor="middle" class="tf" font-size="9">inputs 1–8 ↔ outputs 18–11 · COM = 10 · GND = 9</text>
+  <text x="440" y="230" class="td" font-size="9">1</text>
+  <text x="440" y="268" class="td" font-size="9">2</text>
+  <text x="440" y="306" class="td" font-size="9">3</text>
+  <text x="440" y="344" class="td" font-size="9">4</text>
+  <text x="440" y="382" class="td" font-size="9">5</text>
+  <text x="654" y="230" class="td" font-size="9">18</text>
+  <text x="654" y="268" class="td" font-size="9">17</text>
+  <text x="654" y="306" class="td" font-size="9">16</text>
+  <text x="654" y="344" class="td" font-size="9">15</text>
+  <text x="654" y="382" class="td" font-size="9">14</text>
 
   <!-- COM pin 10 -> +12 with internal clamp -->
   <line x1="600" y1="150" x2="600" y2="74" class="w12v"/>
@@ -360,34 +367,44 @@
   <line x1="500" y1="430" x2="500" y2="454" class="wgnd"/>
   <text x="508" y="448" class="lgnd" font-size="9">GND 9 → star</text>
 
-  <!-- outputs to coils (85 white) -->
-  <line x1="680" y1="246" x2="800" y2="246" class="wsw"/>
-  <text x="700" y="238" class="lsw" font-size="9">85 (white)</text>
-  <rect x="800" y="231" width="160" height="30" rx="5" class="box"/>
-  <text x="880" y="250" text-anchor="middle" class="lsw" font-size="10">MASTER coil + → ALWAYS-HOT</text>
-  <line x1="880" y1="231" x2="880" y2="74" class="w12v"/>
+  <!-- ch1 -> J2 master relay -->
+  <line x1="680" y1="226" x2="800" y2="226" class="wsw"/>
+  <text x="690" y="218" class="lsw" font-size="9">J2.2 · 85</text>
+  <rect x="800" y="211" width="160" height="30" rx="5" class="box"/>
+  <text x="880" y="230" text-anchor="middle" class="lsw" font-size="10">MASTER · coil + = J2.1 (HOT)</text>
+  <line x1="880" y1="211" x2="880" y2="74" class="w12v"/>
 
-  <line x1="680" y1="286" x2="800" y2="286" class="wsw"/>
-  <rect x="800" y="271" width="160" height="30" rx="5" class="bsw"/>
-  <text x="880" y="290" text-anchor="middle" class="lsw" font-size="10">FOG coil + → box rail (SW)</text>
-  <line x1="960" y1="286" x2="975" y2="286" class="wsw"/>
+  <!-- ch2-5 -> J3 relay box (85 white) -->
+  <line x1="680" y1="264" x2="800" y2="264" class="wsw"/>
+  <text x="690" y="256" class="lsw" font-size="9">J3.1 · 85 white</text>
+  <rect x="800" y="249" width="160" height="30" rx="5" class="bsw"/>
+  <text x="880" y="268" text-anchor="middle" class="lsw" font-size="10">FOG coil + → box rail (SW)</text>
+  <line x1="960" y1="264" x2="975" y2="264" class="wsw"/>
 
-  <line x1="680" y1="326" x2="800" y2="326" class="wsw"/>
-  <rect x="800" y="311" width="160" height="30" rx="5" class="bmute"/>
-  <text x="880" y="330" text-anchor="middle" class="td" font-size="10">GRIP coil + → box rail (SW)</text>
-  <line x1="960" y1="326" x2="975" y2="326" class="wsw"/>
+  <line x1="680" y1="302" x2="800" y2="302" class="wsw"/>
+  <text x="690" y="294" class="lsw" font-size="9">J3.2 · 85 white</text>
+  <rect x="800" y="287" width="160" height="30" rx="5" class="bmute"/>
+  <text x="880" y="306" text-anchor="middle" class="td" font-size="10">GRIP coil + → box rail (SW)</text>
+  <line x1="960" y1="302" x2="975" y2="302" class="wsw"/>
 
-  <line x1="680" y1="362" x2="800" y2="362" class="wsw"/>
-  <rect x="800" y="347" width="160" height="30" rx="5" class="box"/>
-  <text x="880" y="366" text-anchor="middle" class="td" font-size="10">SPARE coil + → box rail (SW)</text>
-  <line x1="960" y1="362" x2="975" y2="362" class="wsw"/>
+  <line x1="680" y1="340" x2="800" y2="340" class="wsw"/>
+  <text x="690" y="332" class="lsw" font-size="9">J3.3 · 85 white</text>
+  <rect x="800" y="325" width="160" height="30" rx="5" class="box"/>
+  <text x="880" y="344" text-anchor="middle" class="td" font-size="10">SPARE coil + → box rail (SW)</text>
+  <line x1="960" y1="340" x2="975" y2="340" class="wsw"/>
+
+  <line x1="680" y1="378" x2="800" y2="378" class="wsw"/>
+  <text x="690" y="370" class="lsw" font-size="9">J3.4 · 85 white</text>
+  <rect x="800" y="363" width="160" height="30" rx="5" class="box"/>
+  <text x="880" y="382" text-anchor="middle" class="td" font-size="10">AUX coil + → box rail (SW)</text>
+  <line x1="960" y1="378" x2="975" y2="378" class="wsw"/>
 
   <!-- GND star rail -->
   <line x1="120" y1="454" x2="980" y2="454" class="wgnd"/>
   <text x="128" y="446" class="lgnd">GND star</text>
 
   <!-- notes -->
-  <rect x="1006" y="150" width="278" height="252" rx="10" class="frame"/>
+  <rect x="1006" y="150" width="278" height="268" rx="10" class="frame"/>
   <text x="1022" y="178" class="t">How it works</text>
   <text x="1022" y="206" class="td" font-size="10">Active-HIGH: GPIO high → the</text>
   <text x="1022" y="222" class="td" font-size="10">output sinks its 85 line to ground</text>
@@ -397,8 +414,9 @@
   <text x="1022" y="298" class="td" font-size="10">= flyback; no external 1N4007s.</text>
   <text x="1022" y="326" class="td" font-size="10">~1 V Darlington drop → coil sees</text>
   <text x="1022" y="342" class="td" font-size="10">~11 V, pulls in fine.</text>
-  <text x="1022" y="370" class="td" font-size="10">One chip also drives the</text>
-  <text x="1022" y="386" class="td" font-size="10">master-relay coil (spare ch).</text>
+  <text x="1022" y="370" class="td" font-size="10">ch1 = master (J2) · ch2–5 = box</text>
+  <text x="1022" y="386" class="td" font-size="10">(J3) · ch6–8 unused. Headlight</text>
+  <text x="1022" y="402" class="td" font-size="10">relay is off the ESP (start button).</text>
 </svg>
 </figure>
 

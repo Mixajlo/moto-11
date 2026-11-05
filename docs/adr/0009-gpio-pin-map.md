@@ -40,6 +40,13 @@ input-only like GPIO34 (driven by the second PC817 opto channel — see [ADR-001
 and GPIO33 takes the IMU motion-wake interrupt. The 12 V senses are opto-isolated, not a passive
 divider; see ADR-0010.
 
+**Amendment (2026-11-05, [ADR-0018](0018-five-channel-relay-drive.md)):** added `AUX_EN` =
+**GPIO 12** → ULN in5 (fourth box relay), with a 10 kΩ pull-down (R23). This is the one exception
+to the "no relay enable on a strapping pin" rule below. GPIO 12 must be LOW at reset (3.3 V
+flash), and that is the same level as relay-OFF, so the pull-down serves both. R23 must never be
+a pull-up. The ULN channel order is now in1–5 = GPIO 13/25/26/27/12 (MASTER, FOG, GRIP, SPARE,
+AUX). The buttons took 4/14/16/17/18/19/23/32 (ADR-0014), so the headroom listed below is used up.
+
 ## Consequences
 - Relays are guaranteed OFF through boot: the chosen output pins are low at reset and the
   ULN inputs also carry 10 kΩ pull-downs (ADR-0003) — defence in depth for fail-OFF.
