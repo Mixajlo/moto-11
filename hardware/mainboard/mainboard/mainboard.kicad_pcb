@@ -7,6 +7,13 @@
 		(legacy_teardrops no)
 	)
 	(paper "A4")
+	(title_block
+		(title "moto11 Mainboard — ESP32 relay/sense controller")
+		(rev "v1.0")
+		(company "moto11 · Miki Mixajlo")
+		(comment 1 "2013 Suzuki V-Strom DL650 smart cockpit")
+		(comment 2 "CERN-OHL-P-2.0 · github.com/Mixajlo/moto-11")
+	)
 	(layers
 		(0 "F.Cu" signal)
 		(2 "B.Cu" signal)
@@ -13529,7 +13536,7 @@
 				)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "INA3221"
 			(at 0 10 90)
 			(layer "F.Fab")
 			(uuid "a109d629-0b7e-48b7-9cfd-09d9a11546aa")

@@ -111,7 +111,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | J2 | Term block | 2-pos, 5.08 mm | THT | **Master relay.** J2.1 `+12V_PROT` (master coil + / 86, always-hot), J2.2 `COIL_MASTER` (coil 85, ULN ch1). |
 | J3 | Term block | 4-pos, 3.5 mm | THT | **Relay box** 85 wires: J3.1 FOG, J3.2 GRIP, J3.3 SPARE, J3.4 AUX (ULN ch2–5). Box pin 86 is on the box's own gated supply, not here. |
 | J4 | Term block | 3-pos, 3.5 mm | THT | `IGN_12V`, `START_12V`, `SENSE_GND`. |
-| J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
+| J6 | Header | 1×4, 2.54 mm | THT | Value `INA3221` in KiCad. I²C header: `+3V3`, `SDA`, `SCL`, `GND`. |
 | J7 | Header | **not on the v1 board** | — | ULN ch6–8 are not broken out (inputs tied to GND). |
 | J10 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group A: BTN1–4 + GND (ADR-0014). |
 | J11 | Connector | JST-XH, 1×5, 2.50 mm | `Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical` | Handlebar buttons group B: BTN5–8 + GND. |
