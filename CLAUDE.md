@@ -44,8 +44,10 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   debounce, so ripple/transients don't false-trigger) when running but barely charging. Ladder:
   V_RUN_OFF 12.9 < V_RUN_ON 13.2 < CHARGE_WARN 13.4 < CHARGE_CLEAR 13.6.
 - **Relay coil drive:** ULN2803A Darlington array. The relay box's commoned coil **pin 86 is
-  reused as the +12 V coil rail**; each white **pin-85 wire is low-side sunk** by one ULN
-  channel. ULN **COM (pin 10) → +12 rail** gives internal flyback — **no external 1N4007s**.
+  reused as the +12 V coil rail** (wired to the box's own master-gated red supply); each white
+  **pin-85 wire is low-side sunk** by one ULN channel. ULN **COM (pin 10) → always-hot +12**
+  (J2 `COIL_RAIL`, *not* the gated box rail; ADR-0017) gives internal flyback, so **no external
+  1N4007s**. The master-relay coil + is also on always-hot.
   Active-HIGH (GPIO high → relay on). 10 kΩ pull-down on every ULN input for boot safety.
 - **Box gating:** an external ESP-driven **master relay** gates the whole combo box on the
   engine-run signal; this also turns the box's 5 A / 30 A direct-out fuses into engine-switched

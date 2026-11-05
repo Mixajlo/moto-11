@@ -1,6 +1,7 @@
 # 3. ULN2803 coil driver; commoned pin 86 reused as +12, low-side on pin 85
 
-- Status: Accepted
+- Status: Accepted. **Amended by [ADR-0017](0017-uln-com-on-always-hot.md):** ULN COM and the
+  master-relay coil + go to **always-hot** +12, not the box's (master-gated) pin 86.
 - Date: 2026-06-19
 - Deciders: Miki
 

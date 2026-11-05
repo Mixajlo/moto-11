@@ -217,8 +217,10 @@ WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console li
 
   <h3>C. Full chain (ULN + relay box + 12&nbsp;V)</h3>
   <p>Connect per the <a href="wiring-schematic.html">wiring schematic</a> ULN2803 detail: the
-  box&rsquo;s commoned <b>pin&nbsp;86 is the +12&nbsp;V coil rail</b>, ULN <b>COM (pin&nbsp;10)
-  &rarr; +12</b> (internal flyback), each white <b>pin-85</b> coil wire sunk by one ULN output.
+  the box&rsquo;s commoned black <b>pin&nbsp;86 goes to the box&rsquo;s red supply</b> (the box coil
+  rail; on the bike it is master-gated). ULN <b>COM (pin&nbsp;10) and the master-relay coil +
+  go to always-hot +12</b>, never to the box rail (ADR-0017). Each white <b>pin-85</b> coil wire
+  is sunk by one ULN output. On the bench, one 12&nbsp;V supply can feed both nodes.
   Now each <code>on &lt;channel&gt;</code> should produce an audible <b>relay click</b>, and
   <code>selftest</code> clicks all four in sequence. Verify continuity across the relay&rsquo;s
   switched contacts (30&harr;87) closes when energised.</p>
@@ -251,7 +253,7 @@ WiFi OK   IP 192.168.0.104   host vstrom-bench.local — OTA + telnet console li
       <tr><td><code>pio</code> can&rsquo;t find the project</td><td>You opened the repo root &mdash; open <code>firmware/</code> (where <code>platformio.ini</code> lives).</td></tr>
       <tr><td>Console prints nothing</td><td>Wrong baud &mdash; set the monitor to <b>115200</b>. Press Enter; type <code>help</code>.</td></tr>
       <tr><td>WiFi line never appears</td><td>Bad/blank credentials in <code>secrets.h</code>. The <b>USB console still works</b> &mdash; WiFi is optional on the bench.</td></tr>
-      <tr><td>LED heartbeats but no relay click</td><td>(Full chain) check ULN COM&rarr;+12, the coil +12 rail (pin&nbsp;86), and ULN GND; confirm inputs land on 13/25/26/27.</td></tr>
+      <tr><td>LED heartbeats but no relay click</td><td>(Full chain) check ULN COM&rarr;always-hot +12, the box coil rail (pin&nbsp;86 &rarr; box red supply, live only with the master closed), and ULN GND; confirm inputs land on 13/25/26/27.</td></tr>
       <tr><td>A relay is on at power-up</td><td>Wiring fault &mdash; relays must be fail-OFF. Recheck against ADR-0003 and the pull-downs on the ULN inputs.</td></tr>
     </tbody>
   </table>

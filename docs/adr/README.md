@@ -25,3 +25,4 @@ editing history.
 - [0014](0014-aux-button-inputs-per-gpio.md) — Aux button inputs: one-wire-per-button, per-GPIO, JST-XH connector
 - [0015](0015-piggyback-enclosure-mixed-assembly.md) — Mainboard v1: close-coupled enclosure beside the relay box, mixed SMD/module assembly (refines 0004 §21)
 - [0016](0016-button-wiring-and-runtime-mapping.md) — Handlebar case read through a ring scan; button mapping is runtime config (refines 0014)
+- [0017](0017-uln-com-on-always-hot.md) — ULN COM and the master-relay coil on always-hot +12, not the gated box rail (amends 0003)
