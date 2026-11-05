@@ -50,7 +50,8 @@ battery feed. It carries only control and coil current — **never** load curren
         │                                                                    │
         │                                                          ESP onboard LDO ──► +3V3
         │
- COIL_RAIL +12 (box pin 86, external) ──► ULN2803 COM (pin10, flyback)
+ COIL_RAIL +12 ALWAYS-HOT (J2, external) ──► ULN2803 COM (pin10, flyback)   [ADR-0017]
+   (box pin 86 goes to the box's own gated red supply, NOT to J2)
 
  ESP GPIO 13/25/26/27 ─► ULN2803 in1..4 ─► out1..4 ─► coil 85 wires (screw terminals)
  ESP I2C 21/22 ─────────► INA3221 module + IMU module (shared bus, 4k7 pull-ups)
@@ -70,7 +71,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | `+12V_PROT` | After reverse-polarity FET + TVS — the protected board 12 V. Feeds the buck. |
 | `+5V` | Buck output → ESP 5V/VIN pin. |
 | `+3V3` | From the ESP DevKitC onboard regulator → powers INA3221, IMU, opto + button pull-ups. |
-| `COIL_RAIL` | +12 V coil common (the box's commoned pin 86). Feeds ULN COM. Externally sourced. |
+| `COIL_RAIL` | **Always-hot** +12 V for ULN COM (flyback clamp), wired at J2 to the fused battery tap (battery side of the master relay). **Not** the box's pin 86, which sits on the master-gated box supply (ADR-0017). The master-relay coil + goes to the same always-hot tap. |
 | `GND` | Single board ground; ties to the star ground externally. |
 
 ---
@@ -102,7 +103,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | Dz1 | Zener | 18 V, 0.5 W | SOD-123 / THT | Q1 gate–source clamp. >14.4 V so idle while charging; <20 V Vgs(max). |
 | R13 | Res | **not on the v1 board** | — | Removed with D2. |
 | J1 | Term block | 2-pos, 5.08 mm | THT | `+12V_HOT`, `GND` (power in). |
-| J2 | Term block | 2-pos, 5.08 mm | THT | `COIL_RAIL` (+12 to box pin86 / ULN COM), `GND`. |
+| J2 | Term block | 2-pos, 5.08 mm | THT | `COIL_RAIL` (always-hot +12 → ULN COM; ADR-0017), `GND`. |
 | J3 | Term block | 4-pos, 3.5 mm | THT | Coil outputs → 85 wires: MASTER, FOG, GRIP, SPARE. |
 | J4 | Term block | 3-pos, 3.5 mm | THT | `IGN_12V`, `START_12V`, `SENSE_GND`. |
 | J6 | Header | 1×4, 2.54 mm | THT | I²C expansion: `+3V3`, `SDA`, `SCL`, `GND`. |
@@ -158,7 +159,7 @@ Decoupling caps: place one 100 nF physically next to each IC's V+/GND.
 | `+5V` | `A3.OUT+`, `C2+`, `A1.5V/VIN`, `TP2`. |
 | `+3V3` | `A1.3V3`, `U3.VS`/`U3.VCC`, `A2.VCC`, `R5`, `R6`, `R9`, `R10`, `D2`(via R13), `C9+`, `TP3`. |
 | `GND` | `J1.2`, `J2.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J6.4`, all cap −, `TP4`. |
-| `COIL_RAIL` | `J2.1`, `U2.10 (COM)`. (Externally wired to box pin 86.) |
+| `COIL_RAIL` | `J2.1`, `U2.10 (COM)`. (Externally wired to the **always-hot** fused tap, not to box pin 86. ADR-0017.) |
 
 ### Reverse-polarity + TVS (input protection)
 | Net | Connects |
@@ -178,11 +179,18 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 | `FOG_EN` | `A1.25` → `U2.2`; `R2` `U2.2`→GND. |
 | `GRIP_EN` | `A1.26` → `U2.3`; `R3` `U2.3`→GND. |
 | `SPARE_EN` | `A1.27` → `U2.4`; `R4` `U2.4`→GND. |
-| `COIL_MASTER` | `U2.18` → `J3.1` (master relay coil 85). |
+| `COIL_MASTER` | `U2.18` → `J3.1` (master relay coil 85; its coil + / 86 on **always-hot**, same node as `COIL_RAIL`). |
 | `COIL_FOG` | `U2.17` → `J3.2`. |
 | `COIL_GRIP` | `U2.16` → `J3.3`. |
 | `COIL_SPARE` | `U2.15` → `J3.4`. |
-| ULN COM | `U2.10` → `COIL_RAIL` (internal flyback clamps to +12). |
+| ULN COM | `U2.10` → `COIL_RAIL` (internal flyback clamps to always-hot +12). |
+
+> **Two +12 nodes, kept apart (ADR-0017).** Box coils (fog/grip/spare): coil + = the box's
+> commoned black pin 86 → the box's own red supply (master-gated). Master coil + and ULN COM:
+> **always-hot**. If COM were on the gated box rail, the ch1 clamp diode would carry current
+> from always-hot through the master coil into the dead box rail, and the master could turn
+> itself on. Box coils' flyback still clamps fine to always-hot, because the box rail is never
+> higher than always-hot.
 | ULN GND | `U2.9` → `GND`. |
 | spare ch5–8 | `U2.5..8` → `J7` inputs (with their own pull-downs if used); `U2.14..11` → `J7` outputs. |
 
@@ -267,7 +275,7 @@ PC817 pins: 1 = anode (LED+), 2 = cathode (LED−), 3 = emitter, 4 = collector.
 
 ## Sanity checks baked in
 - **Boot-safe:** R1–R4 hold ULN inputs low while the ESP boots → all relays OFF (fail-OFF).
-- **No external flyback diodes:** ULN COM→COIL_RAIL uses the chip's internal clamps (ADR-0003).
+- **No external flyback diodes:** ULN COM→COIL_RAIL uses the chip's internal clamps (ADR-0003); `COIL_RAIL` is always-hot, never the gated box rail (ADR-0017).
 - **Input-only pins fed:** GPIO34/35 have no internal pull-ups, so R9/R10 are mandatory.
 - **One ground:** single `GND` net, star-tied off-board; sense grounds returned here.
 - **Decoupling:** a 100 nF within ~5 mm of every IC power pin; bulk where rails enter.

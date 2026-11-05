@@ -76,20 +76,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        [
-          "npth_inside_courtyard|174370000|62300000|6eb491b0-3e5f-4616-bdc0-eb8e70ea85b6|5e382c08-cb08-4ff9-8975-7ca45dd6d203",
-          ""
-        ],
-        [
-          "npth_inside_courtyard|207030000|62300000|ca54b168-34af-434d-86f4-e545f2773122|5e382c08-cb08-4ff9-8975-7ca45dd6d203",
-          ""
-        ],
-        [
-          "npth_inside_courtyard|207030000|80210000|97e407c0-7ff0-48dd-ba3f-a5baeff16d3b|5e382c08-cb08-4ff9-8975-7ca45dd6d203",
-          ""
-        ]
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -600,6 +587,10 @@
       {
         "netclass": "Power",
         "pattern": "/COIL_SPARE"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/COIL_AUX"
       }
     ]
   },

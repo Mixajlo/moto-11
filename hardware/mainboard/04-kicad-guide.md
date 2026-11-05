@@ -53,7 +53,7 @@ Recommended order (mirrors the spec):
 5. **Opto**: U4 (IGN) and U5 (START) per the table — R7/R8 on 12 V side, R9/R10 pull-ups, J4.
 6. **Buttons**: J10 (JST-XH 1×9) → R15–R22 (1k series) → GPIO 4/14/16/17/18/19/23/32; C11–C18 (100n) each node→GND; J10.9→GND.
 7. **Indicator + test points + decoupling caps** (one 100 nF per IC).
-8. Run **Inspect → Electrical Rules Checker (ERC)**. Fix every error (un-driven nets, missing
+7. Run **Inspect → Electrical Rules Checker (ERC)**. Fix every error (un-driven nets, missing
    power flags — add `PWR_FLAG` on +12V_HOT, +5V, +3V3, GND, COIL_RAIL).
 
 **Cross-check against the spec's net table when ERC is clean** — confirm each net lists the same
@@ -63,10 +63,10 @@ pins. Send me the netlist or a screenshot and I'll diff it against the spec.
 Tools → **Assign Footprints**. Use the footprints column in [02-bom.csv](02-bom.csv):
 - A1 → female-header footprint matching your DevKitC (two `PinSocket_1x19_P2.54mm` rows; **measure
   your board's row spacing** — common is 0.9″ or 1.0″).
-- A2/A3/J6/J7 → `PinSocket`/`PinHeader` 2.54 mm of the right pin count. U3 → `mainboard:INA3221_Module` (custom). J10 → `Connector_JST:JST_XH_B9B-XH-A_1x09_P2.50mm_Vertical`.
+- A2/U3/A3/J6/J7 → `PinSocket`/`PinHeader` 2.54 mm of the right pin count.
 - U2 → `DIP-18_W7.62mm` (+ socket) or `SOIC-18`.
 - U4/U5 → `DIP-4`. Q1 → `TO-252`/`TO-220`. Passives → `0805` (or THT `Resistor_THT` if you prefer hand-soldering).
-- J1/J2 → `TerminalBlock_5.08mm` 2-pos; J3/J4 → `TerminalBlock_3.5mm` of the right size.
+- J1/J2 → `TerminalBlock_5.08mm` 2-pos; J3/J4/J5 → `TerminalBlock_3.5mm` of the right size.
 
 ## 5. Lay out the PCB
 1. Schematic Editor → **Tools → Update PCB from Schematic** (pushes netlist + footprints).
@@ -75,11 +75,11 @@ Tools → **Assign Footprints**. Use the footprints column in [02-bom.csv](02-bo
    Signal** (0.30 mm); clearance 0.2 mm; via 0.4/0.8.
 3. **Placement** (do this well — it's 80% of a good board):
    - DevKitC along one edge, **antenna end overhanging** (antenna keep-out, no copper).
-   - Terminal blocks J1–J4 along the opposite/adjacent **field-wiring edge**; J10 (button JST) on an edge the handlebar cable can reach.
+   - Terminal blocks J1–J5 along the opposite/adjacent **field-wiring edge**.
    - Buck A3 near J1 (power entry); keep its loop tight.
    - ULN U2 between the ESP GPIO side and J3.
    - Opto U4/U5 straddling the 12 V edge (J4) with the **4 mm isolation gap** kept clear.
-   - INA3221/IMU on the I²C side. (No on-board sense lead — INA CH1 is fed off-board.)
+   - INA226/IMU on the I²C side, sense lead (J5) short.
 4. Draw the **board outline** (Edge.Cuts) ~90 × 70 mm; add 4× M3 holes.
 5. **Route**: power nets first (1.5 mm), then signals. Pour **GND** on both layers; stitch with
    vias. Keep I²C away from the buck switch node; don't pour under the opto barrier.
