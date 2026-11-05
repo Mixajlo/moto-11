@@ -8,12 +8,14 @@ namespace {
 struct Channel { const char* name; uint8_t pin; };
 
 // Index by RelayId. Keep this order in sync with the enum.
-const Channel CH[RELAY_COUNT] = {
+const Channel CH[] = {
   { "master", PIN_MASTER_EN },
   { "fog",    PIN_FOG_EN    },
   { "grip",   PIN_GRIP_EN   },
   { "spare",  PIN_SPARE_EN  },
+  { "aux",    PIN_AUX_EN    },
 };
+static_assert(sizeof(CH) / sizeof(CH[0]) == RELAY_COUNT, "CH[] must cover every RelayId");
 }  // namespace
 
 void RelayController::begin() {

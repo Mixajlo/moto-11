@@ -43,12 +43,12 @@ void printHelp() {
   outln("  set <key> <val>    change + persist a tunable (validated)");
   outln("  btn                show button states + mapping");
   outln("  btn press <1-8>    simulate a button press (bench)");
-  outln("  btn map <1-8> <fog|grip|spare|none> [push|latch]");
+  outln("  btn map <1-8> <fog|grip|spare|aux|none> [push|latch]");
   outln("                     change + persist what a button does");
   outln("  btn reset          restore the default button mapping");
   outln("  btn ring <on|off>  on = factory loop wiring, off = one wire per button");
   outln("  help | ?           this list");
-  outln("  channels: master  fog  grip  spare");
+  outln("  channels: master  fog  grip  spare  aux");
   outln("(onboard LED: heartbeat when all off, solid ON when any relay is on)");
 }
 
@@ -143,11 +143,11 @@ void printButtons() {
   }
 }
 
-// btn map <1-8> <fog|grip|spare|none> [push|latch]; the type defaults to the current one.
+// btn map <1-8> <fog|grip|spare|aux|none> [push|latch]; the type defaults to the current one.
 void handleBtnMap(const char* num, const char* target, const char* type) {
   int n = num ? atoi(num) : 0;
   if (n < 1 || n > BUTTON_COUNT || !target) {
-    outln("btn map <1-8> <fog|grip|spare|none> [push|latch]");
+    outln("btn map <1-8> <fog|grip|spare|aux|none> [push|latch]");
     return;
   }
   uint8_t i = static_cast<uint8_t>(n - 1);

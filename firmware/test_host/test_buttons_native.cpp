@@ -5,6 +5,7 @@
 #include <Arduino.h>          // mock (test_host/mock)
 #include <Preferences.h>
 #include <cstdio>
+#include <cstring>
 
 #include "button_ring.h"
 #include "buttons.h"
@@ -189,10 +190,44 @@ static void testRingEndToEnd() {
   CHECK(Btns.mapping(5) == RELAY_SPARE, "mapping carries over when ring is turned off");
 }
 
+// Schema 1 (before AUX existed) stored "unmapped" as 4, which is RELAY_AUX today.
+static void testMigrationAndAux() {
+  _hostNvs.clear();
+  g_ringModel = false;
+  clearWiring();
+  _hostNvs["ring"] = 0;
+  _hostNvs["btn3"] = RELAY_SPARE;               // v1: spare
+  _hostNvs["btn4"] = 4;                         // v1: unmapped
+  _hostNvs["btn5"] = 4 | 0x100;                 // v1: unmapped, latching
+  boot();
+  CHECK(Btns.mapping(2) == RELAY_SPARE, "v1 spare stays spare");
+  CHECK(Btns.mapping(3) == RELAY_COUNT, "v1 unmapped is not read as aux");
+  CHECK(Btns.mapping(4) == RELAY_COUNT && Btns.latching(4), "v1 unmapped latching keeps its type");
+  CHECK(_hostNvs["ver"] == 2, "schema version written");
+  CHECK(_hostNvs["btn4"] == 0xFF, "unmapped rewritten as 0xFF");
+  hold(3, true); CHECK(!Relays.isOn(RELAY_AUX), "migrated unmapped button does nothing");
+  hold(3, false);
+
+  boot();                                       // second boot: no re-migration
+  CHECK(Btns.mapping(3) == RELAY_COUNT, "unmapped stable after migration");
+
+  CHECK(Btns.configure(3, RELAY_AUX, false), "BTN4 -> aux accepted");
+  boot();
+  CHECK(Btns.mapping(3) == RELAY_AUX, "aux mapping survives reboot");
+  hold(3, true); CHECK(Relays.isOn(RELAY_AUX), "BTN4 drives aux");
+  hold(3, false);
+  CHECK(Relays.pin(RELAY_AUX) == 12 && !strcmp(Relays.name(RELAY_AUX), "aux"), "aux = GPIO 12");
+
+  _hostNvs["btn6"] = 0x42;                      // garbage code
+  boot();
+  CHECK(Btns.mapping(5) == RELAY_COUNT, "unknown stored code falls back to default");
+}
+
 int main() {
   testDecode();
   testMapping();
   testRingEndToEnd();
+  testMigrationAndAux();
   std::printf("%d checks, %d failed\n", g_count, g_fail);
   return g_fail ? 1 : 0;
 }

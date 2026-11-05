@@ -12,8 +12,26 @@ Buttons Btns;
 namespace {
 constexpr uint32_t DEBOUNCE_MS = 25;
 constexpr const char* NS = "motobtn";      // NVS namespace (<= 15 chars), one key per input
-constexpr uint32_t LATCH_FLAG = 0x100;     // stored value = relay | LATCH_FLAG
+constexpr uint32_t LATCH_FLAG = 0x100;     // stored value = relay code | LATCH_FLAG
 constexpr const char* KEY_RING = "ring";
+
+// Stored relay code. Schema 2 stores "unmapped" as a fixed 0xFF so adding a relay
+// channel never changes what an old value means. Schema 1 (no "ver" key) stored the
+// RELAY_COUNT of its day, 4, for "unmapped"; 4 is RELAY_AUX now, so it is migrated once.
+constexpr const char* KEY_VER = "ver";
+constexpr uint32_t SCHEMA        = 2;
+constexpr uint32_t CODE_MASK     = 0xFF;
+constexpr uint32_t CODE_NONE     = 0xFF;
+constexpr uint32_t V1_CODE_NONE  = 4;
+
+uint32_t encodeRelay(RelayId r) { return r == RELAY_COUNT ? CODE_NONE : static_cast<uint32_t>(r); }
+
+// Returns the RelayId for a stored code; RELAY_COUNT = unmapped. Unknown codes come back
+// as RELAY_MASTER so relayAllowed() rejects them and the default is used.
+uint32_t decodeRelay(uint32_t code, bool v1) {
+  if (code == CODE_NONE || (v1 && code == V1_CODE_NONE)) return RELAY_COUNT;
+  return code < RELAY_COUNT ? code : RELAY_MASTER;
+}
 Preferences prefs;
 
 // Ring scan timing. The 100 nF button filters recharge through the ~45 kΩ internal
@@ -54,6 +72,7 @@ void Buttons::begin() {
   ring_       = prefs.getUInt(KEY_RING, 1) != 0;   // default: the case as supplied
   scanning_   = false;
   phaseStart_ = millis();
+  bool v1 = prefs.getUInt(KEY_VER, 1) < SCHEMA;
   for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
     pinMode(PIN_BTN[i], INPUT_PULLUP);
     raw_[i]        = false;
@@ -64,11 +83,20 @@ void Buttons::begin() {
     action_[i] = { DEFAULTS[i].relay, DEFAULTS[i].latching };
     char key[8];
     nvsKey(i, key, sizeof(key));
-    uint32_t def = DEFAULTS[i].relay | (DEFAULTS[i].latching ? LATCH_FLAG : 0);
+    uint32_t def = encodeRelay(DEFAULTS[i].relay) | (DEFAULTS[i].latching ? LATCH_FLAG : 0);
     uint32_t v   = prefs.getUInt(key, def);
-    uint32_t r   = v & ~LATCH_FLAG;
+    uint32_t r   = decodeRelay(v & CODE_MASK, v1);
     if (relayAllowed(r)) action_[i] = { static_cast<RelayId>(r), (v & LATCH_FLAG) != 0 };
     else LOGW("BTN%u: stored mapping invalid — using default", i + 1);
+  }
+  if (v1) {                                   // rewrite once in the schema-2 encoding
+    for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+      char key[8];
+      nvsKey(i, key, sizeof(key));
+      prefs.putUInt(key, encodeRelay(action_[i].relay) | (action_[i].latching ? LATCH_FLAG : 0));
+    }
+    prefs.putUInt(KEY_VER, SCHEMA);
+    LOGI("buttons: mapping migrated to schema %u", (unsigned)SCHEMA);
   }
 }
 
@@ -95,7 +123,7 @@ bool Buttons::configure(uint8_t i, RelayId relay, bool latching, const char** er
   action_[i] = { relay, latching };
   char key[8];
   nvsKey(i, key, sizeof(key));
-  prefs.putUInt(key, relay | (latching ? LATCH_FLAG : 0));
+  prefs.putUInt(key, encodeRelay(relay) | (latching ? LATCH_FLAG : 0));
   if (latching) act(i, stable_[i]);  // the relay takes the switch's current position now
   return true;
 }
