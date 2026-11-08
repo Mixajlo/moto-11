@@ -84,6 +84,11 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
                 (`.nojekyll` → HTML served as-is, so Pages-facing docs are HTML; markdown like
                 ADRs is read on GitHub). (CC-BY-4.0)
 - `app/`      — future tablet / Android Auto app.
+- `tools/`    — PC-side scripts that drive the ESP console (run with PlatformIO's Python,
+                which ships pyserial). `run-relay-test.ps1 [-Mode bench|bike]` = guided
+                relay/load walk-through in its own window. **Every reusable script Claude
+                writes goes here (never left in a scratch dir)** and gets a line in
+                `tools/README.md`. (MIT)
 
 ## Firmware
 - PlatformIO: `platform = espressif32`, `board = esp32dev`, `framework = arduino`.
