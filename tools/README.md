@@ -45,6 +45,21 @@ Every run writes a log to `tools/logs/` (gitignored).
 To add a load or change hold times, edit the `PROFILES` table at the top of
 `relay_test.py`. Each step is `(console command, what you should notice, seconds)`.
 
+## Live sense inputs: `run-watch-inputs.ps1`
+
+Opens a window that prints a line every time **IGN**, **START**, the INA3221 **CH1
+voltage** (if fitted), or the supervisor **state** changes. Use it while you toggle the
+key, or the bench key wire.
+
+```powershell
+.\tools\run-watch-inputs.ps1                  # 60 s, sensors left as they are
+.\tools\run-watch-inputs.ps1 -Real -Secs 90   # 'sim real': the supervisor follows the real key
+```
+
+With `-Real`, the supervisor goes back to SIM at the end. Expected on the bench with no
+INA fitted: key in, so `IGN: ON (pin LOW)` and `STATE: ARMED`; key out, so `SLEEP`.
+MASTER stays off, because 0.0 V means "engine not running". Logs go to `tools/logs/`.
+
 ## One-off commands — `esp_console.py`
 
 ```powershell

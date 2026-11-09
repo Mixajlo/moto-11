@@ -1,6 +1,7 @@
 // ===== console.cpp =====
 #include <Arduino.h>
 #include <TelnetStream.h>
+#include <Wire.h>
 #include <string.h>
 
 #include "console.h"
@@ -38,6 +39,8 @@ void printHelp() {
   outln("  sim ign on|off     (bench) fake the ignition input");
   outln("  sim vbus <volts>   (bench) fake the bus voltage, e.g. sim vbus 13.4");
   outln("  sim real | sim     switch to real sensors / back to sim");
+  outln("  sensors | sense    raw INA3221 CH1-3 + IGN/START opto pins (sensors probe = re-detect)");
+  outln("  i2c                scan the I2C bus");
   outln("  config             list tunables (config reset = restore defaults)");
   outln("  get <key>          show one tunable");
   outln("  set <key> <val>    change + persist a tunable (validated)");
@@ -233,6 +236,59 @@ void selftest() {
   outln("selftest done. all off.");
 }
 
+// Raw hardware readout, independent of sim: what the INA3221 and the two opto
+// inputs see right now. The tool for proving the sensing wiring on the bench.
+void printSensors() {
+  char line[96];
+  outln();
+  if (Sensor.inaPresent()) {
+    snprintf(line, sizeof(line), "INA3221 @0x%02X: found", Sensor.inaAddress());
+    outln(line);
+    for (uint8_t ch = 1; ch <= 3; ch++) {
+      float v = 0, mv = 0;
+      if (Sensor.inaChannel(ch, v, mv))
+        snprintf(line, sizeof(line), "  CH%u  bus %6.3f V   shunt %+8.2f mV%s",
+                 ch, v, mv, ch == 1 ? "   <- battery sense (vbus)" : "");
+      else
+        snprintf(line, sizeof(line), "  CH%u  read error", ch);
+      outln(line);
+    }
+  } else {
+    outln("INA3221: NOT found (check VCC 3.3 V, GND, SDA=21, SCL=22; 'i2c' to scan, 'sensors probe' to retry)");
+  }
+  // Opto logic inverts: 12 V present -> transistor on -> pin pulled LOW.
+  snprintf(line, sizeof(line), "  IGN   gpio%-2u  pin %-4s -> ignition %s",
+           PIN_IGN_SENSE, Sensor.ignRawLow() ? "LOW" : "HIGH",
+           Sensor.ignRawLow() ? "ON (12 V sensed)" : "off");
+  outln(line);
+  snprintf(line, sizeof(line), "  START gpio%-2u  pin %-4s -> start %s",
+           PIN_START_SENSE, Sensor.startRawLow() ? "LOW" : "HIGH",
+           Sensor.startRawLow() ? "PRESSED (12 V sensed)" : "released");
+  outln(line);
+  snprintf(line, sizeof(line), "  supervisor uses: %s  (vbus=%.2f ign=%s)",
+           Sensor.sim() ? "SIM values ('sim real' to switch)" : "REAL sensors",
+           Sensor.busVoltage(), Sensor.ignition() ? "ON" : "off");
+  outln(line);
+}
+
+void i2cScan() {
+#if defined(ARDUINO)
+  outln("I2C scan (SDA 21, SCL 22):");
+  int found = 0;
+  for (uint8_t a = 1; a < 127; a++) {
+    Wire.beginTransmission(a);
+    if (Wire.endTransmission() == 0) {
+      char line[48];
+      snprintf(line, sizeof(line), "  0x%02X%s", a,
+               (a >= 0x40 && a <= 0x43) ? "  (INA3221 range)" : "");
+      outln(line);
+      found++;
+    }
+  }
+  if (!found) outln("  nothing answered - check power, GND, SDA/SCL not swapped, pull-ups");
+#endif
+}
+
 void dispatch(char* line) {
   char* cmd = strtok(line, " \t");
   if (!cmd) return;
@@ -258,6 +314,13 @@ void dispatch(char* line) {
     printSupState();
   } else if (!strcasecmp(cmd, "sim")) {
     handleSim(arg, arg2);
+  } else if (!strcasecmp(cmd, "sensors") || !strcasecmp(cmd, "sense")) {
+    if (arg && !strcasecmp(arg, "probe")) {
+      outln(Sensor.probeIna() ? "INA3221 found" : "INA3221 not found");
+    }
+    printSensors();
+  } else if (!strcasecmp(cmd, "i2c")) {
+    i2cScan();
   } else if (!strcasecmp(cmd, "config")) {
     if (arg && !strcasecmp(arg, "reset")) { Cfg.resetDefaults(); outln("config reset to defaults"); }
     else printConfig();

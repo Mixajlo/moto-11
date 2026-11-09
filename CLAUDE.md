@@ -107,7 +107,10 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   <ch|all>`, `toggle <ch>`, `selftest`. Onboard LED = heartbeat when all off, solid when any on.
 - Engine-run supervisor (`src/supervisor.{h,cpp}`, ADR-0012): `SLEEP→ARMED→RUNNING⇄POWERED` +
   `OFF_DELAY`, drives the master relay; reads via `src/sensors.{h,cpp}` (bench SIM until the
-  INA3221/opto are wired — console `sim ign`/`sim vbus`). Leveled logging (`src/log.h`): `LOGD`
+  INA3221/opto are wired — console `sim ign`/`sim vbus`). Real mode: INA3221 CH1 via the
+  library-free driver `src/ina3221.{h,cpp}` (0x40, 128-sample averaging; missing/failed →
+  vbus 0.0 V = fail-OFF). Console `sensors` = raw INA CH1-3 + IGN/START pin levels,
+  `sensors probe` re-detects, `i2c` scans the bus. Leveled logging (`src/log.h`): `LOGD`
   compiles out unless `MOTO_DEBUG` (bench only).
 - Runtime config (`src/config.{h,cpp}`, ADR-0013): supervisor tunables persist in NVS via the
   `Preferences` lib; firmware values are the defaults + safe fallback, edits are validated
@@ -123,8 +126,10 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   factory button loop by pulling BTN5 low (never high) and reports it as BTN4-7; turn it off once
   each button has its own wire.
 - Current milestone: engine-run supervisor + runtime config + aux buttons proven on the bench
-  (config persistence verified across a hardware reset). **Next:** wire the real INA3221 (driver)
-  + PC817 ignition-sense and flip `sim real`; then `manageLoads()` load-shedding and the
+  (config persistence verified across a hardware reset); ESP→ULN2803→relay box on 12 V proven
+  on the breadboard, all 5 channels, fail-OFF across reset (2026-11-09). INA3221 driver written
+  (module not yet soldered). **Next:** PC817 IGN test with a 47 kΩ pull-up (the bench 817
+  module has a 3 kΩ in series on its output, see electrical-plan), INA3221 hookup, `sim real`; then `manageLoads()` load-shedding and the
   IMU/security layer. Hardware-side: add the JST-XH button connector to the mainboard.
 
 ## Dev environment
