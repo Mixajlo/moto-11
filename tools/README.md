@@ -31,6 +31,7 @@ the boot (accessories fail OFF).
 | Mode | What happens |
 |---|---|
 | `bench` | Relays 1→4 on/off one at a time, yellow LED (master), all together, `selftest`, reset test with **aux** on. |
+| `leds` | Same steps with **one LED per ULN output** instead of the relay box: pin 18 master, 17 fog, 16 grip, 15 spare, 14 aux (each LED: +12 → 15 kΩ → LED → ULN pin). Reset test uses the AUX LED. |
 | `bike` | **MASTER** on (the box gets power), **fog lights** on/off, **heated grips** on for 45 s (a countdown runs; hold the grips), spare, aux. The reset test runs with the **fog lights** on: they must go dark and stay dark. |
 
 Bike mode notes:
