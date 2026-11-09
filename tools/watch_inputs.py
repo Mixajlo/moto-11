@@ -64,9 +64,9 @@ def main():
     end = time.time() + a.secs
     try:
         while time.time() < end:
-            out = esp.send("sensors", 0.35)
-            if a.real:
-                out += esp.send("state", 0.25)
+            # One command = one snapshot: `sensors` also prints state + master, so
+            # an input and the supervisor state can never come from different moments.
+            out = esp.send("sensors", 0.4)
             now = parse(out)
             changed = {k: v for k, v in now.items() if last.get(k) != v}
             if changed:

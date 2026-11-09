@@ -56,6 +56,14 @@ int main() {
   CHECK(getf("offDelay") == 30000, "reset -> offDelay 30000");
   CHECK(getf("vRunOn")   == 13.2f, "reset -> vRunOn 13.2");
 
+  // ignition debounce key
+  CHECK(getf("ignDebounce") == 100, "default ignDebounce 100");
+  CHECK(Cfg.set("ignDebounce", 250), "ignDebounce 250 accepted");
+  CHECK(getf("ignDebounce") == 250 && Engine.ignDebounceMs == 250, "ignDebounce applied to Engine");
+  CHECK(!Cfg.set("ignDebounce", 5000, &e), "ignDebounce 5000 rejected (range)");
+  Cfg.resetDefaults();
+  CHECK(getf("ignDebounce") == 100, "reset -> ignDebounce 100");
+
   std::printf("\n%d checks, %d failed\n", g_count, g_fail);
   return g_fail ? 1 : 0;
 }

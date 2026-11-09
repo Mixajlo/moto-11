@@ -36,6 +36,7 @@ static void reset() {
   Engine.offDelayMs       = 30000;
   Engine.backstopMs       = 600000;
   Engine.chargeDebounceMs = 5000;
+  Engine.ignDebounceMs    = 0;      // instant key; the debounce has its own tests below
   Engine.begin();
   Engine.update();
 }
@@ -93,6 +94,27 @@ int main() {
   CHECK(Engine.chargeMarginal(), "13.5 deadband holds marginal");
   Sensor.setSimVbus(13.7f); tick(Engine.chargeDebounceMs + 1000);
   CHECK(!Engine.chargeMarginal(), "13.7 clears marginal");
+
+  // --- ignition debounce (production 100 ms) ---
+  reset(); Engine.ignDebounceMs = 100;
+  Sensor.setSimIgn(true); tick(50);
+  CHECK(Engine.state() == SUP_SLEEP, "key-on shorter than ignDebounce: still SLEEP");
+  tick(100);
+  CHECK(Engine.state() == SUP_ARMED, "key-on held past ignDebounce: ARMED");
+
+  reset(); toRunning(); Engine.ignDebounceMs = 100;
+  Sensor.setSimIgn(false); tick(50);                   // 50 ms dropout (bounce/vibration)
+  Sensor.setSimIgn(true);  tick(500);
+  CHECK(Engine.state() == SUP_RUNNING, "50 ms key dropout ignored: stays RUNNING");
+
+  reset(); toRunning(); Engine.ignDebounceMs = 100;
+  Sensor.setSimIgn(false); tick(150);
+  CHECK(Engine.state() == SUP_OFF_DELAY, "sustained key-off: OFF_DELAY");
+  CHECK(Relays.isOn(RELAY_MASTER), "master held during OFF_DELAY");
+
+  reset(); toRunning(); Engine.ignDebounceMs = 100;    // repeated chatter never accumulates
+  for (int i = 0; i < 10; i++) { Sensor.setSimIgn(false); tick(60); Sensor.setSimIgn(true); tick(60); }
+  CHECK(Engine.state() == SUP_RUNNING, "chatter (60 ms off/on x10) ignored");
 
   std::printf("\n%d checks, %d failed\n", g_count, g_fail);
   return g_fail ? 1 : 0;

@@ -29,6 +29,7 @@ void setUp(void) {
   Engine.offDelayMs       = 120;
   Engine.backstopMs       = 200;
   Engine.chargeDebounceMs = 60;
+  Engine.ignDebounceMs    = 0;    // instant key; debounce has its own tests
   Engine.begin();           // -> SLEEP
   Engine.update();
 }
@@ -104,6 +105,25 @@ void test_charge_hysteresis_deadband(void) {
   TEST_ASSERT_FALSE(Engine.chargeMarginal());                      // cleared
 }
 
+void test_ign_debounce_keyon(void) {
+  Engine.ignDebounceMs = 50;
+  Sensor.setSimIgn(true); run_for(20);
+  TEST_ASSERT_EQUAL(SUP_SLEEP, Engine.state());                    // too short
+  run_for(60);
+  TEST_ASSERT_EQUAL(SUP_ARMED, Engine.state());                    // held -> accepted
+}
+void test_ign_dropout_ignored(void) {
+  toRunning(); Engine.ignDebounceMs = 50;
+  Sensor.setSimIgn(false); run_for(20);                            // brief dropout
+  Sensor.setSimIgn(true);  run_for(100);
+  TEST_ASSERT_EQUAL(SUP_RUNNING, Engine.state());
+}
+void test_ign_sustained_keyoff(void) {
+  toRunning(); Engine.ignDebounceMs = 50;
+  Sensor.setSimIgn(false); run_for(80);
+  TEST_ASSERT_EQUAL(SUP_OFF_DELAY, Engine.state());
+}
+
 void setup() {
   delay(2000);              // let USB serial attach before Unity prints
   UNITY_BEGIN();
@@ -118,6 +138,9 @@ void setup() {
   RUN_TEST(test_charge_transient_ignored);
   RUN_TEST(test_charge_sustained_warns);
   RUN_TEST(test_charge_hysteresis_deadband);
+  RUN_TEST(test_ign_debounce_keyon);
+  RUN_TEST(test_ign_dropout_ignored);
+  RUN_TEST(test_ign_sustained_keyoff);
   UNITY_END();
 }
 void loop() {}

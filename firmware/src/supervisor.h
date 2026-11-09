@@ -50,12 +50,20 @@ public:
   float    chargeWarn       = 13.4f;   // V: below = heading marginal
   float    chargeClear      = 13.6f;   // V: at/above = healthy again (deadband 13.4..13.6)
   uint32_t chargeDebounceMs = 5000;    // ms a charge condition must hold before the flag flips
+  // Ignition input debounce: the raw IGN level must hold this long before the
+  // supervisor believes a key change, so key-switch contact bounce or a vibration
+  // dropout can't cause a spurious state change (e.g. RUNNING -> OFF_DELAY).
+  // 0 = react instantly. Applies both ways (key on and key off).
+  uint32_t ignDebounceMs    = 100;
+
+  bool ignitionOn() const { return ign_; }             // debounced key state the supervisor acts on
 
   bool chargeMarginal() const { return marginal_; }   // latched flag for UI/load-shed later
 
 private:
   void enter(SupState s);
   void checkChargeHealth(float vbus);
+  bool debounceIgn(bool raw);
 
   SupState state_       = SUP_SLEEP;
   uint32_t aboveSince_  = 0;           // run-debounce timer  (0 = not counting)
@@ -66,6 +74,9 @@ private:
   uint32_t warnTick_    = 0;           // throttle for the charge-marginal nag
   uint32_t chgSince_    = 0;           // charge-health debounce timer (0 = not counting)
   bool     marginal_    = false;       // current charge-marginal state (debounced)
+  bool     ign_         = false;       // debounced ignition (what the state machine acts on)
+  bool     ignPending_  = false;       // raw IGN disagrees with ign_ and is being timed
+  uint32_t ignSince_    = 0;           // when the disagreement started
 };
 
 extern Supervisor Engine;

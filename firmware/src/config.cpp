@@ -10,13 +10,14 @@
 Config Cfg;
 
 namespace {
-constexpr uint16_t CONFIG_VERSION = 1;     // bump when the key set / meaning changes
+constexpr uint16_t CONFIG_VERSION = 1;     // bump when a key's meaning changes. Adding a key
+                                           // needs no bump: a missing key loads its default.
 constexpr const char* NS = "motocfg";      // NVS namespace (<= 15 chars)
 Preferences prefs;
 
 const char* const KEYS[Config::KEY_COUNT] = {
   "vRunOn", "vRunOff", "chargeWarn", "chargeClear",
-  "runDebounce", "stallDebounce", "offDelay", "backstop", "chargeDebounce"
+  "runDebounce", "stallDebounce", "offDelay", "backstop", "chargeDebounce", "ignDebounce"
 };
 
 bool ladderOk(float off, float on, float warn, float clear) {
@@ -29,7 +30,7 @@ const char* Config::key(int i) { return (i >= 0 && i < KEY_COUNT) ? KEYS[i] : ""
 void Config::captureDefaults() {
   def_ = { Engine.vRunOn, Engine.vRunOff, Engine.chargeWarn, Engine.chargeClear,
            Engine.runDebounceMs, Engine.stallDebounceMs, Engine.offDelayMs,
-           Engine.backstopMs, Engine.chargeDebounceMs };
+           Engine.backstopMs, Engine.chargeDebounceMs, Engine.ignDebounceMs };
 }
 
 void Config::applyDefaults() {
@@ -38,6 +39,7 @@ void Config::applyDefaults() {
   Engine.runDebounceMs = def_.runDebounce; Engine.stallDebounceMs = def_.stallDebounce;
   Engine.offDelayMs = def_.offDelay; Engine.backstopMs = def_.backstop;
   Engine.chargeDebounceMs = def_.chargeDebounce;
+  Engine.ignDebounceMs = def_.ignDebounce;
 }
 
 void Config::persistAll() {
@@ -50,6 +52,7 @@ void Config::persistAll() {
   prefs.putUInt("offDelay", Engine.offDelayMs);
   prefs.putUInt("backstop", Engine.backstopMs);
   prefs.putUInt("chargeDebounce", Engine.chargeDebounceMs);
+  prefs.putUInt("ignDebounce", Engine.ignDebounceMs);
 }
 
 void Config::begin() {
@@ -73,6 +76,7 @@ void Config::begin() {
   Engine.offDelayMs      = prefs.getUInt("offDelay", Engine.offDelayMs);
   Engine.backstopMs      = prefs.getUInt("backstop", Engine.backstopMs);
   Engine.chargeDebounceMs= prefs.getUInt("chargeDebounce", Engine.chargeDebounceMs);
+  Engine.ignDebounceMs   = prefs.getUInt("ignDebounce", Engine.ignDebounceMs);
 
   if (!ladderOk(Engine.vRunOff, Engine.vRunOn, Engine.chargeWarn, Engine.chargeClear)) {
     LOGW("config: stored thresholds inconsistent — restoring defaults");
@@ -97,6 +101,8 @@ bool Config::set(const char* k, float v, const char** err) {
     Engine.backstopMs = (uint32_t)v;      prefs.putUInt("backstop", Engine.backstopMs); return true; }
   if (!strcasecmp(k, "chargeDebounce")){ if (v < 0 || v > 60000)   return fail("0..60000 ms");
     Engine.chargeDebounceMs = (uint32_t)v; prefs.putUInt("chargeDebounce", Engine.chargeDebounceMs); return true; }
+  if (!strcasecmp(k, "ignDebounce"))   { if (v < 0 || v > 2000)    return fail("0..2000 ms");
+    Engine.ignDebounceMs = (uint32_t)v;   prefs.putUInt("ignDebounce", Engine.ignDebounceMs); return true; }
 
   // --- voltages (ladder-checked together) ---
   float on = Engine.vRunOn, off = Engine.vRunOff, warn = Engine.chargeWarn, clear = Engine.chargeClear;
@@ -124,6 +130,7 @@ bool Config::getValue(const char* k, float& o) const {
   else if (!strcasecmp(k, "offDelay"))       o = Engine.offDelayMs;
   else if (!strcasecmp(k, "backstop"))       o = Engine.backstopMs;
   else if (!strcasecmp(k, "chargeDebounce")) o = Engine.chargeDebounceMs;
+  else if (!strcasecmp(k, "ignDebounce"))    o = Engine.ignDebounceMs;
   else return false;
   return true;
 }

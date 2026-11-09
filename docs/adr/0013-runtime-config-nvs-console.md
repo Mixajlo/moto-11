@@ -48,3 +48,12 @@ and OTA (separate partition).
 - **Legacy EEPROM emulation:** superseded by NVS on ESP32.
 - **BLE/app first:** more work before any payoff; the console backend is the
   prerequisite anyway, so it goes first.
+
+## Amendment (2026-11-09): `ignDebounce`
+Added a tenth key, `ignDebounce` (ms, default 100, range 0..2000). The supervisor
+now acts on a debounced ignition: a raw IGN change must hold this long before it
+counts, in both directions. Without it, key-switch contact bounce or a vibration
+dropout would immediately move RUNNING into OFF_DELAY. 0 means react instantly; the
+unit tests use 0 except where they test the debounce itself. Adding a key needs no
+`CONFIG_VERSION` bump: a key missing from NVS loads its firmware default, so stored
+settings survive the upgrade. This was verified on the bench twin.

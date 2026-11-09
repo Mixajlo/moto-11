@@ -17,7 +17,7 @@ public:
   bool getValue(const char* key, float& out) const;
   void resetDefaults();                          // restore firmware defaults + persist
 
-  static constexpr int KEY_COUNT = 9;
+  static constexpr int KEY_COUNT = 10;
   static const char* key(int i);                 // canonical key name, i in [0, KEY_COUNT)
 
 private:
@@ -27,7 +27,7 @@ private:
 
   struct Def {
     float    vRunOn, vRunOff, chargeWarn, chargeClear;
-    uint32_t runDebounce, stallDebounce, offDelay, backstop, chargeDebounce;
+    uint32_t runDebounce, stallDebounce, offDelay, backstop, chargeDebounce, ignDebounce;
   } def_;
 };
 

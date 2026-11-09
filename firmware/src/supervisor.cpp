@@ -35,7 +35,23 @@ uint32_t Supervisor::timeLeftMs(const char** what) const {
 
 void Supervisor::begin() {
   state_ = SUP_SLEEP;
+  ign_ = false;                       // boot assumes key off; a real key-on is
+  ignPending_ = false;                // accepted after ignDebounceMs
   LOGI("supervisor: start in SLEEP");
+}
+
+// Returns the debounced ignition. A raw change is only accepted once it has held
+// for ignDebounceMs; any flicker back to the current value cancels the timer.
+bool Supervisor::debounceIgn(bool raw) {
+  if (raw == ign_) { ignPending_ = false; return ign_; }
+  if (ignDebounceMs == 0) { ign_ = raw; ignPending_ = false; return ign_; }
+  if (!ignPending_) { ignPending_ = true; ignSince_ = millis(); return ign_; }
+  if (millis() - ignSince_ >= ignDebounceMs) {
+    ign_ = raw;
+    ignPending_ = false;
+    LOGD("ignition: debounced -> %s", ign_ ? "ON" : "off");
+  }
+  return ign_;
 }
 
 void Supervisor::enter(SupState s) {
@@ -77,7 +93,7 @@ void Supervisor::checkChargeHealth(float vbus) {
 }
 
 void Supervisor::update() {
-  const bool  ign  = Sensor.ignition();
+  const bool  ign  = debounceIgn(Sensor.ignition());
   const float vbus = Sensor.busVoltage();
 
   switch (state_) {

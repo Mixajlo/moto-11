@@ -269,6 +269,11 @@ void printSensors() {
            Sensor.sim() ? "SIM values ('sim real' to switch)" : "REAL sensors",
            Sensor.busVoltage(), Sensor.ignition() ? "ON" : "off");
   outln(line);
+  // Same snapshot as the readings above, so a watcher never pairs an old input
+  // with a newer state (two separate commands can straddle a switch flip).
+  snprintf(line, sizeof(line), "  state=%s  master=%s",
+           Engine.stateName(), Relays.isOn(RELAY_MASTER) ? "ON" : "off");
+  outln(line);
 }
 
 void i2cScan() {
