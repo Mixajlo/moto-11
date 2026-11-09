@@ -10,7 +10,7 @@
   .\tools\run-relay-test.ps1 -NoReset
 #>
 param(
-    [ValidateSet('bench', 'bike')] [string] $Mode = 'bench',
+    [ValidateSet('bench', 'leds', 'bike')] [string] $Mode = 'bench',
     [string] $Port = 'auto',
     [switch] $NoReset
 )
@@ -22,4 +22,4 @@ $script = Join-Path $PSScriptRoot 'relay_test.py'
 $pyArgs = "'$script' --profile $Mode --port '$Port'"
 if ($NoReset) { $pyArgs += ' --no-reset' }
 $inner = "`$host.UI.RawUI.WindowTitle = 'moto-11 relay test ($Mode)'; & '$py' $pyArgs; Read-Host 'Press Enter to close'"
-Start-Process powershell -ArgumentList '-NoProfile', '-Command', $inner
+Start-Process powershell -ArgumentList '-NoProfile', '-Command', $inner -Wait

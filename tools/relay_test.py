@@ -74,6 +74,30 @@ PROFILES = {
         "reset_channel": ("fog", "FOG LIGHTS"),
     },
 }
+PROFILES["leds"] = {
+    "title": "BENCH LED walk-through (ULN2803 -> one LED per channel, no relay box)",
+    "precheck": [
+        "USB plugged in first, THEN the 12 V supply.",
+        "Each LED: +12 -> 15 kOhm -> LED long leg; short leg -> ULN pin.",
+        "LED positions: pin 18 MASTER, 17 FOG, 16 GRIP, 15 SPARE, 14 AUX (label them).",
+    ],
+    "steps": [
+        ("on fog",     "FOG LED    (ULN pin 17) turns ON", 3),
+        ("off fog",    "FOG LED    turns OFF", 2.5),
+        ("on grip",    "GRIP LED   (ULN pin 16) turns ON", 3),
+        ("off grip",   "GRIP LED   turns OFF", 2.5),
+        ("on spare",   "SPARE LED  (ULN pin 15) turns ON", 3),
+        ("off spare",  "SPARE LED  turns OFF", 2.5),
+        ("on aux",     "AUX LED    (ULN pin 14) turns ON", 3),
+        ("off aux",    "AUX LED    turns OFF", 2.5),
+        ("on master",  "MASTER LED (ULN pin 18) turns ON", 3),
+        ("off master", "MASTER LED turns OFF", 2.5),
+        ("on all",     "ALL 5 LEDs turn ON together", 3.5),
+        ("off all",    "ALL 5 LEDs turn OFF together", 3),
+        ("selftest",   "SELFTEST fast run, 0.3 s each: MASTER -> FOG -> GRIP -> SPARE -> AUX -> all off", 5),
+    ],
+    "reset_channel": ("aux", "AUX LED (pin 14)"),
+}
 ACCESSORIES = ("fog", "grip", "spare", "aux")
 
 
@@ -104,19 +128,25 @@ def main():
     failures = []
 
     def cmd(c, hold):
-        out = esp.send(c, min(hold, 1.5))
-        ok = ("->" in out) or ("selftest done" in out)
-        say(f"         [ESP answered: {'yes' if ok else 'NO REPLY'}]")
+        # Listen for the whole step (selftest alone takes ~3 s); only long holds
+        # (the grips) check after 1.5 s and then show a countdown.
+        first = min(hold, 1.5) if hold >= 15 else hold
+        out = esp.send(c, first)
+        if "selftest" in c:
+            ok = "selftest done" in out
+        else:
+            ok = "->" in out
+        if not ok and "�" in out:
+            say("         [ESP answered: NO REPLY - garbled bytes on the USB line (noise?)]")
+        else:
+            say(f"         [ESP answered: {'yes' if ok else 'NO REPLY'}]")
         if not ok:
             failures.append(c)
-        rest = hold - 1.5
         if hold >= 15:                       # long hold: live countdown
-            for left in range(int(rest), 0, -1):
+            for left in range(int(hold - first), 0, -1):
                 print(f"\r         {left:3d} s left ", end="", flush=True)
                 time.sleep(1)
             print("\r" + " " * 30 + "\r", end="")
-        elif rest > 0:
-            esp.read(rest)
         if c == "on master" and not esp.master_is_on():
             say("         !! MASTER is not on - the supervisor may have switched it. Box loads won't work.")
             failures.append("master held")
