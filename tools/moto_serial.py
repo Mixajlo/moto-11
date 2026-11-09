@@ -69,6 +69,19 @@ class Esp:
         self.s.rts = False
         return self.read(boot_secs)
 
+    def sync(self, tries=3):
+        """Wake the line and confirm the console answers before real commands.
+        After the port has sat idle (e.g. waiting for the user to press Enter),
+        Windows can power-save the CP2102; the first bytes after wake-up come
+        back garbled and the first command is lost. A throwaway newline plus a
+        'state' round-trip absorbs that. Returns True once a clean reply is seen."""
+        for _ in range(tries):
+            self.s.write(b"\r\n")
+            self.read(0.3)
+            if "state=" in self.send("state", 0.8):
+                return True
+        return False
+
     def master_is_on(self):
         out = self.send("state", 1.0)
         return "master=ON" in out

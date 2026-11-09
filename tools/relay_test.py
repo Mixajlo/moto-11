@@ -169,6 +169,9 @@ def main():
     for n in (3, 2, 1):
         say(f"  starting in {n}...")
         time.sleep(1)
+    # The port sat idle while waiting for Enter; wake it before step 1.
+    if not esp.sync():
+        say("  !! the ESP console isn't answering cleanly - check USB/the cable; continuing anyway")
 
     steps = prof["steps"]
     total = len(steps) + (1 if do_reset else 0)
