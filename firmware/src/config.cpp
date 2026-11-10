@@ -1,6 +1,7 @@
 // ===== config.cpp =====
 #include "config.h"
 #include "supervisor.h"
+#include "loads.h"
 #include "log.h"
 
 #include <Preferences.h>
@@ -17,7 +18,8 @@ Preferences prefs;
 
 const char* const KEYS[Config::KEY_COUNT] = {
   "vRunOn", "vRunOff", "chargeWarn", "chargeClear",
-  "runDebounce", "stallDebounce", "offDelay", "backstop", "chargeDebounce", "ignDebounce"
+  "runDebounce", "stallDebounce", "offDelay", "backstop", "chargeDebounce", "ignDebounce",
+  "shedStep", "crankHold"
 };
 
 bool ladderOk(float off, float on, float warn, float clear) {
@@ -30,7 +32,8 @@ const char* Config::key(int i) { return (i >= 0 && i < KEY_COUNT) ? KEYS[i] : ""
 void Config::captureDefaults() {
   def_ = { Engine.vRunOn, Engine.vRunOff, Engine.chargeWarn, Engine.chargeClear,
            Engine.runDebounceMs, Engine.stallDebounceMs, Engine.offDelayMs,
-           Engine.backstopMs, Engine.chargeDebounceMs, Engine.ignDebounceMs };
+           Engine.backstopMs, Engine.chargeDebounceMs, Engine.ignDebounceMs,
+           Loads.shedStepMs, Loads.crankHoldMs };
 }
 
 void Config::applyDefaults() {
@@ -40,6 +43,7 @@ void Config::applyDefaults() {
   Engine.offDelayMs = def_.offDelay; Engine.backstopMs = def_.backstop;
   Engine.chargeDebounceMs = def_.chargeDebounce;
   Engine.ignDebounceMs = def_.ignDebounce;
+  Loads.shedStepMs = def_.shedStep; Loads.crankHoldMs = def_.crankHold;
 }
 
 void Config::persistAll() {
@@ -53,6 +57,8 @@ void Config::persistAll() {
   prefs.putUInt("backstop", Engine.backstopMs);
   prefs.putUInt("chargeDebounce", Engine.chargeDebounceMs);
   prefs.putUInt("ignDebounce", Engine.ignDebounceMs);
+  prefs.putUInt("shedStep", Loads.shedStepMs);
+  prefs.putUInt("crankHold", Loads.crankHoldMs);
 }
 
 void Config::begin() {
@@ -77,6 +83,8 @@ void Config::begin() {
   Engine.backstopMs      = prefs.getUInt("backstop", Engine.backstopMs);
   Engine.chargeDebounceMs= prefs.getUInt("chargeDebounce", Engine.chargeDebounceMs);
   Engine.ignDebounceMs   = prefs.getUInt("ignDebounce", Engine.ignDebounceMs);
+  Loads.shedStepMs       = prefs.getUInt("shedStep", Loads.shedStepMs);
+  Loads.crankHoldMs      = prefs.getUInt("crankHold", Loads.crankHoldMs);
 
   if (!ladderOk(Engine.vRunOff, Engine.vRunOn, Engine.chargeWarn, Engine.chargeClear)) {
     LOGW("config: stored thresholds inconsistent — restoring defaults");
@@ -103,6 +111,10 @@ bool Config::set(const char* k, float v, const char** err) {
     Engine.chargeDebounceMs = (uint32_t)v; prefs.putUInt("chargeDebounce", Engine.chargeDebounceMs); return true; }
   if (!strcasecmp(k, "ignDebounce"))   { if (v < 0 || v > 2000)    return fail("0..2000 ms");
     Engine.ignDebounceMs = (uint32_t)v;   prefs.putUInt("ignDebounce", Engine.ignDebounceMs); return true; }
+  if (!strcasecmp(k, "shedStep"))      { if (v < 5000 || v > 600000) return fail("5000..600000 ms");
+    Loads.shedStepMs = (uint32_t)v;       prefs.putUInt("shedStep", Loads.shedStepMs); return true; }
+  if (!strcasecmp(k, "crankHold"))     { if (v < 0 || v > 10000)    return fail("0..10000 ms (0=no crank shed)");
+    Loads.crankHoldMs = (uint32_t)v;      prefs.putUInt("crankHold", Loads.crankHoldMs); return true; }
 
   // --- voltages (ladder-checked together) ---
   float on = Engine.vRunOn, off = Engine.vRunOff, warn = Engine.chargeWarn, clear = Engine.chargeClear;
@@ -131,6 +143,8 @@ bool Config::getValue(const char* k, float& o) const {
   else if (!strcasecmp(k, "backstop"))       o = Engine.backstopMs;
   else if (!strcasecmp(k, "chargeDebounce")) o = Engine.chargeDebounceMs;
   else if (!strcasecmp(k, "ignDebounce"))    o = Engine.ignDebounceMs;
+  else if (!strcasecmp(k, "shedStep"))       o = Loads.shedStepMs;
+  else if (!strcasecmp(k, "crankHold"))      o = Loads.crankHoldMs;
   else return false;
   return true;
 }

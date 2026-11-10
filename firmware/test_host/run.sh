@@ -18,7 +18,7 @@ echo "native supervisor tests: PASS"
 g++ -std=c++17 -DMOTO_DEBUG=1 \
     -I test_host/mock -I src \
     test_host/test_config_native.cpp \
-    src/config.cpp src/supervisor.cpp src/sensors.cpp src/relays.cpp \
+    src/config.cpp src/supervisor.cpp src/sensors.cpp src/relays.cpp src/loads.cpp \
     -o "$TMP/moto_cfg_test"
 "$TMP/moto_cfg_test"
 echo "native config tests: PASS"
@@ -26,7 +26,15 @@ echo "native config tests: PASS"
 g++ -std=c++17 -DMOCK_PINS -DMOCK_NVS \
     -I test_host/mock -I src \
     test_host/test_buttons_native.cpp \
-    src/buttons.cpp src/relays.cpp \
+    src/buttons.cpp src/relays.cpp src/loads.cpp \
     -o "$TMP/moto_btn_test"
 "$TMP/moto_btn_test"
 echo "native button tests: PASS"
+
+g++ -std=c++17 -DMOTO_DEBUG=1 \
+    -I test_host/mock -I src \
+    test_host/test_loads_native.cpp \
+    src/loads.cpp src/relays.cpp \
+    -o "$TMP/moto_loads_test"
+"$TMP/moto_loads_test"
+echo "native load tests: PASS"

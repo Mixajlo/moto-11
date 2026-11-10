@@ -91,7 +91,13 @@ bool Sensors::ignition() {
   return ignRawLow();
 }
 
-bool Sensors::ignRawLow()   { return digitalRead(PIN_IGN_SENSE)   == LOW; }
+bool Sensors::cranking() {
+  if (sim_) return simStart_;
+  // Same opto inversion: 12 V on the start-button line pulls the GPIO LOW.
+  return startRawLow();
+}
+
+bool Sensors::ignRawLow()  { return digitalRead(PIN_IGN_SENSE)   == LOW; }
 bool Sensors::startRawLow() { return digitalRead(PIN_START_SENSE) == LOW; }
 
 void Sensors::setSim(bool on) {

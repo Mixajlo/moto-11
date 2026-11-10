@@ -4,8 +4,10 @@
 //   bash test_host/run.sh        (from firmware/, under WSL/Linux)
 #include <Arduino.h>          // mock (test_host/mock)
 #include <cstdio>
+#include <cstring>
 
 #include "config.h"
+#include "loads.h"
 #include "supervisor.h"
 
 unsigned long _hostMillis = 0;
@@ -63,6 +65,16 @@ int main() {
   CHECK(!Cfg.set("ignDebounce", 5000, &e), "ignDebounce 5000 rejected (range)");
   Cfg.resetDefaults();
   CHECK(getf("ignDebounce") == 100, "reset -> ignDebounce 100");
+
+  // load-manager keys (ADR-0019)
+  CHECK(getf("shedStep") == 30000 && getf("crankHold") == 1500, "default shedStep 30000, crankHold 1500");
+  CHECK(Cfg.set("shedStep", 10000) && Loads.shedStepMs == 10000, "shedStep 10000 applied to Loads");
+  CHECK(!Cfg.set("shedStep", 1000, &e), "shedStep 1000 rejected (range)");
+  CHECK(Cfg.set("crankHold", 0) && Loads.crankHoldMs == 0, "crankHold 0 (crank shed off) accepted");
+  CHECK(!Cfg.set("crankHold", 20000, &e), "crankHold 20000 rejected (range)");
+  Cfg.resetDefaults();
+  CHECK(Loads.shedStepMs == 30000 && Loads.crankHoldMs == 1500, "reset -> load defaults");
+  CHECK(Config::KEY_COUNT == 12 && !strcmp(Config::key(11), "crankHold"), "12 keys, crankHold last");
 
   std::printf("\n%d checks, %d failed\n", g_count, g_fail);
   return g_fail ? 1 : 0;

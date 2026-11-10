@@ -3,6 +3,7 @@
 #include "button_ring.h"
 #include "pins.h"
 #include "log.h"
+#include "loads.h"
 
 #include <Preferences.h>
 #include <stdio.h>
@@ -137,8 +138,10 @@ void Buttons::fire(uint8_t i) {
   if (i >= BUTTON_COUNT) return;
   RelayId r = action_[i].relay;
   if (r == RELAY_COUNT) { LOGI("BTN%u pressed (unmapped)", i + 1); return; }
-  bool on = !Relays.isOn(r);
-  Relays.set(r, on);
+  // Toggle the rider's intent, not the relay: a shed load is still "wanted", so a
+  // press while it's held off cancels the request instead of re-asking for it.
+  bool on = !Loads.wanted(r);
+  Loads.request(r, on);
   LOGI("BTN%u -> %s %s", i + 1, Relays.name(r), on ? "ON" : "off");
 }
 
@@ -149,7 +152,7 @@ void Buttons::act(uint8_t i, bool closed) {
   }
   RelayId r = action_[i].relay;   // latching: the relay follows the switch position
   if (r == RELAY_COUNT) { LOGI("BTN%u %s (unmapped)", i + 1, closed ? "on" : "off"); return; }
-  Relays.set(r, closed);
+  Loads.request(r, closed);
   LOGI("BTN%u -> %s %s", i + 1, Relays.name(r), closed ? "ON" : "off");
 }
 

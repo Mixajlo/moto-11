@@ -10,6 +10,7 @@
 #include "supervisor.h"
 #include "config.h"
 #include "buttons.h"
+#include "loads.h"
 #include "pins.h"
 
 namespace {
@@ -37,7 +38,10 @@ void printHelp() {
   outln("  state | sup        show engine-run state (+ countdown to next timed change)");
   outln("  timer | t          time left until the next timed state change");
   outln("  sim ign on|off     (bench) fake the ignition input");
+  outln("  sim start on|off   (bench) fake the start button (cranking)");
   outln("  sim vbus <volts>   (bench) fake the bus voltage, e.g. sim vbus 13.4");
+  outln("  loads              load policy: wanted vs allowed, shed level, why held off");
+  outln("  loads want <ch> <on|off>  ask for a load like a button would (grip waits for the engine)");
   outln("  sim real | sim     switch to real sensors / back to sim");
   outln("  sensors | sense    raw INA3221 CH1-3 + IGN/START opto pins (sensors probe = re-detect)");
   outln("  i2c                scan the I2C bus");
@@ -94,6 +98,10 @@ void handleSim(const char* a, const char* b) {
     bool on = !strcasecmp(b, "on") || !strcmp(b, "1");
     Sensor.setSimIgn(on);
     out("sim ign -> "); outln(on ? "ON" : "off");
+  } else if (a && !strcasecmp(a, "start") && b) {
+    bool on = !strcasecmp(b, "on") || !strcmp(b, "1");
+    Sensor.setSimStart(on);
+    out("sim start -> "); outln(on ? "HELD (cranking)" : "released");
   } else if (a && !strcasecmp(a, "vbus") && b) {
     Sensor.setSimVbus(atof(b));
     printSupState();
@@ -102,8 +110,30 @@ void handleSim(const char* a, const char* b) {
   } else if (a && !strcasecmp(a, "sim")) {
     Sensor.setSim(true);  outln("sensors: sim");
   } else {
-    outln("usage: sim ign on|off  |  sim vbus <volts>  |  sim real|sim");
+    outln("usage: sim ign on|off  |  sim start on|off  |  sim vbus <volts>  |  sim real|sim");
   }
+}
+
+// Load policy view (ADR-0019): what the rider wants vs what is allowed, and why not.
+void printLoads() {
+  outln();
+  char l[120];
+  snprintf(l, sizeof(l), "loads: shed level %u (0 none, 1 grip, 2 grip+fog)  crank hold %s",
+           (unsigned)Loads.shedLevel(), Loads.crankHold() ? "ACTIVE" : "no");
+  outln(l);
+  outln("  load   want  relay  held off because");
+  for (RelayId r : { RELAY_GRIP, RELAY_FOG }) {
+    uint8_t why = Loads.blockedWhy(r);
+    char reasons[64] = "";
+    if (why & WHY_ENGINE_OFF) strcat(reasons, "engine-not-running ");
+    if (why & WHY_CHARGE)     strcat(reasons, "charging-marginal ");
+    if (why & WHY_CRANK)      strcat(reasons, "cranking ");
+    snprintf(l, sizeof(l), "  %-5s  %-4s  %-5s  %s", Relays.name(r),
+             Loads.wanted(r) ? "yes" : "no", Relays.isOn(r) ? "ON" : "off",
+             why ? reasons : "-");
+    outln(l);
+  }
+  outln("  (console on/off bypasses this; buttons and 'loads want' go through it)");
 }
 
 void printConfig() {
@@ -339,6 +369,14 @@ void dispatch(char* line) {
     else { out("unknown key: "); outln(arg); }
   } else if (!strcasecmp(cmd, "set") && arg && arg2) {
     handleSet(arg, arg2);
+  } else if (!strcasecmp(cmd, "loads")) {
+    if (arg && !strcasecmp(arg, "want") && arg2) {
+      int id = findChannel(arg2);
+      char* v = strtok(nullptr, " \t");
+      if (id <= RELAY_MASTER || !v) outln("loads want <fog|grip|spare|aux> <on|off>");
+      else Loads.request(static_cast<RelayId>(id), !strcasecmp(v, "on") || !strcmp(v, "1"));
+    }
+    printLoads();
   } else if (!strcasecmp(cmd, "btn")) {
     if (arg && !strcasecmp(arg, "press") && arg2) {
       int n = atoi(arg2);

@@ -9,6 +9,7 @@
 
 #include "button_ring.h"
 #include "buttons.h"
+#include "loads.h"
 #include "pins.h"
 
 unsigned long _hostMillis = 0;
@@ -65,6 +66,10 @@ static void run(int ms = 200) {
 static void hold(uint8_t btn, bool closed) { g_closed[btn] = closed; run(); }
 static void boot() {
   Relays.allOff();
+  Loads.begin();
+  LoadInputs running;              // buttons go through the load manager (ADR-0019);
+  running.engineRunning = true;    // engine running = nothing held off, so a press acts
+  Loads.update(running);
   Btns.begin();
   run();
 }

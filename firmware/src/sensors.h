@@ -13,6 +13,7 @@ public:
 
   float busVoltage();   // volts: INA3221 CH1 in real mode (0.0 if the INA is missing/failing); fake in sim
   bool  ignition();     // true = key on  (opto on IGN_SENSE in real mode; fake in sim)
+  bool  cranking();     // true = START held (opto on START_SENSE in real mode; fake in sim)
 
   // --- raw diagnostics (always the real hardware, regardless of sim) ---
   bool  inaPresent() const { return inaOk_; }
@@ -27,11 +28,13 @@ public:
   bool  sim() const       { return sim_; }
   void  setSimVbus(float v){ simVbus_ = v; }
   void  setSimIgn(bool on) { simIgn_  = on; }
+  void  setSimStart(bool on) { simStart_ = on; }
 
 private:
   bool  sim_     = true;    // default SIM: no sensors on the bench yet
   float simVbus_ = 12.4f;   // a resting (engine-off) battery
   bool  simIgn_  = false;
+  bool  simStart_ = false;
 
   bool     inaOk_     = false;
   float    lastVbus_  = 0.0f;
