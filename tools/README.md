@@ -61,6 +61,23 @@ With `-Real`, the supervisor goes back to SIM at the end. Expected on the bench 
 INA fitted: key in, so `IGN: ON (pin LOW)` and `STATE: ARMED`; key out, so `SLEEP`.
 MASTER stays off, because 0.0 V means "engine not running". Logs go to `tools/logs/`.
 
+## Supervisor voltage walk: `run-voltage-walk.ps1`
+
+A guided test of the engine-run state machine (ADR-0012) on **real sensors**. You turn the
+bench supply (XY-SK35H) and the IGN switch; the script tells you each setting, waits for
+the expected state, and prints PASS or FAIL. The steps are:
+SLEEP → ARMED → 13.3 V RUNNING (MASTER on) + MARGINAL warning → 13.8 V recovered →
+12.4 V POWERED (MASTER held) → 13.8 V RUNNING → key off OFF_DELAY → SLEEP (MASTER off).
+
+```powershell
+.\tools\run-voltage-walk.ps1
+```
+
+Bench wiring: the charger feeds **only** the XY input. XY OUT+ is the bench +12 rail (ULN
+COM, LEDs, IGN/START switches, INA CH1) and XY OUT− is the bench GND. On the XY, set OVP to
+15 V and OCP to 0.5 A, and never go above 15 V. At the end, or on Ctrl+C, the script puts
+the ESP back on SIM. Logs go to `tools/logs/`.
+
 ## One-off commands — `esp_console.py`
 
 ```powershell

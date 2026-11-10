@@ -127,10 +127,12 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   each button has its own wire.
 - Current milestone: engine-run supervisor + runtime config + aux buttons proven on the bench
   (config persistence verified across a hardware reset); ESP→ULN2803→relay box on 12 V proven
-  on the breadboard, all 5 channels, fail-OFF across reset (2026-11-09). INA3221 driver written
-  (module not yet soldered). **Next:** PC817 IGN test with a 47 kΩ pull-up (the bench 817
-  module has a 3 kΩ in series on its output, see electrical-plan), INA3221 hookup, `sim real`; then `manageLoads()` load-shedding and the
-  IMU/security layer. Hardware-side: add the JST-XH button connector to the mainboard.
+  on the breadboard, all 5 channels, fail-OFF across reset (2026-11-09). **Supervisor proven on
+  REAL sensors** (2026-11-10): PC817 IGN/START (47 kΩ pull-ups) + INA3221 CH1 (WCMCU-3221: CH1 =
+  IN−, POW = shared IN+; one wire to CH1) fed from an XY-SK35H bench supply; `run-voltage-walk.ps1`
+  9/9. The bench twin is now ESP unit #2 (unit #1 died in a bench short). **Next:** `manageLoads()`
+  load-shedding (grips → fog) and the IMU/security layer. Hardware-side: add the JST-XH button
+  connector to the mainboard.
 
 ## Dev environment
 - **Windows only, PowerShell only.** All shell commands must be PowerShell (or plain `pio`/git

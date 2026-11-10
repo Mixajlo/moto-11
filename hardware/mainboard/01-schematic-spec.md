@@ -207,7 +207,7 @@ defined off-state if the gate floats; Dz1 clamps Vgs against load-dump.*
 | `SDA` | `A1.21`, `U3.SDA`, `A2.SDA`, `R5`→+3V3, `J6.2`. |
 | `SCL` | `A1.22`, `U3.SCL`, `A2.SCL`, `R6`→+3V3, `J6.3`. |
 | `IMU_INT` | `A2.INT` → `A1.33`. |
-| INA3221 CH1 sense | **Off-board** — a dedicated clean lead from **battery +** runs straight to the module's **CH1 IN+ & IN−** screw terminals (both tied = zero-current bus-voltage read). Does **not** route through the mainboard; CH1 is not on the 8-pin socket. |
+| INA3221 CH1 sense | **Off-board** — a dedicated clean lead from **battery +** runs straight to the module's **CH1** hole. On the WCMCU-3221 (bench-verified 2026-11-10), **CH1 = IN−**, **POW = the shared IN+ of all three channels**, and a 0.1 Ω shunt sits between POW and each CHx. One wire to CH1 is therefore a zero-current bus-voltage read; no jumper is needed. The **GND holes next to CHx are ground**: never jumper CHx to them, because that shorts the sense lead to ground. CH2/CH3 can only measure loads fed **from POW**. Does **not** route through the mainboard; CH1 is not on the 8-pin socket. |
 | INA3221 GND ref | Comes through the header: `U3.2` → board `GND` → (external) battery −. This is what makes the off-board CH1 reading correct. |
 | INA3221 CH2/CH3 | Reserved — module terminals, future per-branch current sensing. |
 
