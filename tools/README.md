@@ -72,6 +72,24 @@ about 1.00 g in any orientation, and the gyro reads near 0.
 .\tools\run-watch-imu.ps1 -Secs 120
 ```
 
+## Security / crash walk: `run-security-walk.ps1`
+
+A guided test of the IMU event logic (ADR-0020). You move the module and the script
+watches `motion`:
+- it takes a parked reference after 10 s still;
+- a tilt of about 10° gives **MOVED**, and it re-arms on the new position;
+- taps give **BUMP**;
+- on its side gives **TIPPED**, and flat again gives UPRIGHT;
+- a knock and then lying on its side gives **CRASH PENDING**, which is auto-cancelled when
+  it stands upright again.
+
+For the crash step it fakes "engine running" (SIM) and lowers `crashG` to 1.5 g, then
+restores both. It offers `imu cal` if the IMU isn't calibrated.
+
+```powershell
+.\tools\run-security-walk.ps1
+```
+
 ## Supervisor voltage walk: `run-voltage-walk.ps1`
 
 A guided test of the engine-run state machine (ADR-0012) on **real sensors**. You turn the

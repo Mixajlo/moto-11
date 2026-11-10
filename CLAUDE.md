@@ -130,6 +130,19 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   ±4 g, ±500 dps, 44 Hz DLPF, 100 Hz. The console's `imu` prints accel/tilt/gyro/temp
   (`imu probe` re-detects). Bench unit: z offset +0.115 g, gyro bias about 3 °/s, so it needs
   calibration. `tools/run-watch-imu.ps1` gives a live view.
+- Security/crash (`src/motion.{h,cpp}`, ADR-0020): pure logic fed at about 100 Hz.
+  - `imu cal` (still + upright, about 2 s, std-dev check) stores the gyro bias + upright
+    vector in NVS.
+  - Context is RIDING if the engine ran within 10 s, otherwise PARKED.
+  - Events:
+    - BUMP (parked knock > 0.15 g);
+    - MOVED (parked attitude change > `moveDeg` for 1 s; re-arms after 10 s still);
+    - TIPPED/UPRIGHT (> `tipDeg` 60°);
+    - CRASH (riding: impact > `crashG` 3 g, then lying 3 s → PENDING; after `crashCancel`
+      30 s → CONFIRMED, the SMS hook). Cancelled by `crash cancel` or by standing upright.
+  - The IMU runs at ±8 g, with wake-on-motion at 60 mg latched on INT/GPIO 33. The driver
+    drops corrupt `FF 00` bursts, about 1 % of reads on the breadboard.
+  - Console: `motion`, `imu cal`, `crash cancel`. Tool: `tools/run-security-walk.ps1`.
 - Load manager (`src/loads.{h,cpp}`, ADR-0019): buttons and `loads want` record what the
   rider *wants*; relays = wanted AND allowed. Grips are engine-only (held off unless RUNNING,
   remembered). Marginal charging sheds grips → fog, one step per `shedStep` (30 s), and restores
@@ -141,9 +154,12 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   on the breadboard, all 5 channels, fail-OFF across reset (2026-11-09). **Supervisor proven on
   REAL sensors** (2026-11-10): PC817 IGN/START (47 kΩ pull-ups) + INA3221 CH1 (WCMCU-3221: CH1 =
   IN−, POW = shared IN+; one wire to CH1) fed from an XY-SK35H bench supply; `run-voltage-walk.ps1`
-  9/9. The bench twin is now ESP unit #2 (unit #1 died in a bench short). Load manager written +
-  host/on-target tested (ADR-0019). **Next:** the IMU/security layer; on the bike, verify the
-  START wire before trusting crank shedding. Hardware-side: add the JST-XH button
+  9/9. The bench twin is now ESP unit #2 (unit #1 died in a bench short). Load manager proven on
+  the LEDs (ADR-0019). IMU security layer (ADR-0020): calibration, MOVED, BUMP, TIPPED and
+  UPRIGHT proven on the bench; the crash path is only host-tested (a bench knock is under
+  1.5 g). **Next:** alert delivery (NVS event queue → BLE/tablet SMS), deep sleep with IMU/IGN
+  wake. On the bike: verify the START wire (`set crankHold 0` until then), `imu cal` once
+  mounted, measure vibration/knock peaks before trusting the thresholds. Hardware-side: add the JST-XH button
   connector to the mainboard.
 
 ## Dev environment

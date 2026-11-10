@@ -28,3 +28,4 @@ editing history.
 - [0017](0017-uln-com-on-always-hot.md) — ULN COM and the master-relay coil on always-hot +12, not the gated box rail (amends 0003)
 - [0018](0018-five-channel-relay-drive.md) — Five-channel relay drive: J2 = master relay, J3 = four box relays, AUX on GPIO 12; headlight relay off the ESP (refines 0003/0004/0009/0017)
 - [0019](0019-load-manager-shed-policy.md) — Load manager: engine-only grips, grips → fog shed ladder, crank hold (implements 0012's `manageLoads()`)
+- [0020](0020-imu-security-crash-logic.md) — IMU security/crash logic: calibration, MOVED/BUMP/TIPPED, crash with a 30 s cancel window
