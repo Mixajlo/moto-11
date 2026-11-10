@@ -74,11 +74,15 @@ class Esp:
         After the port has sat idle (e.g. waiting for the user to press Enter),
         Windows can power-save the CP2102; the first bytes after wake-up come
         back garbled and the first command is lost. A throwaway newline plus a
-        'state' round-trip absorbs that. Returns True once a clean reply is seen."""
+        'state' round-trip absorbs that. Returns True once a clean reply is seen.
+        Everything read meanwhile (log lines can land here) is kept in self.sync_text."""
+        self.sync_text = ""
         for _ in range(tries):
             self.s.write(b"\r\n")
-            self.read(0.3)
-            if "state=" in self.send("state", 0.8):
+            self.sync_text += self.read(0.3)
+            out = self.send("state", 0.8)
+            self.sync_text += out
+            if "state=" in out:
                 return True
         return False
 

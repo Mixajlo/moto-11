@@ -772,7 +772,7 @@
         state = POWERED;                 <span class="c">// stall/kill, key on — relay STAYS on</span>
       } <span class="k">else</span> {
         <span class="f">chargeHealth</span>(vbus);             <span class="c">// marginal warn: hysteresis 13.4/13.6 + 5s debounce</span>
-        <span class="f">manageLoads</span>(vbus);              <span class="c">// (future) shed grips -&gt; fog -&gt; ...</span>
+        <span class="f">manageLoads</span>();                  <span class="c">// ADR-0019: marginal -&gt; shed grips, then fog</span>
       }
       <span class="k">break</span>;
 

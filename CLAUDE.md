@@ -125,13 +125,20 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   `RELAY_COUNT` (which moves when a channel is added); schema-1 data is migrated once at boot. Ring mode (`btn ring <on|off>`, default on, `src/button_ring.h`) reads the case's
   factory button loop by pulling BTN5 low (never high) and reports it as BTN4-7; turn it off once
   each button has its own wire.
+- Load manager (`src/loads.{h,cpp}`, ADR-0019): buttons and `loads want` record what the
+  rider *wants*; relays = wanted AND allowed. Grips are engine-only (held off unless RUNNING,
+  remembered). Marginal charging sheds grips → fog, one step per `shedStep` (30 s), and restores
+  fog → grips after recovery. START held (+ `crankHold` 1.5 s; 0 = off) holds both off. Edge-driven:
+  console `on/off` is a bench bypass. Console: `loads`, `loads want <ch> <on|off>`,
+  `sim start on|off`. Inputs are a plain `LoadInputs` struct filled in `main.cpp` (host-testable).
 - Current milestone: engine-run supervisor + runtime config + aux buttons proven on the bench
   (config persistence verified across a hardware reset); ESP→ULN2803→relay box on 12 V proven
   on the breadboard, all 5 channels, fail-OFF across reset (2026-11-09). **Supervisor proven on
   REAL sensors** (2026-11-10): PC817 IGN/START (47 kΩ pull-ups) + INA3221 CH1 (WCMCU-3221: CH1 =
   IN−, POW = shared IN+; one wire to CH1) fed from an XY-SK35H bench supply; `run-voltage-walk.ps1`
-  9/9. The bench twin is now ESP unit #2 (unit #1 died in a bench short). **Next:** `manageLoads()`
-  load-shedding (grips → fog) and the IMU/security layer. Hardware-side: add the JST-XH button
+  9/9. The bench twin is now ESP unit #2 (unit #1 died in a bench short). Load manager written +
+  host/on-target tested (ADR-0019). **Next:** the IMU/security layer; on the bike, verify the
+  START wire before trusting crank shedding. Hardware-side: add the JST-XH button
   connector to the mainboard.
 
 ## Dev environment

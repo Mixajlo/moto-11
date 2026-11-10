@@ -70,8 +70,19 @@ SLEEP → ARMED → 13.3 V RUNNING (MASTER on) + MARGINAL warning → 13.8 V rec
 12.4 V POWERED (MASTER held) → 13.8 V RUNNING → key off OFF_DELAY → SLEEP (MASTER off).
 
 ```powershell
-.\tools\run-voltage-walk.ps1
+.\tools\run-voltage-walk.ps1                 # supervisor state machine
+.\tools\run-voltage-walk.ps1 -Mode loads     # load policy on the FOG (pin 17) / GRIP (pin 16) LEDs
 ```
+
+`-Mode loads` (ADR-0019) asks for GRIP and FOG the way the buttons would, then checks five
+things on the LEDs:
+- the grips wait for the engine;
+- at 13.3 V (marginal) the grips are shed, then the fog;
+- at 13.8 V the fog comes back first, then the grips;
+- on a stall the grips go off but the fog stays on;
+- on a restart the grips come back on.
+
+For the walk it sets `shedStep` to 10 s, and restores it at the end.
 
 Bench wiring: the charger feeds **only** the XY input. XY OUT+ is the bench +12 rail (ULN
 COM, LEDs, IGN/START switches, INA CH1) and XY OUT− is the bench GND. On the XY, set OVP to
