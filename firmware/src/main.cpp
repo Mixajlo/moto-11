@@ -23,6 +23,7 @@
 #include "config.h"
 #include "buttons.h"
 #include "loads.h"
+#include "motion.h"
 
 #ifndef DEVICE_NAME
 #define DEVICE_NAME "vstrom-esp"   // fallback if no build flag is set
@@ -36,6 +37,7 @@ uint32_t lastBlink  = 0;
 bool      ledOn      = false;
 bool      netUp      = false;   // true once WiFi+OTA+telnet are live
 uint32_t  lastWifiTry = 0;
+uint32_t  lastImu    = 0;
 
 void setupOTA() {
   ArduinoOTA.setHostname(DEVICE_NAME);
@@ -72,6 +74,7 @@ void setup() {
   Sensor.begin();
   Engine.begin();
   Loads.begin();    // nothing wanted yet: fail-OFF
+  Motion.begin();   // IMU calibration from NVS
   Cfg.begin();      // overlay NVS-saved tunables onto the supervisor + load defaults
   Btns.begin();     // handlebar aux buttons (INPUT_PULLUP, fail to "not pressed")
 
@@ -109,6 +112,14 @@ void loop() {
   li.chargeMarginal = Engine.chargeMarginal();
   li.cranking       = Sensor.cranking();
   Loads.update(li);
+
+  // IMU security/crash logic (ADR-0020): ~100 Hz, matching the MPU's output rate.
+  if (Sensor.imuPresent() && millis() - lastImu >= 10) {
+    lastImu = millis();
+    ImuSample s;
+    if (Sensor.imuRead(s)) Motion.feed(s, Engine.engineRunning(), lastImu);
+    if (Sensor.imuMotionLatched()) Motion.noteWake();
+  }
 
   // Onboard LED doubles as a bench indicator: heartbeat (proof of life) while
   // every relay is off; solid ON the moment any channel is energised — so you

@@ -18,7 +18,7 @@ echo "native supervisor tests: PASS"
 g++ -std=c++17 -DMOTO_DEBUG=1 \
     -I test_host/mock -I src \
     test_host/test_config_native.cpp \
-    src/config.cpp src/supervisor.cpp src/sensors.cpp src/relays.cpp src/loads.cpp \
+    src/config.cpp src/supervisor.cpp src/sensors.cpp src/relays.cpp src/loads.cpp src/motion.cpp \
     -o "$TMP/moto_cfg_test"
 "$TMP/moto_cfg_test"
 echo "native config tests: PASS"
@@ -38,3 +38,11 @@ g++ -std=c++17 -DMOTO_DEBUG=1 \
     -o "$TMP/moto_loads_test"
 "$TMP/moto_loads_test"
 echo "native load tests: PASS"
+
+g++ -std=c++17 -DMOTO_DEBUG=1 \
+    -I test_host/mock -I src \
+    test_host/test_motion_native.cpp \
+    src/motion.cpp \
+    -o "$TMP/moto_motion_test"
+"$TMP/moto_motion_test"
+echo "native motion tests: PASS"

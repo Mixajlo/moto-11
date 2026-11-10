@@ -2,6 +2,7 @@
 #include "config.h"
 #include "supervisor.h"
 #include "loads.h"
+#include "motion.h"
 #include "log.h"
 
 #include <Preferences.h>
@@ -19,7 +20,8 @@ Preferences prefs;
 const char* const KEYS[Config::KEY_COUNT] = {
   "vRunOn", "vRunOff", "chargeWarn", "chargeClear",
   "runDebounce", "stallDebounce", "offDelay", "backstop", "chargeDebounce", "ignDebounce",
-  "shedStep", "crankHold"
+  "shedStep", "crankHold",
+  "moveDeg", "tipDeg", "crashG", "crashCancel"
 };
 
 bool ladderOk(float off, float on, float warn, float clear) {
@@ -33,7 +35,8 @@ void Config::captureDefaults() {
   def_ = { Engine.vRunOn, Engine.vRunOff, Engine.chargeWarn, Engine.chargeClear,
            Engine.runDebounceMs, Engine.stallDebounceMs, Engine.offDelayMs,
            Engine.backstopMs, Engine.chargeDebounceMs, Engine.ignDebounceMs,
-           Loads.shedStepMs, Loads.crankHoldMs };
+           Loads.shedStepMs, Loads.crankHoldMs,
+           Motion.moveDeg, Motion.tipDeg, Motion.crashG, Motion.cancelWindowMs };
 }
 
 void Config::applyDefaults() {
@@ -44,6 +47,8 @@ void Config::applyDefaults() {
   Engine.chargeDebounceMs = def_.chargeDebounce;
   Engine.ignDebounceMs = def_.ignDebounce;
   Loads.shedStepMs = def_.shedStep; Loads.crankHoldMs = def_.crankHold;
+  Motion.moveDeg = def_.moveDeg; Motion.tipDeg = def_.tipDeg;
+  Motion.crashG = def_.crashG; Motion.cancelWindowMs = def_.crashCancel;
 }
 
 void Config::persistAll() {
@@ -59,6 +64,10 @@ void Config::persistAll() {
   prefs.putUInt("ignDebounce", Engine.ignDebounceMs);
   prefs.putUInt("shedStep", Loads.shedStepMs);
   prefs.putUInt("crankHold", Loads.crankHoldMs);
+  prefs.putFloat("moveDeg", Motion.moveDeg);
+  prefs.putFloat("tipDeg", Motion.tipDeg);
+  prefs.putFloat("crashG", Motion.crashG);
+  prefs.putUInt("crashCancel", Motion.cancelWindowMs);
 }
 
 void Config::begin() {
@@ -85,6 +94,10 @@ void Config::begin() {
   Engine.ignDebounceMs   = prefs.getUInt("ignDebounce", Engine.ignDebounceMs);
   Loads.shedStepMs       = prefs.getUInt("shedStep", Loads.shedStepMs);
   Loads.crankHoldMs      = prefs.getUInt("crankHold", Loads.crankHoldMs);
+  Motion.moveDeg         = prefs.getFloat("moveDeg", Motion.moveDeg);
+  Motion.tipDeg          = prefs.getFloat("tipDeg", Motion.tipDeg);
+  Motion.crashG          = prefs.getFloat("crashG", Motion.crashG);
+  Motion.cancelWindowMs  = prefs.getUInt("crashCancel", Motion.cancelWindowMs);
 
   if (!ladderOk(Engine.vRunOff, Engine.vRunOn, Engine.chargeWarn, Engine.chargeClear)) {
     LOGW("config: stored thresholds inconsistent — restoring defaults");
@@ -115,6 +128,16 @@ bool Config::set(const char* k, float v, const char** err) {
     Loads.shedStepMs = (uint32_t)v;       prefs.putUInt("shedStep", Loads.shedStepMs); return true; }
   if (!strcasecmp(k, "crankHold"))     { if (v < 0 || v > 10000)    return fail("0..10000 ms (0=no crank shed)");
     Loads.crankHoldMs = (uint32_t)v;      prefs.putUInt("crankHold", Loads.crankHoldMs); return true; }
+  if (!strcasecmp(k, "crashCancel"))   { if (v < 10000 || v > 120000) return fail("10000..120000 ms");
+    Motion.cancelWindowMs = (uint32_t)v;  prefs.putUInt("crashCancel", Motion.cancelWindowMs); return true; }
+
+  // --- motion thresholds (ADR-0020) ---
+  if (!strcasecmp(k, "moveDeg")) { if (v < 1.0f || v > 20.0f)  return fail("1..20 deg");
+    Motion.moveDeg = v; prefs.putFloat("moveDeg", v); return true; }
+  if (!strcasecmp(k, "tipDeg"))  { if (v < 30.0f || v > 85.0f) return fail("30..85 deg");
+    Motion.tipDeg = v;  prefs.putFloat("tipDeg", v);  return true; }
+  if (!strcasecmp(k, "crashG"))  { if (v < 1.5f || v > 7.5f)   return fail("1.5..7.5 g (IMU range is 8 g)");
+    Motion.crashG = v;  prefs.putFloat("crashG", v);  return true; }
 
   // --- voltages (ladder-checked together) ---
   float on = Engine.vRunOn, off = Engine.vRunOff, warn = Engine.chargeWarn, clear = Engine.chargeClear;
@@ -145,6 +168,10 @@ bool Config::getValue(const char* k, float& o) const {
   else if (!strcasecmp(k, "ignDebounce"))    o = Engine.ignDebounceMs;
   else if (!strcasecmp(k, "shedStep"))       o = Loads.shedStepMs;
   else if (!strcasecmp(k, "crankHold"))      o = Loads.crankHoldMs;
+  else if (!strcasecmp(k, "moveDeg"))        o = Motion.moveDeg;
+  else if (!strcasecmp(k, "tipDeg"))         o = Motion.tipDeg;
+  else if (!strcasecmp(k, "crashG"))         o = Motion.crashG;
+  else if (!strcasecmp(k, "crashCancel"))    o = Motion.cancelWindowMs;
   else return false;
   return true;
 }

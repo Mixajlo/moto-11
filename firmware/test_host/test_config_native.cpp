@@ -8,6 +8,7 @@
 
 #include "config.h"
 #include "loads.h"
+#include "motion.h"
 #include "supervisor.h"
 
 unsigned long _hostMillis = 0;
@@ -74,7 +75,17 @@ int main() {
   CHECK(!Cfg.set("crankHold", 20000, &e), "crankHold 20000 rejected (range)");
   Cfg.resetDefaults();
   CHECK(Loads.shedStepMs == 30000 && Loads.crankHoldMs == 1500, "reset -> load defaults");
-  CHECK(Config::KEY_COUNT == 12 && !strcmp(Config::key(11), "crankHold"), "12 keys, crankHold last");
+  CHECK(Config::KEY_COUNT == 16 && !strcmp(Config::key(15), "crashCancel"), "16 keys, crashCancel last");
+
+  // motion keys (ADR-0020)
+  CHECK(getf("tipDeg") == 60.0f && getf("crashG") == 3.0f && getf("moveDeg") == 3.0f, "motion defaults");
+  CHECK(getf("crashCancel") == 30000, "default crashCancel 30000");
+  CHECK(Cfg.set("tipDeg", 55) && Motion.tipDeg == 55.0f, "tipDeg 55 applied");
+  CHECK(!Cfg.set("tipDeg", 90, &e), "tipDeg 90 rejected (range)");
+  CHECK(!Cfg.set("crashG", 9, &e), "crashG 9 rejected (over the 8 g IMU range)");
+  CHECK(!Cfg.set("crashCancel", 5000, &e), "crashCancel 5000 rejected (too short to cancel)");
+  Cfg.resetDefaults();
+  CHECK(Motion.tipDeg == 60.0f && Motion.cancelWindowMs == 30000, "reset -> motion defaults");
 
   std::printf("\n%d checks, %d failed\n", g_count, g_fail);
   return g_fail ? 1 : 0;

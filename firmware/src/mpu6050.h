@@ -17,7 +17,7 @@ public:
   static constexpr uint8_t ADDR_DEFAULT = 0x68;   // AD0 low
   static constexpr uint8_t ADDR_ALT     = 0x69;   // AD0 high
 
-  // Probes the chip, checks WHO_AM_I, wakes it, sets +-4 g / +-500 dps / 44 Hz DLPF.
+  // Probes the chip, checks WHO_AM_I, wakes it, sets +-8 g / +-500 dps / 44 Hz DLPF.
   // false = nothing (or something else) at this address.
   bool begin(TwoWire& wire, uint8_t addr = ADDR_DEFAULT);
   bool present() const { return ok_; }
@@ -25,6 +25,9 @@ public:
   uint8_t whoAmI() const { return who_; }   // 0x68 genuine; clones report other values
 
   bool read(ImuSample& s);                  // false on an I2C error (s untouched)
+  bool enableMotionInt(uint16_t mg);        // INT latches HIGH on motion > mg (2 mg steps)
+  bool intStatus(uint8_t& st);              // reads (and so clears) INT_STATUS; bit 6 = motion
+  uint32_t badReads() const { return bad_; } // bursts rejected as corrupt (FF 00 pattern)
 
 private:
   bool readRegs(uint8_t reg, uint8_t* buf, uint8_t n);
@@ -34,4 +37,5 @@ private:
   uint8_t  addr_ = ADDR_DEFAULT;
   bool     ok_   = false;
   uint8_t  who_  = 0;
+  uint32_t bad_  = 0;
 };

@@ -17,6 +17,7 @@ Sensors Sensor;
 
 namespace {
 constexpr uint32_t VBUS_CACHE_MS = 100;   // the INA only refreshes every ~0.85 s anyway
+constexpr uint16_t IMU_WAKE_MG   = 60;    // wake-on-motion threshold, ~6x the bench noise
 }
 
 void Sensors::begin() {
@@ -46,12 +47,33 @@ bool Sensors::probeIna() {
 // Same bus as the INA (probeIna() has already started Wire). Tries 0x68, then 0x69.
 bool Sensors::probeImu() {
 #if defined(ARDUINO)
+  pinMode(PIN_IMU_INT, INPUT);              // MPU INT is push-pull: no pull needed
   imuOk_ = imu.begin(Wire, Mpu6050::ADDR_DEFAULT) || imu.begin(Wire, Mpu6050::ADDR_ALT);
-  if (imuOk_) LOGI("sensors: IMU (MPU-6050, WHO_AM_I 0x%02X) found at 0x%02X",
-                   imu.whoAmI(), imu.address());
+  if (imuOk_) {
+    LOGI("sensors: IMU (MPU-6050, WHO_AM_I 0x%02X) found at 0x%02X", imu.whoAmI(), imu.address());
+    if (!imu.enableMotionInt(IMU_WAKE_MG)) LOGW("sensors: IMU wake-on-motion setup failed");
+  }
   else        LOGW("sensors: IMU not found at 0x68/0x69");
 #endif
   return imuOk_;
+}
+
+bool Sensors::imuMotionLatched() {
+#if defined(ARDUINO)
+  if (!imuOk_ || digitalRead(PIN_IMU_INT) != HIGH) return false;
+  uint8_t st = 0;
+  return imu.intStatus(st) && (st & 0x40);
+#else
+  return false;
+#endif
+}
+
+uint32_t Sensors::imuBadReads() const {
+#if defined(ARDUINO)
+  return imu.badReads();
+#else
+  return 0;
+#endif
 }
 
 uint8_t Sensors::imuAddress() const {

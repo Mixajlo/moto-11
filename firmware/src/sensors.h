@@ -30,6 +30,8 @@ public:
   uint8_t imuAddress() const;
   uint8_t imuWhoAmI() const;
   bool    imuRead(ImuSample& s);   // false = I2C error / no chip
+  bool    imuMotionLatched();      // INT pin latched by wake-on-motion; reading clears it
+  uint32_t imuBadReads() const;    // corrupt bursts the driver rejected
 
   // --- bench simulation ---
   void  setSim(bool on);

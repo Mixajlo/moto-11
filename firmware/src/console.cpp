@@ -12,6 +12,7 @@
 #include "config.h"
 #include "buttons.h"
 #include "loads.h"
+#include "motion.h"
 #include "pins.h"
 
 namespace {
@@ -47,6 +48,9 @@ void printHelp() {
   outln("  sensors | sense    raw INA3221 CH1-3 + IGN/START opto pins (sensors probe = re-detect)");
   outln("  i2c                scan the I2C bus");
   outln("  imu                one IMU reading: accel, tilt, gyro, temp (imu probe = re-detect)");
+  outln("  imu cal            calibrate: bike still + upright for 2 s (saved in NVS)");
+  outln("  motion | sec       security/crash state: tilt, park delta, events");
+  outln("  crash cancel       stop a pending crash alert");
   outln("  config             list tunables (config reset = restore defaults)");
   outln("  get <key>          show one tunable");
   outln("  set <key> <val>    change + persist a tunable (validated)");
@@ -139,6 +143,50 @@ void printImu() {
   snprintf(l, sizeof(l), "  gyro   x %+7.2f  y %+7.2f  z %+7.2f deg/s", s.gx, s.gy, s.gz);
   outln(l);
   snprintf(l, sizeof(l), "  temp   %.1f C (die)", s.tempC);
+  outln(l);
+}
+
+// Security / crash view (ADR-0020).
+void printMotion() {
+  outln();
+  char l[140];
+  const uint32_t now = millis();
+  const ImuCal& c = Motion.cal();
+  snprintf(l, sizeof(l), "motion: %s  context=%s  calibration=%s",
+           Sensor.imuPresent() ? "IMU ok" : "NO IMU", Motion.riding() ? "RIDING" : "PARKED",
+           c.valid ? "ok" : "NONE (imu cal)");
+  outln(l);
+  snprintf(l, sizeof(l), "  tilt from upright %5.1f deg (tip at %.0f)   tipped=%s",
+           Motion.tiltDeg(), Motion.tipDeg, Motion.tipped() ? "YES" : "no");
+  outln(l);
+  snprintf(l, sizeof(l), "  park reference %s   delta %4.1f deg (moved at %.1f)   moved=%s",
+           Motion.parkArmed() ? "set" : "settling", Motion.parkDeltaDeg(), Motion.moveDeg,
+           Motion.moved() ? "YES" : "no");
+  outln(l);
+  static uint32_t lastN = 0, lastT = 0;
+  const uint32_t n = Motion.samples();
+  const float rate = (lastT && now > lastT) ? (n - lastN) * 1000.0f / (now - lastT) : 0.0f;
+  lastN = n; lastT = now;
+  snprintf(l, sizeof(l), "  impact %.2f g, peak since last 'motion' %.2f g (bump %.2f, crash %.1f)   crash=%s",
+           Motion.impactG(), Motion.takePeakImpact(), Motion.bumpG, Motion.crashG,
+           MotionMonitor::crashName(Motion.crash()));
+  outln(l);
+  snprintf(l, sizeof(l), "  sample rate %.0f Hz since last 'motion'", rate);
+  outln(l);
+  if (Motion.crash() == CR_PENDING) {
+    snprintf(l, sizeof(l), "  CRASH PENDING: alert in %lus - 'crash cancel' to stop it",
+             (unsigned long)(Motion.crashLeftMs(now) / 1000));
+    outln(l);
+  }
+  snprintf(l, sizeof(l), "  events: bump %lu  moved %lu  tipped %lu  crash pending %lu / confirmed %lu / cancelled %lu",
+           (unsigned long)Motion.count(MEV_BUMP), (unsigned long)Motion.count(MEV_MOVED),
+           (unsigned long)Motion.count(MEV_TIPPED), (unsigned long)Motion.count(MEV_CRASH_PENDING),
+           (unsigned long)Motion.count(MEV_CRASH_CONFIRMED), (unsigned long)Motion.count(MEV_CRASH_CANCELLED));
+  outln(l);
+  snprintf(l, sizeof(l), "  last event %s %lus ago   IMU wake INTs %lu   corrupt reads dropped %lu",
+           MotionMonitor::eventName(Motion.lastEvent()),
+           (unsigned long)(Motion.lastEvent() ? (now - Motion.lastEventAt()) / 1000 : 0),
+           (unsigned long)Motion.wakes(), (unsigned long)(Motion.glitches() + Sensor.imuBadReads()));
   outln(l);
 }
 
@@ -389,7 +437,18 @@ void dispatch(char* line) {
     printSensors();
   } else if (!strcasecmp(cmd, "imu")) {
     if (arg && !strcasecmp(arg, "probe")) outln(Sensor.probeImu() ? "IMU found" : "IMU not found");
+    if (arg && !strcasecmp(arg, "cal")) {
+      if (!Sensor.imuPresent()) { outln("no IMU"); return; }
+      Motion.startCal(millis());
+      outln("calibrating: keep it still and upright for 2 s... ('motion' shows the result)");
+      return;
+    }
     printImu();
+  } else if (!strcasecmp(cmd, "motion") || !strcasecmp(cmd, "sec")) {
+    printMotion();
+  } else if (!strcasecmp(cmd, "crash") && arg && !strcasecmp(arg, "cancel")) {
+    Motion.cancelCrash(millis());
+    printMotion();
   } else if (!strcasecmp(cmd, "i2c")) {
     i2cScan();
   } else if (!strcasecmp(cmd, "config")) {
