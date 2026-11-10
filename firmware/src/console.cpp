@@ -3,6 +3,7 @@
 #include <TelnetStream.h>
 #include <Wire.h>
 #include <string.h>
+#include <math.h>
 
 #include "console.h"
 #include "relays.h"
@@ -45,6 +46,7 @@ void printHelp() {
   outln("  sim real | sim     switch to real sensors / back to sim");
   outln("  sensors | sense    raw INA3221 CH1-3 + IGN/START opto pins (sensors probe = re-detect)");
   outln("  i2c                scan the I2C bus");
+  outln("  imu                one IMU reading: accel, tilt, gyro, temp (imu probe = re-detect)");
   outln("  config             list tunables (config reset = restore defaults)");
   outln("  get <key>          show one tunable");
   outln("  set <key> <val>    change + persist a tunable (validated)");
@@ -112,6 +114,32 @@ void handleSim(const char* a, const char* b) {
   } else {
     outln("usage: sim ign on|off  |  sim start on|off  |  sim vbus <volts>  |  sim real|sim");
   }
+}
+
+// One IMU snapshot: accel (g) + its magnitude, tilt from gravity, gyro, die temp.
+// At rest the magnitude reads ~1.00 g whatever the orientation.
+void printImu() {
+  outln();
+  if (!Sensor.imuPresent()) {
+    outln("IMU: NOT found (VCC 3.3 V, GND, SDA=21, SCL=22; 'i2c' to scan, 'imu probe' to retry)");
+    return;
+  }
+  ImuSample s;
+  if (!Sensor.imuRead(s)) { outln("IMU: read failed (I2C error)"); return; }
+  char l[120];
+  snprintf(l, sizeof(l), "IMU @0x%02X (WHO_AM_I 0x%02X)", Sensor.imuAddress(), Sensor.imuWhoAmI());
+  outln(l);
+  float mag = sqrtf(s.ax * s.ax + s.ay * s.ay + s.az * s.az);
+  snprintf(l, sizeof(l), "  accel  x %+6.3f  y %+6.3f  z %+6.3f g   |a| %.3f g", s.ax, s.ay, s.az, mag);
+  outln(l);
+  float roll  = atan2f(s.ay, s.az) * 57.2958f;
+  float pitch = atan2f(-s.ax, sqrtf(s.ay * s.ay + s.az * s.az)) * 57.2958f;
+  snprintf(l, sizeof(l), "  tilt   roll %+6.1f deg   pitch %+6.1f deg  (from gravity)", roll, pitch);
+  outln(l);
+  snprintf(l, sizeof(l), "  gyro   x %+7.2f  y %+7.2f  z %+7.2f deg/s", s.gx, s.gy, s.gz);
+  outln(l);
+  snprintf(l, sizeof(l), "  temp   %.1f C (die)", s.tempC);
+  outln(l);
 }
 
 // Load policy view (ADR-0019): what the rider wants vs what is allowed, and why not.
@@ -319,7 +347,8 @@ void i2cScan() {
     if (Wire.endTransmission() == 0) {
       char line[48];
       snprintf(line, sizeof(line), "  0x%02X%s", a,
-               (a >= 0x40 && a <= 0x43) ? "  (INA3221 range)" : "");
+               (a >= 0x40 && a <= 0x43) ? "  (INA3221 range)"
+               : (a == 0x68 || a == 0x69) ? "  (MPU-6050 IMU)" : "");
       outln(line);
       found++;
     }
@@ -358,6 +387,9 @@ void dispatch(char* line) {
       outln(Sensor.probeIna() ? "INA3221 found" : "INA3221 not found");
     }
     printSensors();
+  } else if (!strcasecmp(cmd, "imu")) {
+    if (arg && !strcasecmp(arg, "probe")) outln(Sensor.probeImu() ? "IMU found" : "IMU not found");
+    printImu();
   } else if (!strcasecmp(cmd, "i2c")) {
     i2cScan();
   } else if (!strcasecmp(cmd, "config")) {

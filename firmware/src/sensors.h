@@ -6,6 +6,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "imu_sample.h"
 
 class Sensors {
 public:
@@ -23,6 +24,13 @@ public:
   bool  startRawLow();  // START_SENSE pin level is LOW (start button / headlight feed sensed)
   bool  probeIna();     // re-run detection (after hot-plugging the module on the bench)
 
+  // --- IMU (MPU-6050, 0x68/0x69); always real hardware ---
+  bool    probeImu();
+  bool    imuPresent() const { return imuOk_; }
+  uint8_t imuAddress() const;
+  uint8_t imuWhoAmI() const;
+  bool    imuRead(ImuSample& s);   // false = I2C error / no chip
+
   // --- bench simulation ---
   void  setSim(bool on);
   bool  sim() const       { return sim_; }
@@ -37,6 +45,7 @@ private:
   bool  simStart_ = false;
 
   bool     inaOk_     = false;
+  bool     imuOk_     = false;
   float    lastVbus_  = 0.0f;
   uint32_t lastRead_  = 0;
   bool     everRead_  = false;

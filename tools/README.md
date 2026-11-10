@@ -61,6 +61,17 @@ With `-Real`, the supervisor goes back to SIM at the end. Expected on the bench 
 INA fitted: key in, so `IGN: ON (pin LOW)` and `STATE: ARMED`; key out, so `SLEEP`.
 MASTER stays off, because 0.0 V means "engine not running". Logs go to `tools/logs/`.
 
+## Live IMU: `run-watch-imu.ps1`
+
+A window that prints one line per MPU-6050 reading: accel (g), |a|, roll/pitch from
+gravity, gyro (deg/s) and temperature. Lines are tagged `<- jolt` or `<- rotating`, and the
+peaks are shown at the end. Use it while you tilt, tap or shake the module. At rest |a| is
+about 1.00 g in any orientation, and the gyro reads near 0.
+
+```powershell
+.\tools\run-watch-imu.ps1 -Secs 120
+```
+
 ## Supervisor voltage walk: `run-voltage-walk.ps1`
 
 A guided test of the engine-run state machine (ADR-0012) on **real sensors**. You turn the

@@ -125,6 +125,11 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
   `RELAY_COUNT` (which moves when a channel is added); schema-1 data is migrated once at boot. Ring mode (`btn ring <on|off>`, default on, `src/button_ring.h`) reads the case's
   factory button loop by pulling BTN5 low (never high) and reports it as BTN4-7; turn it off once
   each button has its own wire.
+- IMU: MPU-6050 on a GY-521/HW-123 breakout (A2), via the library-free driver
+  `src/mpu6050.{h,cpp}` on the shared I²C bus. Address 0x68 (AD0 NC), INT → GPIO 33. Set to
+  ±4 g, ±500 dps, 44 Hz DLPF, 100 Hz. The console's `imu` prints accel/tilt/gyro/temp
+  (`imu probe` re-detects). Bench unit: z offset +0.115 g, gyro bias about 3 °/s, so it needs
+  calibration. `tools/run-watch-imu.ps1` gives a live view.
 - Load manager (`src/loads.{h,cpp}`, ADR-0019): buttons and `loads want` record what the
   rider *wants*; relays = wanted AND allowed. Grips are engine-only (held off unless RUNNING,
   remembered). Marginal charging sheds grips → fog, one step per `shedStep` (30 s), and restores

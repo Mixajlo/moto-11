@@ -9,7 +9,8 @@
 #if defined(ARDUINO)
 #include <Wire.h>
 #include "ina3221.h"
-namespace { Ina3221 ina; }
+#include "mpu6050.h"
+namespace { Ina3221 ina; Mpu6050 imu; }
 #endif
 
 Sensors Sensor;
@@ -25,6 +26,7 @@ void Sensors::begin() {
   pinMode(PIN_IGN_SENSE, INPUT);
   pinMode(PIN_START_SENSE, INPUT);
   probeIna();
+  probeImu();
   LOGI("sensors: %s mode", sim_ ? "SIM" : "real");
 }
 
@@ -39,6 +41,42 @@ bool Sensors::probeIna() {
 #endif
   everRead_ = false;
   return inaOk_;
+}
+
+// Same bus as the INA (probeIna() has already started Wire). Tries 0x68, then 0x69.
+bool Sensors::probeImu() {
+#if defined(ARDUINO)
+  imuOk_ = imu.begin(Wire, Mpu6050::ADDR_DEFAULT) || imu.begin(Wire, Mpu6050::ADDR_ALT);
+  if (imuOk_) LOGI("sensors: IMU (MPU-6050, WHO_AM_I 0x%02X) found at 0x%02X",
+                   imu.whoAmI(), imu.address());
+  else        LOGW("sensors: IMU not found at 0x68/0x69");
+#endif
+  return imuOk_;
+}
+
+uint8_t Sensors::imuAddress() const {
+#if defined(ARDUINO)
+  return imu.address();
+#else
+  return 0;
+#endif
+}
+
+uint8_t Sensors::imuWhoAmI() const {
+#if defined(ARDUINO)
+  return imu.whoAmI();
+#else
+  return 0;
+#endif
+}
+
+bool Sensors::imuRead(ImuSample& s) {
+#if defined(ARDUINO)
+  return imuOk_ && imu.read(s);
+#else
+  (void)s;
+  return false;
+#endif
 }
 
 uint8_t Sensors::inaAddress() const {
