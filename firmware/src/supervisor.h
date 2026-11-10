@@ -77,6 +77,7 @@ private:
   bool     ign_         = false;       // debounced ignition (what the state machine acts on)
   bool     ignPending_  = false;       // raw IGN disagrees with ign_ and is being timed
   uint32_t ignSince_    = 0;           // when the disagreement started
+  bool     sleepNoted_  = false;       // "would deep-sleep" already logged this SLEEP visit
 };
 
 extern Supervisor Engine;

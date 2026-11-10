@@ -57,6 +57,7 @@ bool Supervisor::debounceIgn(bool raw) {
 void Supervisor::enter(SupState s) {
   LOGI("supervisor: %s -> %s", NAMES[state_], NAMES[s]);
   state_ = s;
+  sleepNoted_ = false;
   aboveSince_ = 0;
   belowSince_ = 0;
   chgSince_   = 0;
@@ -103,7 +104,10 @@ void Supervisor::update() {
       // (SIM) we must not sleep (it would drop WiFi/console), so we just idle.
       if (ign) {
         enter(SUP_ARMED);
-      } else if (!Sensor.sim()) {
+      } else if (!Sensor.sim() && !sleepNoted_) {
+        // Log once per SLEEP entry: update() runs every loop, so an unguarded
+        // line here floods the console (~100 lines/s) until real deep-sleep lands.
+        sleepNoted_ = true;
         LOGI("supervisor: would deep-sleep here (wake on ignition)");
         // TODO(hardware): esp_sleep_enable_ext0_wakeup(IGN_SENSE, 0);
         //                 esp_deep_sleep_start();

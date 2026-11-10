@@ -63,14 +63,18 @@ void fmtDuration(uint32_t ms, char* buf, size_t n) {
 }
 
 void printSupState() {
-  char line[120];
+  char line[140];
+  // charge= is only meaningful while RUNNING (charge health isn't judged otherwise).
+  const char* charge = Engine.state() != SUP_RUNNING ? "-"
+                     : Engine.chargeMarginal() ? "MARGINAL" : "ok";
   snprintf(line, sizeof(line),
-           "state=%s  ign=%s  vbus=%.2f  sim=%s  master=%s",
+           "state=%s  ign=%s  vbus=%.2f  sim=%s  master=%s  charge=%s",
            Engine.stateName(),
            Sensor.ignition() ? "ON" : "off",
            Sensor.busVoltage(),
            Sensor.sim() ? "yes" : "no",
-           Relays.isOn(RELAY_MASTER) ? "ON" : "off");
+           Relays.isOn(RELAY_MASTER) ? "ON" : "off",
+           charge);
   outln(line);
 
   const char* what = nullptr;
