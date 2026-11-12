@@ -161,10 +161,10 @@ Decoupling caps: place one 100 nF physically next to each IC's V+/GND.
 | Net | Connects |
 |-----|----------|
 | `+12V_HOT` | `J1.1`, Q1 **drain**. External 2 A fuse upstream. |
-| `+12V_PROT` | Q1 **source**, `D1` cathode (TVS across PROT→GND), `C1+`, `A3.IN+`, `U2.10 (COM)`, `J2.1` (master coil +), `TP1`. |
-| `+5V` | `A3.OUT+`, `C2+`, `A1.5V/VIN`, `TP2`. |
-| `+3V3` | `A1.3V3`, `U3.VS`/`U3.VCC`, `A2.VCC`, `R5`, `R6`, `R9`, `R10`, `D2`(via R13), `C9+`, `TP3`. |
-| `GND` | `J1.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U2.6–8` (unused ULN inputs), `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J6.4`, all cap −, `TP4`. |
+| `+12V_PROT` | Q1 **source**, `D1` cathode (TVS across PROT→GND), `C1+`, `A3.IN+`, `U2.10 (COM)`, `J2.1` (master coil +). |
+| `+5V` | `A3.OUT+`, `C2+`, `A1.5V/VIN`. |
+| `+3V3` | `A1.3V3`, `U3.VS`/`U3.VCC`, `A2.VCC`, `R5`, `R6`, `R9`, `R10`. *(v1 has no D2/R13 power LED, C9 or test points.)* |
+| `GND` | `J1.2`, `A3.IN−`, `A3.OUT−`, `A1.GND`, `U2.9`, `U2.6–8` (unused ULN inputs), `U3.GND`, `U4.gnd side`, `U5.gnd side`, `A2.GND`, `J4.SENSE_GND`, `J6.4`, all cap −. |
 
 ### Reverse-polarity + TVS (input protection)
 | Net | Connects |
@@ -234,6 +234,16 @@ for now.
 | 6 | CRI | — (NC) |
 | 7 | WAR | — (NC) |
 | 8 | TC  | — (NC) |
+| 9–14 | CH3 / GND / CH2 / GND / CH1 / GND (big holes; silk fixed 2026-11-12, was CHx+/CHx−) | — (NC) |
+| 15 | VPU (big hole) | — (NC) |
+| *(none)* | POW, GND (the big holes between VPU and the corner) | — (NC, padless number) |
+
+> **Fixed 2026-11-12, before the first order:** in the footprint, the POW hole and the GND hole next
+> to it were numbered pad 2, which put them on board `GND`. POW is the shared IN+ of the 0.1 Ω
+> shunts, so with the battery sense lead on CH1 that is a dead short through the CH1 shunt. It is
+> the same fault as the bench jumper that likely killed ESP #1. Both holes now have no pad number,
+> so they can never take a net. Rule: **no big hole on the module may ever carry a net on the
+> mainboard.** The module's GND comes only through header pin 2.
 
 > **I²C address:** `A0` is **not** on this header — it's set on the module (other edge / solder
 > option / default). The firmware + this spec assume **0x40** (`A0→GND`). Confirm the module's
