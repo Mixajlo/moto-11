@@ -24,8 +24,8 @@ R3,1,10k,ULN input pulldown,1206,generic,GRIP_EN
 R4,1,10k,ULN input pulldown,1206,generic,SPARE_EN
 R5,1,4.7k,I2C SDA pullup,1206,generic,to +3V3
 R6,1,4.7k,I2C SCL pullup,1206,generic,to +3V3
-R7,1,2.2k 0.25W,PC817 LED series,1206,generic,IGN 12V side ~5mA; 1206 gives surge margin on the unprotected 12V sense
-R8,1,2.2k 0.25W,PC817 LED series,1206,generic,START 12V side ~5mA; 1206 gives surge margin
+R7,1,2k 0.25W,PC817 LED series,1206,LCSC C17944 (JLC basic),IGN 12V side ~5.4mA (was 2.2k; 2k is a JLC basic part); 1206 gives surge margin on the unprotected 12V sense
+R8,1,2k 0.25W,PC817 LED series,1206,LCSC C17944 (JLC basic),START 12V side ~5.4mA; 1206 gives surge margin
 R9,1,10k,GPIO34 pullup,1206,generic,opto output to +3V3
 R10,1,10k,GPIO35 pullup,1206,generic,opto output to +3V3
 R11,1,100k,Q1 gate-source,1206,generic,reverse-pol FET

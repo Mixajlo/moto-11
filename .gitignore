@@ -27,6 +27,9 @@ docs/roadmap.md
 
 # ===== KiCad export / tool cruft =====
 *.dsn
+*.ses
+hardware/**/fab-v1/
+hardware/**/logs/
 DRC.rpt
 *-backups/
 

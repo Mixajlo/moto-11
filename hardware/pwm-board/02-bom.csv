@@ -1,0 +1,24 @@
+Qty per board,Fitted by,LCSC,Part,Value / spec,Package / footprint,References,Notes
+1,JLC,C2678753,PWM controller,PCA9685PW,TSSOP-28 (0.65 mm),U1,Extended part
+2,JLC,C20551,Gate driver,TC4427AEOA (dual non-inverting),SOIC-8,U2 U3,Extended part
+4,JLC,C99124,N-MOSFET,AOD4184A 40 V 7 mOhm,TO-252 (DPAK),Q1-Q4,Extended part
+4,JLC,C8678,Schottky diode,SS34 3 A 40 V,SMA,D1-D4,"Flyback; NOT 1N4148"
+1,JLC,C19077571,TVS diode,SMBJ16A (unidirectional),SMB,D10,Same as mainboard D1
+1,JLC,C19077412,Zener,BZT52C15 15 V,SOD-123,D9,VDRV clamp
+4,JLC,C965825,LED,XL-3216UGC green,1206,D5-D8,"Extended part; labelled OUT5-OUT8 on silk (meaning never by colour)"
+1,JLC,C24497,Ceramic cap,100 nF 50 V X7R,1206,C1,
+1,JLC,C13585,Ceramic cap,10 uF 50 V X5R,1206,C2,
+1,JLC,C1848,Ceramic cap,1 uF 50 V X7R,1206,C3,
+2,JLC,C24497,Ceramic cap,100 nF 50 V X7R,1206,C4 C5,
+4,JLC,C17903,Resistor,10 R,1206,R1-R4,Gate series
+9,JLC,C17902,Resistor,10 k,1206,R5-R12 R20,"Gate + input pull-downs, A0 pull-up"
+4,JLC,C17944,Resistor,2 k,1206,R13-R16,"LED series, about 4.5 mA (was 1.5 k; 2 k is a JLC basic part)"
+1,JLC,C17901,Resistor,100 R,1206,R17,"+12V_LOAD -> VDRV (was 47 R; 100 R halves the zener stress on a spike)"
+2,not fitted,-,Resistor,4.7 k (DNP),1206,R18 R19,"Do not fit - mainboard R5/R6 pull up the I2C bus"
+4,hand,-,Fuse holder,Keystone 3568 mini blade PCB,THT,F1-F4,"Exact part - footprint is specific; order from LCSC with the boards"
+4+,hand,-,Mini blade fuse,sized to the load wire (e.g. 7.5 A grips),mini blade,(in F1-F4),
+1,hand,-,Screw terminal,MaiXu MX126 4-pos 5.0 mm,THT,J2,"+12V_LOAD in: pins 1+2 = +12 V, 3+4 = GND"
+4,hand,-,Screw terminal,MaiXu MX126 2-pos 5.0 mm (>=10 A/pin),THT,J3-J6,"OUT5-OUT8: pin 1 = +, pin 2 = -"
+1,hand,-,Electrolytic cap,470 uF 35 V,radial 8 mm P3.5,C6,
+1,hand,-,Connector,JST-XH 4-pin socket (owner's kit),2.50 mm THT,J1,"I2C to mainboard J6 (3V3, SDA, SCL, GND)"
+1,hand,-,Connector,JST-XH 6-pin socket (owner's kit),2.50 mm THT,J7,"Spare PWM P4-P7 + 3V3 + GND, 3.3 V logic only"

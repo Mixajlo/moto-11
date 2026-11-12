@@ -76,7 +76,11 @@ philosophy is **"fairings off once"** — provision generously now, upgrade in p
 
 ## Repository layout
 - `firmware/` — PlatformIO project. **This is the PlatformIO root — open it directly in VS Code.** (MIT)
-- `hardware/` — KiCad (esp-box / future PCB) and relay-box as-built notes. (CERN-OHL-P)
+- `hardware/` — KiCad boards and relay-box as-built notes. (CERN-OHL-P)
+  - `mainboard/`: the ESP carrier; master relay + max 4 relay outputs OUT1–OUT4.
+  - `pwm-board/`: PCA9685 + 4× 8 A MOSFET on the mainboard's J6 I²C header, OUT5–OUT8
+    (ADR-0022).
+  - Fab zips go in `*/fab-v1/` and are never committed.
 - `harness/`  — WireViz source + rendered output.
 - `docs/`     — `electrical-plan.html` and `wiring-schematic.html` (authoritative design
                 references), `bench-relay-guide.html` (hands-on bench walkthrough), `adr/`

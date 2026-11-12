@@ -97,6 +97,20 @@ for the how-to.
 - [ ] **Plot Gerbers** + drill (`File → Plot`, `File → Fabrication Outputs`) → zip → JLCPCB
   (2-layer, 1.6 mm, HASL). Outputs go to `gerbers/` (gitignored).
 
+## Known v1 limits (decided 2026-11-12)
+- **The v1 board has the master relay plus at most 4 switched outputs (OUT1–OUT4 on J3).**
+  - ULN2803 channels 6–8 are spare, but their inputs are tied to GND. No clean GPIO is left
+    (0/2/5/15 are boot-strapping pins; 1/3 are UART; 6–11 are flash; 34–39 are input-only), and
+    the terminal edge J1–J4 is full.
+  - More relay channels need a new or additional board.
+- **The J6 I²C header (3V3/SDA/SCL/GND) is the expansion port** for any further outputs (see the
+  [roadmap](../../docs/roadmap.md)):
+  - PCA9685 for PWM heaters via MOSFETs;
+  - PCF8574/MCP23017 for more on/off relays.
+- GPIO 5 and GPIO 15 (boot-strapping pins) are not broken out; they are a fallback only.
+  - On v1 they are reachable on the DevKitC header (J9.10 = IO5, J9.16 = IO15).
+  - A v1.1 board could add a 3-pin header for them.
+
 ## After boards arrive
 - [ ] Hand-assemble, then run the [bench relay guide](../../docs/bench-relay-guide.html) against
   the real board (relay clicks via ULN, 5 V/3V3 rails at test points, opto inversion).

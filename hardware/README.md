@@ -12,7 +12,8 @@ KiCad designs and as-built notes for the bike electronics. Licensed **CERN-OHL-P
 
 | Board | What it is | Status |
 |-------|-----------|--------|
-| [`mainboard/`](mainboard/) | ESP32-DevKitC carrier + ULN2803 coil driver + sensing front-end (INA226, PC817 opto, IMU) + connectors. Drives the **existing** pre-wired relay/fuse box; it does **not** carry load current. | 📐 design package (pre-KiCad) |
+| [`mainboard/`](mainboard/) | ESP32-DevKitC carrier + ULN2803 coil driver + sensing front-end (INA3221, PC817 opto, MPU-6050 IMU) + connectors. Drives the **existing** pre-wired relay/fuse box; it does **not** carry load current. Master relay + at most **4 relay outputs** (OUT1–OUT4). | ✅ v1 laid out, pre-fab reviewed, ready to order |
+| [`pwm-board/`](pwm-board/) | Expansion on the mainboard's J6 I²C header: PCA9685 (0x41) → 2× TC4427A → 4× AOD4184A low-side MOSFETs, **8 A each**, PWM for heated grips/seat (OUT5–OUT8), fused per channel, fed from the master-gated box output ([ADR-0022](../docs/adr/0022-pwm-expansion-board.md)). | ✅ v1 laid out, ordered with the mainboard; untested hardware |
 
 The pre-wired 4-relay / 6-fuse box and the external master relay stay as discrete parts — the
 mainboard is the brain that drives their coils and senses the bus. High load current (fog,

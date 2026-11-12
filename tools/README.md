@@ -127,6 +127,23 @@ the ESP back on SIM. Logs go to `tools/logs/`.
 & $py tools\esp_console.py --port COM5 selftest:4
 ```
 
+## JLCPCB assembly files — `run-jlc-assembly.ps1`
+
+This one is for the KiCad boards, not the ESP. It writes the **BOM** and **pick-and-place
+(CPL)** files that JLC's assembly service needs, for both boards, into each board's
+`fab-v1/assembly/` folder. Those folders are not committed.
+
+```powershell
+.\tools\run-jlc-assembly.ps1                   # mainboard + pwm-board
+.\tools\run-jlc-assembly.ps1 -Board pwm-board
+```
+
+- **Which parts:** only symbols with an `LCSC` field are listed. Those are the ones JLC
+  fits; through-hole and DNP parts are left for hand soldering.
+- **What it runs:** `jlc_assembly.py`, which uses `kicad-cli` (KiCad 10) and plain Python.
+- **Before running:** save the schematic and the board first.
+- **After uploading:** always check the part rotations in JLC's assembly preview.
+
 ## Shared code — `moto_serial.py`
 
 Port auto-detection (first CP210x), open without touching DTR/IO0 (so the ESP never drops

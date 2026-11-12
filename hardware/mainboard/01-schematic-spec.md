@@ -101,7 +101,7 @@ battery feed. It carries only control and coil current — **never** load curren
 | R1–R4 | Res | 10 kΩ | 1206 / THT | ULN input pull-downs ch1–4 (boot-safe OFF). |
 | R23 | Res | 10 kΩ | 1206 | ULN ch5 (`AUX_EN`, GPIO 12) pull-down. Doubles as the GPIO 12 strap: LOW at reset = 3.3 V flash. Must stay a pull-**down**. |
 | R5, R6 | Res | 4.7 kΩ | 1206 | I²C SDA/SCL pull-ups to +3V3. |
-| R7, R8 | Res | 2.2 kΩ, 0.25 W | THT/1206 | PC817 LED series (12 V side), ~5 mA. |
+| R7, R8 | Res | 2 kΩ, 0.25 W | 1206 | PC817 LED series (12 V side), ~5.4 mA. (Was 2.2 kΩ; 2 kΩ is a JLC basic part, 2026-11-13.) |
 | R9, R10 | Res | 10 kΩ | 1206 | Pull-ups on GPIO34/35 (opto outputs; input-only pins). |
 | R11 | Res | 100 kΩ | 1206 | Q1 gate–source. |
 | R12 | Res | 10 kΩ | 1206 | Q1 gate pull-down. Limits Dz1 current when the clamp conducts: at the 26 V TVS clamp, (26 − 18) V / 10 kΩ = 0.8 mA. Do not reduce to 100 Ω (80 mA, 1.4 W in a 0.5 W zener). |
@@ -275,9 +275,9 @@ PC817 pins: 1 = anode (LED+), 2 = cathode (LED−), 3 = emitter, 4 = collector.
 
 | Net | Connects |
 |-----|----------|
-| `IGN_12V` | `J4.1` → `R7` (2k2) → `U4.1`; `U4.2` → `SENSE_GND` (`J4.3`). |
+| `IGN_12V` | `J4.1` → `R7` (2k) → `U4.1`; `U4.2` → `SENSE_GND` (`J4.3`). |
 | IGN out | `U4.4` (collector) → `+3V3` via `R9` (10k) **and** → `A1.34`; `U4.3` (emitter) → `GND`. |
-| `START_12V` | `J4.2` → `R8` (2k2) → `U5.1`; `U5.2` → `SENSE_GND`. |
+| `START_12V` | `J4.2` → `R8` (2k) → `U5.1`; `U5.2` → `SENSE_GND`. |
 | START out | `U5.4` → `+3V3` via `R10` **and** → `A1.35`; `U5.3` → `GND`. |
 
 > Inverted logic: 12 V present → opto LED on → transistor pulls the GPIO **LOW**. Firmware reads
