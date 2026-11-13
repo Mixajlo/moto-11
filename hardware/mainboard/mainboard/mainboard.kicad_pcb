@@ -5531,7 +5531,7 @@
 		(property "Reference" "U3"
 			(at -8.2 12.62 180)
 			(layer "F.SilkS")
-			(uuid "93ebd4d8-7005-4983-b8db-3ee08f4ddd4c")
+			(uuid "d0b85567-d655-4b49-a49a-d1cf1b92f720")
 			(effects
 				(font
 					(size 1 1)
@@ -5542,7 +5542,7 @@
 		(property "Value" "INA3221"
 			(at -8.9 15.42 180)
 			(layer "F.Fab")
-			(uuid "7fa302c5-dcc4-470c-b5bf-4ed062d594e8")
+			(uuid "0870c968-f3c3-45b6-92ed-63472a87de40")
 			(effects
 				(font
 					(size 1 1)
@@ -5554,7 +5554,7 @@
 			(at 0 0 180)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "8d1dee34-855b-4fad-9cb4-1b500dfc56a2")
+			(uuid "3575e767-1b63-485f-a380-e4357fb41bc2")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5565,7 +5565,7 @@
 			(at 0 0 180)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "da65f0b2-655f-4501-8862-8c44e7e880f6")
+			(uuid "c327ad06-2846-4297-8aee-7bc3a7dd4b21")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16229,6 +16229,28 @@
 			(font
 				(size 1 1)
 				(thickness 0.15)
+			)
+		)
+	)
+	(gr_text "GY-521 IMU"
+		(at 148.5 93.2 0)
+		(layer "F.SilkS")
+		(uuid "811a2756-5bd0-4067-9a01-81845e974097")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.18)
+			)
+		)
+	)
+	(gr_text "INA3221 module"
+		(at 191 63.5 0)
+		(layer "F.SilkS")
+		(uuid "c647712c-ca90-435d-82ba-c893818a95bd")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.18)
 			)
 		)
 	)
