@@ -2630,6 +2630,7 @@
 		(property "Reference" "A2"
 			(at 0 -2.35 90)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "876851a3-7db9-4076-853f-32ccc5a871b0")
 			(effects
 				(font
@@ -5531,6 +5532,7 @@
 		(property "Reference" "U3"
 			(at -8.2 12.62 180)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "d0b85567-d655-4b49-a49a-d1cf1b92f720")
 			(effects
 				(font
@@ -5542,6 +5544,7 @@
 		(property "Value" "INA3221"
 			(at -8.9 15.42 180)
 			(layer "F.Fab")
+			(hide yes)
 			(uuid "0870c968-f3c3-45b6-92ed-63472a87de40")
 			(effects
 				(font
@@ -16244,7 +16247,7 @@
 		)
 	)
 	(gr_text "INA3221 module"
-		(at 191 63.5 0)
+		(at 191 68 0)
 		(layer "F.SilkS")
 		(uuid "c647712c-ca90-435d-82ba-c893818a95bd")
 		(effects
