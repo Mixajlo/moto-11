@@ -24,6 +24,7 @@ DEFAULT_CLI = r"C:\Program Files\KiCad\10.0\bin\kicad-cli.exe"
 # KiCad rotation, per footprint name. Each entry was confirmed in JLC's placement preview.
 ROTATION_FIX = {
     "SOIC-8_3.9x4.9mm_P1.27mm": 270,  # TC4427A (C20551), pwm-board U2/U3, 2026-11-14
+    "LED_1206_3216Metric": 180,       # XL-3216UGC (C965825), pwm-board D5-D8, 2026-11-14
 }
 # Careful: a rotation typed into JLC's placement viewer does not mean the same as the
 # CPL value. For the TC4427A, viewer 90 was right, but CPL 90 came out 180 degrees wrong,

@@ -145,7 +145,7 @@ This one is for the KiCad boards, not the ESP. It writes the **BOM** and **pick-
 - **After uploading:** always check the part rotations in JLC's assembly preview.
 - **Rotation corrections:** when a footprint needs one, add it to `ROTATION_FIX` in
   `jlc_assembly.py`, so the next export is right first time. So far: SOIC-8 +270°
-  (TC4427A).
+  (TC4427A) and LED 1206 +180° (XL-3216UGC).
   - Confirm a correction by **re-uploading the CPL**, not from the angle JLC's viewer
     shows: the viewer and the CPL file count rotation in opposite directions.
 - **Duplicate lines:** the BOM groups by LCSC part number, because JLC rejects one part on
