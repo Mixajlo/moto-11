@@ -20,6 +20,15 @@ import tempfile
 
 DEFAULT_CLI = r"C:\Program Files\KiCad\10.0\bin\kicad-cli.exe"
 
+# JLC's part models don't always share KiCad's zero rotation. Degrees added to the
+# KiCad rotation, per footprint name. Each entry was confirmed in JLC's placement preview.
+ROTATION_FIX = {
+    "SOIC-8_3.9x4.9mm_P1.27mm": 270,  # TC4427A (C20551), pwm-board U2/U3, 2026-11-14
+}
+# Careful: a rotation typed into JLC's placement viewer does not mean the same as the
+# CPL value. For the TC4427A, viewer 90 was right, but CPL 90 came out 180 degrees wrong,
+# so CPL needs 270. Always confirm with a re-upload, not with the viewer's number.
+
 
 def run(cli, *args):
     subprocess.run([cli, *args], check=True, stdout=subprocess.DEVNULL)
@@ -68,10 +77,15 @@ def main():
         parts = lcsc_parts(open(net, encoding="utf8").read())
         rows = list(csv.DictReader(open(pos, encoding="utf8")))
 
-    # BOM: one line per (value, footprint, LCSC)
-    groups = {}
+    # BOM: one line per (footprint, LCSC). JLC rejects the same LCSC part on two lines,
+    # so differently written values ("100n" / "100nF") must not split a part.
+    by_part = {}
     for ref, (val, fp, lcsc) in parts.items():
-        groups.setdefault((val, fp, lcsc), []).append(ref)
+        by_part.setdefault((fp, lcsc), []).append((ref, val))
+    groups = {}
+    for (fp, lcsc), items in by_part.items():
+        items.sort(key=lambda rv: ref_key(rv[0]))
+        groups[(items[0][1], fp, lcsc)] = [r for r, _ in items]
     bom_path = os.path.join(a.outdir, f"{name}-bom-jlc.csv")
     with open(bom_path, "w", newline="", encoding="utf8") as f:
         w = csv.writer(f)
@@ -90,7 +104,7 @@ def main():
                 continue
             missing.discard(r["Ref"])
             layer = "Top" if r["Side"].lower() == "top" else "Bottom"
-            rot = float(r["Rot"]) % 360
+            rot = (float(r["Rot"]) + ROTATION_FIX.get(r["Package"], 0)) % 360
             w.writerow([r["Ref"], f'{float(r["PosX"]):.4f}mm', f'{float(r["PosY"]):.4f}mm', layer, f"{rot:g}"])
             placed += 1
 

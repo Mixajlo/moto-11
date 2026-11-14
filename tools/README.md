@@ -143,6 +143,13 @@ This one is for the KiCad boards, not the ESP. It writes the **BOM** and **pick-
 - **What it runs:** `jlc_assembly.py`, which uses `kicad-cli` (KiCad 10) and plain Python.
 - **Before running:** save the schematic and the board first.
 - **After uploading:** always check the part rotations in JLC's assembly preview.
+- **Rotation corrections:** when a footprint needs one, add it to `ROTATION_FIX` in
+  `jlc_assembly.py`, so the next export is right first time. So far: SOIC-8 +270°
+  (TC4427A).
+  - Confirm a correction by **re-uploading the CPL**, not from the angle JLC's viewer
+    shows: the viewer and the CPL file count rotation in opposite directions.
+- **Duplicate lines:** the BOM groups by LCSC part number, because JLC rejects one part on
+  two lines (e.g. "100n" and "100nF").
 
 ## Shared code — `moto_serial.py`
 
